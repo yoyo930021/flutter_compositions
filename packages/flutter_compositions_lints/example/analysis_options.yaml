@@ -1,0 +1,28 @@
+analyzer:
+  plugins:
+    - custom_lint
+
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+
+custom_lint:
+  # Enable all Flutter Compositions lint rules
+  enable_all_lint_rules: true
+
+  # Or selectively enable/disable rules
+  rules:
+    # Ensures reactive props usage (Warning)
+    - flutter_compositions_ensure_reactive_props: true
+
+    # Prevents async setup functions (Error)
+    - flutter_compositions_no_async_setup: true
+
+    # Manages controller lifecycle (Warning)
+    - flutter_compositions_controller_lifecycle: true
+
+    # Enforces final fields on widgets (Warning)
+    - flutter_compositions_no_mutable_fields: true
+
+    # Warns against common types in provide/inject (Info)
+    - flutter_compositions_provide_inject_type_match: true

@@ -1,0 +1,25 @@
+---
+layout: home
+
+hero:
+  name: "Flutter Compositions"
+  text: "Reactive Composition API for Flutter"
+  tagline: Inspired by Vue Composition API, powered by alien_signals for ultimate performance and developer experience.
+  actions:
+    - theme: brand
+      text: Get Started
+      link: /en/guide/getting-started
+    - theme: alt
+      text: Why Flutter Compositions?
+      link: /en/internals/design-trade-offs
+
+features:
+  - title: Composable
+    details: Encapsulate UI logic into reusable composable functions and say goodbye to massive Widget build methods.
+  - title: Fine-Grained Reactivity
+    details: Only the specific parts of your UI that depend on a piece of state will update when it changes. No more manual setState() calls or unnecessary widget rebuilds.
+  - title: Type-Safe
+    details: Leverage Dart's powerful type system for fully type-safe dependency injection (provide/inject) and props.
+  - title: Simple & Intuitive
+    details: With a familiar API (`ref`, `computed`, `watch`), developers with Vue or React Hooks experience will feel right at home.
+---

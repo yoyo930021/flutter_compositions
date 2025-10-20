@@ -1,0 +1,24 @@
+name: flutter_compositions_workspace
+description: Workspace configuration for the flutter_compositions monorepo.
+publish_to: none
+
+environment:
+  sdk: ^3.9.0
+
+workspace:
+  - packages/flutter_compositions
+  - packages/flutter_compositions_lints
+
+dev_dependencies:
+  melos: ^7.0.0
+  very_good_analysis: ^10.0.0
+
+melos:
+  name: flutter_compositions
+  packages:
+    - packages/**
+  scripts:
+    analyze:
+      run: melos exec -- flutter analyze
+    test:
+      run: melos exec -- flutter test

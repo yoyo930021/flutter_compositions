@@ -1,0 +1,141 @@
+name: Publish to pub.dev
+
+# Official pub.dev automated publishing approach
+# Docs: https://dart.dev/tools/pub/automated-publishing
+#
+# Usage:
+#   1. Update version in pubspec.yaml files
+#   2. Update CHANGELOG.md files
+#   3. Create and push a git tag: git tag v1.0.0 && git push origin v1.0.0
+#   4. GitHub Actions will automatically publish to pub.dev
+
+on:
+  push:
+    tags:
+      # Matches version tags like v1.0.0, v0.1.0, v0.2.1-beta, etc.
+      - 'v[0-9]+.[0-9]+.[0-9]+*'
+
+jobs:
+  # Publish flutter_compositions package using official pub.dev workflow
+  publish-flutter-compositions:
+    name: Publish flutter_compositions
+    permissions:
+      id-token: write  # Required for official pub.dev publishing
+    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
+    with:
+      working-directory: packages/flutter_compositions
+
+  # Publish flutter_compositions_lints package using official pub.dev workflow
+  publish-flutter-compositions-lints:
+    name: Publish flutter_compositions_lints
+    needs: publish-flutter-compositions  # Wait for main package to publish first
+    permissions:
+      id-token: write  # Required for official pub.dev publishing
+    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
+    with:
+      working-directory: packages/flutter_compositions_lints
+
+  # Create a GitHub release with CHANGELOG content
+  create-release:
+    name: Create GitHub Release
+    needs: [publish-flutter-compositions, publish-flutter-compositions-lints]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: success()
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract version from tag
+        id: version
+        run: |
+          # Remove 'v' prefix from tag
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+
+      - name: Extract CHANGELOG content
+        id: changelog
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          CHANGELOG_FILE="packages/flutter_compositions/CHANGELOG.md"
+
+          # Extract changelog content for this version
+          # Matches from "## [VERSION]" or "## VERSION" to the next "##"
+          awk "/## (\[)?$VERSION(\])?/,/^## /" "$CHANGELOG_FILE" | sed '1d;$d' > release_notes.md
+
+          # If release notes are empty, add a default message
+          if [ ! -s release_notes.md ]; then
+            echo "Release version $VERSION" > release_notes.md
+            echo "" >> release_notes.md
+            echo "See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/packages/flutter_compositions/CHANGELOG.md) for details." >> release_notes.md
+          fi
+
+          # Show what we extracted (for debugging)
+          echo "Release notes content:"
+          cat release_notes.md
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: v${{ steps.version.outputs.version }}
+          body_path: release_notes.md
+          draft: false
+          prerelease: ${{ contains(steps.version.outputs.version, '-') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Publish summary with links to pub.dev
+  summary:
+    name: Publish Summary
+    needs: [publish-flutter-compositions, publish-flutter-compositions-lints, create-release]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Extract version from tag
+        id: version
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Create summary
+        run: |
+          echo "## 📦 Publish Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version**: ${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Tag**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          echo "### Package Status" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # flutter_compositions status
+          if [ "${{ needs.publish-flutter-compositions.result }}" == "success" ]; then
+            echo "✅ **flutter_compositions**: Published successfully" >> $GITHUB_STEP_SUMMARY
+            echo "   - 🔗 [View on pub.dev](https://pub.dev/packages/flutter_compositions)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **flutter_compositions**: Failed to publish" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # flutter_compositions_lints status
+          if [ "${{ needs.publish-flutter-compositions-lints.result }}" == "success" ]; then
+            echo "✅ **flutter_compositions_lints**: Published successfully" >> $GITHUB_STEP_SUMMARY
+            echo "   - 🔗 [View on pub.dev](https://pub.dev/packages/flutter_compositions_lints)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **flutter_compositions_lints**: Failed to publish" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # GitHub Release status
+          if [ "${{ needs.create-release.result }}" == "success" ]; then
+            echo "🎉 **GitHub Release**: Created successfully" >> $GITHUB_STEP_SUMMARY
+            echo "   - 🔗 [View Release](https://github.com/${{ github.repository }}/releases/tag/${{ github.ref_name }})" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ **GitHub Release**: Not created" >> $GITHUB_STEP_SUMMARY
+          fi

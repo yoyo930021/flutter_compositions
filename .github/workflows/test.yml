@@ -1,0 +1,128 @@
+name: Test
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install Melos
+        run: dart pub global activate melos
+
+      - name: Bootstrap workspace
+        run: melos bootstrap
+
+      - name: Check formatting
+        run: melos exec -- dart format --set-exit-if-changed .
+
+      - name: Analyze packages
+        run: melos run analyze
+
+      - name: Run custom_lint
+        run: |
+          cd packages/flutter_compositions_lints
+          dart run custom_lint
+
+  test:
+    name: Test (Flutter ${{ matrix.flutter-version }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # Test against the latest 3 stable Flutter versions
+        flutter-version:
+          - 3.35.x  # Latest stable
+          - 3.32.x  # Previous stable
+          - 3.24.x  # Previous stable
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter ${{ matrix.flutter-version }}
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ matrix.flutter-version }}
+          channel: stable
+          cache: true
+
+      - name: Install Melos
+        run: dart pub global activate melos
+
+      - name: Bootstrap workspace
+        run: melos bootstrap
+
+      - name: Run tests
+        run: melos run test
+
+      - name: Upload coverage (Flutter latest only)
+        if: matrix.flutter-version == '3.35.x'
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage/lcov.info
+          fail_ci_if_error: false
+
+  test-lints:
+    name: Test Custom Lints
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Get dependencies
+        working-directory: packages/flutter_compositions_lints
+        run: dart pub get
+
+      - name: Run lint tests
+        working-directory: packages/flutter_compositions_lints
+        run: dart test
+
+  all-checks:
+    name: All Checks Passed
+    if: always()
+    needs: [analyze, test, test-lints]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check all job status
+        run: |
+          if [[ "${{ needs.analyze.result }}" != "success" ]]; then
+            echo "Analyze job failed"
+            exit 1
+          fi
+          if [[ "${{ needs.test.result }}" != "success" ]]; then
+            echo "Test job failed"
+            exit 1
+          fi
+          if [[ "${{ needs.test-lints.result }}" != "success" ]]; then
+            echo "Test-lints job failed"
+            exit 1
+          fi
+          echo "All checks passed!"
