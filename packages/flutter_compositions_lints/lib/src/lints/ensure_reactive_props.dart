@@ -1,6 +1,5 @@
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/ast/visitor.dart';
-import 'package:analyzer/error/error.dart';
 import 'package:analyzer/error/listener.dart';
 import 'package:custom_lint_builder/custom_lint_builder.dart';
 
@@ -37,7 +36,6 @@ class EnsureReactiveProps extends DartLintRule {
     correctionMessage:
         'Use widget() to get a reactive reference, then access '
         'properties through .value',
-    errorSeverity: ErrorSeverity.WARNING,
   );
 
   @override
@@ -104,10 +102,7 @@ class _PropertyAccessVisitor extends RecursiveAstVisitor<void> {
       }
 
       // Report direct property access
-      reporter.reportErrorForNode(
-        EnsureReactiveProps._code,
-        node,
-      );
+      reporter.atNode(node, EnsureReactiveProps._code);
     }
 
     super.visitPropertyAccess(node);
@@ -137,17 +132,17 @@ class _PropertyAccessVisitor extends RecursiveAstVisitor<void> {
     }
 
     // Check if this is a field reference
-    final element = node.staticElement;
+    final element = node.element;
     if (element != null && element.kind.toString() == 'FIELD') {
       // Check if it's a field of the current widget class
-      final enclosingClass = element.enclosingElement;
+      final enclosingClass = element.enclosingElement2;
       final currentClass = setupMethod.thisOrAncestorOfType<ClassDeclaration>();
 
-      if (enclosingClass == currentClass?.declaredElement) {
-        reporter.reportErrorForNode(
-          EnsureReactiveProps._code,
-          node,
-        );
+      final declaredElement = currentClass?.declaredFragment?.element;
+      if (enclosingClass != null &&
+          declaredElement != null &&
+          enclosingClass == declaredElement) {
+        reporter.atNode(node, EnsureReactiveProps._code);
       }
     }
 

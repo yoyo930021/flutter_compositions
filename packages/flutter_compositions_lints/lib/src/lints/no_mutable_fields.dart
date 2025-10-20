@@ -1,5 +1,4 @@
 import 'package:analyzer/dart/ast/ast.dart';
-import 'package:analyzer/error/error.dart';
 import 'package:analyzer/error/listener.dart';
 import 'package:custom_lint_builder/custom_lint_builder.dart';
 
@@ -45,7 +44,6 @@ class NoMutableFields extends DartLintRule {
     correctionMessage:
         'Make the field final. Move mutable state into ref() '
         'or computed() in setup().',
-    errorSeverity: ErrorSeverity.WARNING,
   );
 
   @override
@@ -71,10 +69,7 @@ class NoMutableFields extends DartLintRule {
           // Check if fields are final
           if (!member.fields.isFinal && !member.fields.isConst) {
             for (final variable in member.fields.variables) {
-              reporter.reportErrorForNode(
-                _code,
-                variable,
-              );
+              reporter.atNode(variable, _code);
             }
           }
         }

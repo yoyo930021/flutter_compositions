@@ -1,5 +1,4 @@
 import 'package:analyzer/dart/ast/ast.dart';
-import 'package:analyzer/error/error.dart';
 import 'package:analyzer/error/listener.dart';
 import 'package:custom_lint_builder/custom_lint_builder.dart';
 
@@ -41,7 +40,6 @@ class NoAsyncSetup extends DartLintRule {
     correctionMessage:
         'Remove async keyword. Use onMounted() or '
         'onUnmounted() for async operations.',
-    errorSeverity: ErrorSeverity.ERROR,
   );
 
   @override
@@ -67,18 +65,12 @@ class NoAsyncSetup extends DartLintRule {
       // Check if the method body is async
       final body = node.body;
       if (body is BlockFunctionBody && body.isAsynchronous) {
-        reporter.reportErrorForNode(
-          _code,
-          node,
-        );
+        reporter.atNode(node, _code);
         return;
       }
 
       if (body is ExpressionFunctionBody && body.isAsynchronous) {
-        reporter.reportErrorForNode(
-          _code,
-          node,
-        );
+        reporter.atNode(node, _code);
       }
     });
   }

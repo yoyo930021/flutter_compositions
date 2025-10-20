@@ -1,6 +1,5 @@
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/ast/visitor.dart';
-import 'package:analyzer/error/error.dart';
 import 'package:analyzer/error/listener.dart';
 import 'package:custom_lint_builder/custom_lint_builder.dart';
 
@@ -45,7 +44,6 @@ class ControllerLifecycle extends DartLintRule {
         'Use useScrollController(), usePageController(), '
         'useFocusNode(), or useTextEditingController() helpers, or manually '
         'dispose the controller in onUnmounted().',
-    errorSeverity: ErrorSeverity.WARNING,
   );
 
   // Common Flutter controller types
@@ -88,10 +86,7 @@ class ControllerLifecycle extends DartLintRule {
         final variableName = (controller as VariableDeclaration).name.lexeme;
         if (!visitor.disposedControllers.contains(variableName) &&
             !visitor.useHelperControllers.contains(variableName)) {
-          reporter.reportErrorForNode(
-            _code,
-            controller,
-          );
+          reporter.atNode(controller, _code);
         }
       }
     });

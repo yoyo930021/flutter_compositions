@@ -1,6 +1,5 @@
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/ast/visitor.dart';
-import 'package:analyzer/error/error.dart';
 import 'package:analyzer/error/listener.dart';
 import 'package:custom_lint_builder/custom_lint_builder.dart';
 
@@ -59,7 +58,6 @@ class NoConditionalComposition extends DartLintRule {
     correctionMessage:
         'Move the composition API call to the top level of '
         'setup(). You can still use conditional logic to set values.',
-    errorSeverity: ErrorSeverity.ERROR,
   );
 
   // Composition API function names to check
@@ -205,10 +203,7 @@ class _ConditionalCompositionVisitor extends RecursiveAstVisitor<void> {
 
       // Check if this is a composition API call
       if (NoConditionalComposition._compositionApis.contains(methodName)) {
-        reporter.reportErrorForNode(
-          NoConditionalComposition._code,
-          node,
-        );
+        reporter.atNode(node, NoConditionalComposition._code);
       }
     }
 

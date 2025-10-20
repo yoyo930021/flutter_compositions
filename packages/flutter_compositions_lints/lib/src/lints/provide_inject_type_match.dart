@@ -81,10 +81,7 @@ class ProvideInjectTypeMatch extends DartLintRule {
 
     for (final typeArg in typeArgs.arguments) {
       if (_isCommonType(typeArg.toString())) {
-        reporter.reportErrorForNode(
-          _code,
-          node.methodName,
-        );
+        reporter.atNode(node.methodName, _code);
         break;
       }
     }
@@ -96,10 +93,7 @@ class ProvideInjectTypeMatch extends DartLintRule {
 
     for (final typeArg in typeArgs.arguments) {
       if (_isCommonType(typeArg.toString())) {
-        reporter.reportErrorForNode(
-          _code,
-          node.methodName,
-        );
+        reporter.atNode(node.methodName, _code);
         break;
       }
     }
