@@ -8,6 +8,7 @@ environment:
 workspace:
   - packages/flutter_compositions
   - packages/flutter_compositions_lints
+  - packages/flutter_compositions/example
 
 dev_dependencies:
   melos: ^7.2.0
