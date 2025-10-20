@@ -3,13 +3,14 @@ import 'dart:io';
 import 'package:flutter_compositions_lints/src/lints/no_async_setup.dart';
 import 'package:test/test.dart';
 
+import '../test_utils.dart';
+
 void main() {
   group('NoAsyncSetup', () {
     final rule = const NoAsyncSetup();
 
     test('detects async setup methods', () async {
-      final fixturePath =
-          '${Directory.current.path}/test/fixtures/no_async_setup_test.dart';
+      final fixturePath = getFixturePath('no_async_setup_test.dart');
       final file = File(fixturePath);
 
       expect(file.existsSync(), isTrue,

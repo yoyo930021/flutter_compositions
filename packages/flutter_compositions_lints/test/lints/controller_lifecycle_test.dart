@@ -3,13 +3,14 @@ import 'dart:io';
 import 'package:flutter_compositions_lints/src/lints/controller_lifecycle.dart';
 import 'package:test/test.dart';
 
+import '../test_utils.dart';
+
 void main() {
   group('ControllerLifecycle', () {
     final rule = const ControllerLifecycle();
 
     test('detects controllers without disposal', () async {
-      final fixturePath =
-          '${Directory.current.path}/test/fixtures/controller_lifecycle_test.dart';
+      final fixturePath = getFixturePath('controller_lifecycle_test.dart');
       final file = File(fixturePath);
 
       expect(file.existsSync(), isTrue,

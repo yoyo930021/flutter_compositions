@@ -3,13 +3,14 @@ import 'dart:io';
 import 'package:flutter_compositions_lints/src/lints/provide_inject_type_match.dart';
 import 'package:test/test.dart';
 
+import '../test_utils.dart';
+
 void main() {
   group('ProvideInjectTypeMatch', () {
     final rule = const ProvideInjectTypeMatch();
 
     test('detects common types in provide/inject', () async {
-      final fixturePath =
-          '${Directory.current.path}/test/fixtures/provide_inject_type_match_test.dart';
+      final fixturePath = getFixturePath('provide_inject_type_match_test.dart');
       final file = File(fixturePath);
 
       expect(file.existsSync(), isTrue,

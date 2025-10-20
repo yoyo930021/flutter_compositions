@@ -3,13 +3,14 @@ import 'dart:io';
 import 'package:flutter_compositions_lints/src/lints/no_mutable_fields.dart';
 import 'package:test/test.dart';
 
+import '../test_utils.dart';
+
 void main() {
   group('NoMutableFields', () {
     final rule = const NoMutableFields();
 
     test('detects non-final fields in CompositionWidget', () async {
-      final fixturePath =
-          '${Directory.current.path}/test/fixtures/no_mutable_fields_test.dart';
+      final fixturePath = getFixturePath('no_mutable_fields_test.dart');
       final file = File(fixturePath);
 
       expect(file.existsSync(), isTrue,

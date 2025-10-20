@@ -10,9 +10,9 @@ environment:
   sdk: ^3.5.4
 
 dependencies:
-  analyzer: ^8.4.0
-  custom_lint_builder: ^0.8.1
+  analyzer: ^7.6.0
+  custom_lint_builder: ^0.8.0
 
 dev_dependencies:
-  custom_lint: ^0.8.1
-  test: ^1.26.3
+  custom_lint: ^0.8.0
+  test: ^1.26.2

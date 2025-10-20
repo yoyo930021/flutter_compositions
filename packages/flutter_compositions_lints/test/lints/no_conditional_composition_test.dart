@@ -3,13 +3,14 @@ import 'dart:io';
 import 'package:flutter_compositions_lints/src/lints/no_conditional_composition.dart';
 import 'package:test/test.dart';
 
+import '../test_utils.dart';
+
 void main() {
   group('NoConditionalComposition', () {
     final rule = const NoConditionalComposition();
 
     test('detects composition APIs in conditionals', () async {
-      final fixturePath =
-          '${Directory.current.path}/test/fixtures/no_conditional_composition_test.dart';
+      final fixturePath = getFixturePath('no_conditional_composition_test.dart');
       final file = File(fixturePath);
 
       expect(file.existsSync(), isTrue,
