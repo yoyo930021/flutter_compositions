@@ -1,7 +1,11 @@
 name: Publish to pub.dev
 
-# Official pub.dev automated publishing approach
-# Docs: https://dart.dev/tools/pub/automated-publishing
+# Melos-based automated publishing approach
+# Docs: https://github.com/marketplace/actions/melos-action
+#
+# Prerequisites:
+#   1. Enable "publishing from workflow_dispatch events" in pub.dev settings
+#   2. First package publication must be done manually
 #
 # Usage:
 #   1. Update version in pubspec.yaml files
@@ -16,29 +20,35 @@ on:
       - 'v[0-9]+.[0-9]+.[0-9]+*'
 
 jobs:
-  # Publish flutter_compositions package using official pub.dev workflow
-  publish-flutter-compositions:
-    name: Publish flutter_compositions
+  # Publish all packages using Melos Action
+  publish-packages:
+    name: Publish packages
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
     permissions:
-      id-token: write  # Required for official pub.dev publishing
-    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
-    with:
-      working-directory: packages/flutter_compositions
+      id-token: write  # Required for OIDC pub.dev publishing
+      contents: read
 
-  # Publish flutter_compositions_lints package using official pub.dev workflow
-  publish-flutter-compositions-lints:
-    name: Publish flutter_compositions_lints
-    needs: publish-flutter-compositions  # Wait for main package to publish first
-    permissions:
-      id-token: write  # Required for official pub.dev publishing
-    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
-    with:
-      working-directory: packages/flutter_compositions_lints
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Publish with Melos
+        uses: bluefireteam/melos-action@v3
+        with:
+          publish: true
+          publish-dry-run: false
 
   # Create a GitHub release with CHANGELOG content
   create-release:
     name: Create GitHub Release
-    needs: [publish-flutter-compositions, publish-flutter-compositions-lints]
+    needs: publish-packages
     runs-on: ubuntu-latest
     timeout-minutes: 5
     if: success()
@@ -89,7 +99,7 @@ jobs:
   # Publish summary with links to pub.dev
   summary:
     name: Publish Summary
-    needs: [publish-flutter-compositions, publish-flutter-compositions-lints, create-release]
+    needs: [publish-packages, create-release]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -112,22 +122,13 @@ jobs:
           echo "### Package Status" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
-          # flutter_compositions status
-          if [ "${{ needs.publish-flutter-compositions.result }}" == "success" ]; then
-            echo "✅ **flutter_compositions**: Published successfully" >> $GITHUB_STEP_SUMMARY
-            echo "   - 🔗 [View on pub.dev](https://pub.dev/packages/flutter_compositions)" >> $GITHUB_STEP_SUMMARY
+          # Publish packages status
+          if [ "${{ needs.publish-packages.result }}" == "success" ]; then
+            echo "✅ **Packages**: Published successfully via Melos" >> $GITHUB_STEP_SUMMARY
+            echo "   - 🔗 [flutter_compositions on pub.dev](https://pub.dev/packages/flutter_compositions)" >> $GITHUB_STEP_SUMMARY
+            echo "   - 🔗 [flutter_compositions_lints on pub.dev](https://pub.dev/packages/flutter_compositions_lints)" >> $GITHUB_STEP_SUMMARY
           else
-            echo "❌ **flutter_compositions**: Failed to publish" >> $GITHUB_STEP_SUMMARY
-          fi
-
-          echo "" >> $GITHUB_STEP_SUMMARY
-
-          # flutter_compositions_lints status
-          if [ "${{ needs.publish-flutter-compositions-lints.result }}" == "success" ]; then
-            echo "✅ **flutter_compositions_lints**: Published successfully" >> $GITHUB_STEP_SUMMARY
-            echo "   - 🔗 [View on pub.dev](https://pub.dev/packages/flutter_compositions_lints)" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "❌ **flutter_compositions_lints**: Failed to publish" >> $GITHUB_STEP_SUMMARY
+            echo "❌ **Packages**: Failed to publish" >> $GITHUB_STEP_SUMMARY
           fi
 
           echo "" >> $GITHUB_STEP_SUMMARY
