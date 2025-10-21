@@ -13,8 +13,11 @@ void main() {
       final fixturePath = getFixturePath('controller_lifecycle_test.dart');
       final file = File(fixturePath);
 
-      expect(file.existsSync(), isTrue,
-          reason: 'Fixture file should exist at $fixturePath');
+      expect(
+        file.existsSync(),
+        isTrue,
+        reason: 'Fixture file should exist at $fixturePath',
+      );
 
       // Use testAnalyzeAndRun to run the lint rule
       final errors = await rule.testAnalyzeAndRun(file);

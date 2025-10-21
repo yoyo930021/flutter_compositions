@@ -121,10 +121,10 @@ class MultipleControllersAllDisposed extends CompositionWidget {
     });
 
     return (context) => Column(
-          children: [
-            ListView(controller: scroll, children: []),
-            TextField(controller: text),
-          ],
-        );
+      children: [
+        ListView(controller: scroll, children: []),
+        TextField(controller: text),
+      ],
+    );
   }
 }

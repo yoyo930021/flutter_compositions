@@ -392,7 +392,8 @@ class UseTextEditingControllerHarness extends CompositionWidget {
     TextEditingController controller,
     WritableRef<String> textRef,
     WritableRef<TextEditingValue> valueRef,
-  ) onValues;
+  )
+  onValues;
 
   @override
   Widget Function(BuildContext) setup() {
@@ -504,22 +505,22 @@ class ReactiveScrollControllerHarness extends CompositionWidget {
     });
 
     return (context) => Scaffold(
-          body: Column(
-            children: [
-              // No ComputedBuilder needed - direct access triggers rebuild
-              Text('Offset:${scrollOffset.value}'),
-              Expanded(
-                child: ListView.builder(
-                  controller: scrollController.value,
-                  itemCount: 50,
-                  itemBuilder: (context, index) => ListTile(
-                    title: Text('Item $index'),
-                  ),
-                ),
+      body: Column(
+        children: [
+          // No ComputedBuilder needed - direct access triggers rebuild
+          Text('Offset:${scrollOffset.value}'),
+          Expanded(
+            child: ListView.builder(
+              controller: scrollController.value,
+              itemCount: 50,
+              itemBuilder: (context, index) => ListTile(
+                title: Text('Item $index'),
               ),
-            ],
+            ),
           ),
-        );
+        ],
+      ),
+    );
   }
 }
 
@@ -540,23 +541,23 @@ class ReactivePageControllerHarness extends CompositionWidget {
     });
 
     return (context) => Scaffold(
-          body: Column(
-            children: [
-              // No ComputedBuilder needed - direct access triggers rebuild
-              Text('Page:${currentPage.value}'),
-              Expanded(
-                child: PageView(
-                  controller: pageController.value,
-                  children: [
-                    Container(color: Colors.red),
-                    Container(color: Colors.blue),
-                    Container(color: Colors.green),
-                  ],
-                ),
-              ),
-            ],
+      body: Column(
+        children: [
+          // No ComputedBuilder needed - direct access triggers rebuild
+          Text('Page:${currentPage.value}'),
+          Expanded(
+            child: PageView(
+              controller: pageController.value,
+              children: [
+                Container(color: Colors.red),
+                Container(color: Colors.blue),
+                Container(color: Colors.green),
+              ],
+            ),
           ),
-        );
+        ],
+      ),
+    );
   }
 }
 
@@ -574,19 +575,19 @@ class ReactiveFocusNodeHarness extends CompositionWidget {
     });
 
     return (context) => Scaffold(
-          body: Column(
-            children: [
-              // No ComputedBuilder needed - direct access triggers rebuild
-              Text('Focused:${isFocused.value}'),
-              TextField(
-                focusNode: focusNode.value,
-                decoration: const InputDecoration(
-                  hintText: 'Test field',
-                ),
-              ),
-            ],
+      body: Column(
+        children: [
+          // No ComputedBuilder needed - direct access triggers rebuild
+          Text('Focused:${isFocused.value}'),
+          TextField(
+            focusNode: focusNode.value,
+            decoration: const InputDecoration(
+              hintText: 'Test field',
+            ),
           ),
-        );
+        ],
+      ),
+    );
   }
 }
 
@@ -601,23 +602,23 @@ class ReactiveManageValueListenableHarness extends CompositionWidget {
     final doubled = computed(() => count.value * 2);
 
     return (context) => Scaffold(
-          body: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ComputedBuilder(
-                  builder: () => Text('Doubled:${doubled.value}'),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    notifier.value += 5;
-                  },
-                  child: const Text('Increment'),
-                ),
-              ],
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ComputedBuilder(
+              builder: () => Text('Doubled:${doubled.value}'),
             ),
-          ),
-        );
+            ElevatedButton(
+              onPressed: () {
+                notifier.value += 5;
+              },
+              child: const Text('Increment'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -632,14 +633,14 @@ class ReactiveTextEditingControllerHarness extends CompositionWidget {
     final textLength = computed(() => text.value.length);
 
     return (context) => Scaffold(
-          body: Column(
-            children: [
-              // No ComputedBuilder needed - direct access triggers rebuild
-              Text('Length:${textLength.value}'),
-              Text('Text:${text.value}'),
-              TextField(controller: controller),
-            ],
-          ),
-        );
+      body: Column(
+        children: [
+          // No ComputedBuilder needed - direct access triggers rebuild
+          Text('Length:${textLength.value}'),
+          Text('Text:${text.value}'),
+          TextField(controller: controller),
+        ],
+      ),
+    );
   }
 }

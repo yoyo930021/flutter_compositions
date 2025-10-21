@@ -173,12 +173,12 @@ class OverrideParentWidget extends CompositionWidget {
     provide(simpleValueKey, value);
 
     return (context) => const Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            DirectChildWidget(),
-            OverrideChildWidget(),
-          ],
-        );
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        DirectChildWidget(),
+        OverrideChildWidget(),
+      ],
+    );
   }
 }
 

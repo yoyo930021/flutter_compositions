@@ -133,17 +133,17 @@ class RefCheckWidget extends CompositionWidget {
     print('>>> controller text: "${controllerRef.value.text}"');
 
     return (context) => Scaffold(
-          body: Column(
-            children: [
-              Text('counter: ${counter.value}'),
-              ElevatedButton(
-                onPressed: () => counter.value++,
-                child: const Text('Increment'),
-              ),
-              TextField(controller: controllerRef),
-              Text('text: ${text.value}'),
-            ],
+      body: Column(
+        children: [
+          Text('counter: ${counter.value}'),
+          ElevatedButton(
+            onPressed: () => counter.value++,
+            child: const Text('Increment'),
           ),
-        );
+          TextField(controller: controllerRef),
+          Text('text: ${text.value}'),
+        ],
+      ),
+    );
   }
 }

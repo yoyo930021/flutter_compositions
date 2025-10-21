@@ -299,9 +299,9 @@ class TickerModeTestHarness extends CompositionWidget {
     onUnmounted(controller.dispose);
 
     return (context) => AnimatedBuilder(
-          animation: controller,
-          builder: (context, child) => const SizedBox(),
-        );
+      animation: controller,
+      builder: (context, child) => const SizedBox(),
+    );
   }
 }
 
@@ -393,9 +393,9 @@ class RepeatingAnimationHarness extends CompositionWidget {
     onMounted(controller.repeat);
 
     return (context) => Opacity(
-          opacity: animValue.value,
-          child: const Text('Animating'),
-        );
+      opacity: animValue.value,
+      child: const Text('Animating'),
+    );
   }
 }
 
@@ -447,14 +447,14 @@ class ManageAnimationHarness extends CompositionWidget {
     final (_, animValue) = manageAnimation(controller);
 
     return (context) => Column(
-          children: [
-            Text('Value: ${animValue.value.toStringAsFixed(1)}'),
-            ElevatedButton(
-              onPressed: controller.forward,
-              child: const Text('Start'),
-            ),
-          ],
-        );
+      children: [
+        Text('Value: ${animValue.value.toStringAsFixed(1)}'),
+        ElevatedButton(
+          onPressed: controller.forward,
+          child: const Text('Start'),
+        ),
+      ],
+    );
   }
 }
 
@@ -477,9 +477,9 @@ class CurvedAnimationHarness extends CompositionWidget {
     onMounted(controller.forward);
 
     return (context) => Opacity(
-          opacity: animValue.value,
-          child: const Text('Fading'),
-        );
+      opacity: animValue.value,
+      child: const Text('Fading'),
+    );
   }
 }
 

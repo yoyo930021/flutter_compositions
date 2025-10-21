@@ -30,9 +30,11 @@ class EnsureReactiveProps extends DartLintRule {
 
   static const _code = LintCode(
     name: 'flutter_compositions_ensure_reactive_props',
-    problemMessage: 'Widget properties should be accessed through widget() '
+    problemMessage:
+        'Widget properties should be accessed through widget() '
         'for reactivity.',
-    correctionMessage: 'Use widget() to get a reactive reference, then access '
+    correctionMessage:
+        'Use widget() to get a reactive reference, then access '
         'properties through .value',
   );
 

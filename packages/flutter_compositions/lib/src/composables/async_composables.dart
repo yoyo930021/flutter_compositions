@@ -144,21 +144,21 @@ sealed class AsyncValue<T> {
 
   /// Returns the data if available, null otherwise.
   T? get dataOrNull => switch (this) {
-        AsyncData<T>(:final value) => value,
-        _ => null,
-      };
+    AsyncData<T>(:final value) => value,
+    _ => null,
+  };
 
   /// Returns the error if available, null otherwise.
   Object? get errorOrNull => switch (this) {
-        AsyncError<T>(:final errorValue) => errorValue,
-        _ => null,
-      };
+    AsyncError<T>(:final errorValue) => errorValue,
+    _ => null,
+  };
 
   /// Returns the stack trace if available, null otherwise.
   StackTrace? get stackTraceOrNull => switch (this) {
-        AsyncError<T>(:final stackTrace) => stackTrace,
-        _ => null,
-      };
+    AsyncError<T>(:final stackTrace) => stackTrace,
+    _ => null,
+  };
 
   /// Whether there is data or error available.
   bool get hasData => isData || isError;
@@ -499,7 +499,8 @@ Ref<AsyncValue<T>> useFuture<T>(Future<T> Function() future) {
   ReadonlyRef<Object?> error,
   ReadonlyRef<bool> loading,
   ReadonlyRef<bool> hasData,
-) useAsyncValue<T>(ReadonlyRef<AsyncValue<T>> statusRef) {
+)
+useAsyncValue<T>(ReadonlyRef<AsyncValue<T>> statusRef) {
   final dataRef = computed(() => statusRef.value.dataOrNull);
   final errorRef = computed(() => statusRef.value.errorOrNull);
   final loadingRef = computed(() => statusRef.value.isLoading);

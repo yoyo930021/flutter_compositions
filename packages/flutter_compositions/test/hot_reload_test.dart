@@ -4,8 +4,9 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('Hot Reload State Preservation', () {
-    testWidgets('should preserve ref values after reassemble',
-        (WidgetTester tester) async {
+    testWidgets('should preserve ref values after reassemble', (
+      WidgetTester tester,
+    ) async {
       // Build the widget
       await tester.pumpWidget(const MaterialApp(home: TestCounter()));
 
@@ -33,8 +34,9 @@ void main() {
       expect(find.text('Count: 2'), findsOneWidget);
     });
 
-    testWidgets('should preserve multiple ref values in correct positions',
-        (WidgetTester tester) async {
+    testWidgets('should preserve multiple ref values in correct positions', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(const MaterialApp(home: TestMultipleRefs()));
 
       // Verify initial state
@@ -62,8 +64,9 @@ void main() {
       expect(find.text('Name: Bob'), findsOneWidget);
     });
 
-    testWidgets('should handle hot reload with computed values',
-        (WidgetTester tester) async {
+    testWidgets('should handle hot reload with computed values', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(const MaterialApp(home: TestWithComputed()));
 
       // Verify initial state
@@ -104,16 +107,16 @@ class TestCounter extends CompositionWidget {
     final count = ref(0);
 
     return (context) => Scaffold(
-          body: Column(
-            children: [
-              Text('Count: ${count.value}'),
-              ElevatedButton(
-                onPressed: () => count.value++,
-                child: const Text('Increment'),
-              ),
-            ],
+      body: Column(
+        children: [
+          Text('Count: ${count.value}'),
+          ElevatedButton(
+            onPressed: () => count.value++,
+            child: const Text('Increment'),
           ),
-        );
+        ],
+      ),
+    );
   }
 }
 
@@ -126,21 +129,21 @@ class TestMultipleRefs extends CompositionWidget {
     final name = ref('Alice');
 
     return (context) => Scaffold(
-          body: Column(
-            children: [
-              Text('Count: ${count.value}'),
-              Text('Name: ${name.value}'),
-              ElevatedButton(
-                onPressed: () => count.value++,
-                child: const Text('Increment'),
-              ),
-              ElevatedButton(
-                onPressed: () => name.value = 'Bob',
-                child: const Text('Change Name'),
-              ),
-            ],
+      body: Column(
+        children: [
+          Text('Count: ${count.value}'),
+          Text('Name: ${name.value}'),
+          ElevatedButton(
+            onPressed: () => count.value++,
+            child: const Text('Increment'),
           ),
-        );
+          ElevatedButton(
+            onPressed: () => name.value = 'Bob',
+            child: const Text('Change Name'),
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -153,16 +156,16 @@ class TestWithComputed extends CompositionWidget {
     final doubled = computed(() => count.value * 2);
 
     return (context) => Scaffold(
-          body: Column(
-            children: [
-              Text('Count: ${count.value}'),
-              Text('Doubled: ${doubled.value}'),
-              ElevatedButton(
-                onPressed: () => count.value += 5,
-                child: const Text('Add 5'),
-              ),
-            ],
+      body: Column(
+        children: [
+          Text('Count: ${count.value}'),
+          Text('Doubled: ${doubled.value}'),
+          ElevatedButton(
+            onPressed: () => count.value += 5,
+            child: const Text('Add 5'),
           ),
-        );
+        ],
+      ),
+    );
   }
 }

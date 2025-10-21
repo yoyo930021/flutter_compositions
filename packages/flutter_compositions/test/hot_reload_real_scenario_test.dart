@@ -4,8 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('Hot Reload Real Scenario', () {
-    testWidgets('TextEditingController instance should be NEW after reassemble',
-        (
+    testWidgets('TextEditingController instance should be NEW after reassemble', (
       WidgetTester tester,
     ) async {
       TextEditingController? firstController;
@@ -118,13 +117,13 @@ class TestTextFieldWithCallback extends CompositionWidget {
     onControllerCreated(controllerRef);
 
     return (context) => Scaffold(
-          body: Column(
-            children: [
-              TextField(controller: controllerRef),
-              Text('Text: ${text.value}'),
-            ],
-          ),
-        );
+      body: Column(
+        children: [
+          TextField(controller: controllerRef),
+          Text('Text: ${text.value}'),
+        ],
+      ),
+    );
   }
 }
 
@@ -137,17 +136,17 @@ class DirectRefTest extends CompositionWidget {
     final (controllerRef, text, _) = useTextEditingController();
 
     return (context) => Scaffold(
-          body: Column(
-            children: [
-              Text('Count: ${count.value}'),
-              ElevatedButton(
-                onPressed: () => count.value++,
-                child: const Text('Increment'),
-              ),
-              TextField(controller: controllerRef),
-              Text('Text: ${text.value}'),
-            ],
+      body: Column(
+        children: [
+          Text('Count: ${count.value}'),
+          ElevatedButton(
+            onPressed: () => count.value++,
+            child: const Text('Increment'),
           ),
-        );
+          TextField(controller: controllerRef),
+          Text('Text: ${text.value}'),
+        ],
+      ),
+    );
   }
 }

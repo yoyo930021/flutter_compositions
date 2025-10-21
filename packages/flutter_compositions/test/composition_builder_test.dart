@@ -13,16 +13,16 @@ void main() {
                 final count = ref(0);
 
                 return (context) => Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text('Count: ${count.value}'),
-                        ElevatedButton(
-                          key: const Key('increment'),
-                          onPressed: () => count.value++,
-                          child: const Text('Increment'),
-                        ),
-                      ],
-                    );
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('Count: ${count.value}'),
+                    ElevatedButton(
+                      key: const Key('increment'),
+                      onPressed: () => count.value++,
+                      child: const Text('Increment'),
+                    ),
+                  ],
+                );
               },
             ),
           ),
@@ -49,9 +49,9 @@ void main() {
                 final count = ref(0);
 
                 return (context) => ElevatedButton(
-                      onPressed: () => count.value++,
-                      child: Text('Count: ${count.value}'),
-                    );
+                  onPressed: () => count.value++,
+                  child: Text('Count: ${count.value}'),
+                );
               },
             ),
           ),
@@ -78,16 +78,16 @@ void main() {
                 final doubled = computed(() => count.value * 2);
 
                 return (context) => Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text('Doubled: ${doubled.value}'),
-                        ElevatedButton(
-                          key: const Key('increment'),
-                          onPressed: () => count.value++,
-                          child: const Text('Increment'),
-                        ),
-                      ],
-                    );
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('Doubled: ${doubled.value}'),
+                    ElevatedButton(
+                      key: const Key('increment'),
+                      onPressed: () => count.value++,
+                      child: const Text('Increment'),
+                    ),
+                  ],
+                );
               },
             ),
           ),
@@ -122,10 +122,10 @@ void main() {
                 });
 
                 return (context) => ElevatedButton(
-                      key: const Key('increment'),
-                      onPressed: () => count.value++,
-                      child: Text('Count: ${count.value}'),
-                    );
+                  key: const Key('increment'),
+                  onPressed: () => count.value++,
+                  child: Text('Count: ${count.value}'),
+                );
               },
             ),
           ),
@@ -192,30 +192,29 @@ void main() {
                     final expanded = ref(false);
 
                     return (context) => Card(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              ListTile(
-                                title: Text('Item $index'),
-                                trailing: IconButton(
-                                  key: Key('toggle-$index'),
-                                  icon: Icon(
-                                    expanded.value
-                                        ? Icons.expand_less
-                                        : Icons.expand_more,
-                                  ),
-                                  onPressed: () =>
-                                      expanded.value = !expanded.value,
-                                ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          ListTile(
+                            title: Text('Item $index'),
+                            trailing: IconButton(
+                              key: Key('toggle-$index'),
+                              icon: Icon(
+                                expanded.value
+                                    ? Icons.expand_less
+                                    : Icons.expand_more,
                               ),
-                              if (expanded.value)
-                                Padding(
-                                  padding: const EdgeInsets.all(16),
-                                  child: Text('Details for item $index'),
-                                ),
-                            ],
+                              onPressed: () => expanded.value = !expanded.value,
+                            ),
                           ),
-                        );
+                          if (expanded.value)
+                            Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Text('Details for item $index'),
+                            ),
+                        ],
+                      ),
+                    );
                   },
                 );
               },
@@ -288,20 +287,20 @@ void main() {
                   setup: () {
                     final count = ref(0);
                     return (context) => ElevatedButton(
-                          key: const Key('button1'),
-                          onPressed: () => count.value++,
-                          child: Text('Count1: ${count.value}'),
-                        );
+                      key: const Key('button1'),
+                      onPressed: () => count.value++,
+                      child: Text('Count1: ${count.value}'),
+                    );
                   },
                 ),
                 CompositionBuilder(
                   setup: () {
                     final count = ref(10);
                     return (context) => ElevatedButton(
-                          key: const Key('button2'),
-                          onPressed: () => count.value++,
-                          child: Text('Count2: ${count.value}'),
-                        );
+                      key: const Key('button2'),
+                      onPressed: () => count.value++,
+                      child: Text('Count2: ${count.value}'),
+                    );
                   },
                 ),
               ],

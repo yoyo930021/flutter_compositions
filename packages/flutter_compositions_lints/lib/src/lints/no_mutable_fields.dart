@@ -38,9 +38,11 @@ class NoMutableFields extends DartLintRule {
 
   static const _code = LintCode(
     name: 'flutter_compositions_no_mutable_fields',
-    problemMessage: 'CompositionWidget fields must be final. Use ref() for '
+    problemMessage:
+        'CompositionWidget fields must be final. Use ref() for '
         'mutable state.',
-    correctionMessage: 'Make the field final. Move mutable state into ref() '
+    correctionMessage:
+        'Make the field final. Move mutable state into ref() '
         'or computed() in setup().',
   );
 

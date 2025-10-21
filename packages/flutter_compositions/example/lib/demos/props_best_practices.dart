@@ -169,15 +169,15 @@ class InitialValueUsage extends CompositionWidget {
     final doubled = computed(() => count.value * 2);
 
     return (context) => Column(
-          children: [
-            Text('Count: ${count.value}'),
-            Text('Doubled: ${doubled.value}'),
-            ElevatedButton(
-              onPressed: () => count.value++,
-              child: const Text('Increment'),
-            ),
-          ],
-        );
+      children: [
+        Text('Count: ${count.value}'),
+        Text('Doubled: ${doubled.value}'),
+        ElevatedButton(
+          onPressed: () => count.value++,
+          child: const Text('Increment'),
+        ),
+      ],
+    );
   }
 }
 
@@ -204,13 +204,13 @@ class MixedCorrectUsage extends CompositionWidget {
     final displayText = computed(() => 'User ${userId.value}: ${count.value}');
 
     return (context) => Column(
-          children: [
-            Text(displayText.value),
-            ElevatedButton(
-              onPressed: () => count.value++,
-              child: const Text('Increment'),
-            ),
-          ],
-        );
+      children: [
+        Text(displayText.value),
+        ElevatedButton(
+          onPressed: () => count.value++,
+          child: const Text('Increment'),
+        ),
+      ],
+    );
   }
 }

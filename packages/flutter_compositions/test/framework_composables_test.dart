@@ -345,17 +345,17 @@ class UseSearchControllerHarness extends CompositionWidget {
     onMounted(() => onController(searchController.value));
 
     return (context) => SearchAnchor(
-          searchController: searchController.value,
-          builder: (context, controller) {
-            return SearchBar(
-              controller: controller,
-              hintText: 'Search...',
-            );
-          },
-          suggestionsBuilder: (context, controller) {
-            return [];
-          },
+      searchController: searchController.value,
+      builder: (context, controller) {
+        return SearchBar(
+          controller: controller,
+          hintText: 'Search...',
         );
+      },
+      suggestionsBuilder: (context, controller) {
+        return [];
+      },
+    );
   }
 }
 
@@ -372,22 +372,22 @@ class ReactiveSearchControllerHarness extends CompositionWidget {
     });
 
     return (context) => Column(
-          children: [
-            Text('Search: ${searchText.value}'),
-            SearchAnchor(
-              searchController: searchController.value,
-              builder: (context, controller) {
-                return SearchBar(
-                  controller: controller,
-                  hintText: 'Search...',
-                );
-              },
-              suggestionsBuilder: (context, controller) {
-                return [];
-              },
-            ),
-          ],
-        );
+      children: [
+        Text('Search: ${searchText.value}'),
+        SearchAnchor(
+          searchController: searchController.value,
+          builder: (context, controller) {
+            return SearchBar(
+              controller: controller,
+              hintText: 'Search...',
+            );
+          },
+          suggestionsBuilder: (context, controller) {
+            return [];
+          },
+        ),
+      ],
+    );
   }
 }
 
@@ -428,22 +428,22 @@ class SearchControllerWatchHarness extends CompositionWidget {
     );
 
     return (context) => Column(
-          children: [
-            Text('Changes: ${changes.value}'),
-            SearchAnchor(
-              searchController: searchController.value,
-              builder: (context, controller) {
-                return SearchBar(
-                  controller: controller,
-                  hintText: 'Search...',
-                );
-              },
-              suggestionsBuilder: (context, controller) {
-                return [];
-              },
-            ),
-          ],
-        );
+      children: [
+        Text('Changes: ${changes.value}'),
+        SearchAnchor(
+          searchController: searchController.value,
+          builder: (context, controller) {
+            return SearchBar(
+              controller: controller,
+              hintText: 'Search...',
+            );
+          },
+          suggestionsBuilder: (context, controller) {
+            return [];
+          },
+        ),
+      ],
+    );
   }
 }
 

@@ -89,11 +89,11 @@ class UserCard extends CompositionWidget {
     });
 
     return (context) => Card(
-          child: Padding(
-            padding: const EdgeInsets.all(8),
-            child: Text(displayText.value),
-          ),
-        );
+      child: Padding(
+        padding: const EdgeInsets.all(8),
+        child: Text(displayText.value),
+      ),
+    );
   }
 }
 
@@ -212,9 +212,9 @@ class DataWidget extends CompositionWidget {
         Loading() => const CircularProgressIndicator(),
         Success(data: final data) => Text('Success: $data'),
         Error(message: final msg) => Text(
-            'Error: $msg',
-            style: const TextStyle(color: Colors.red),
-          ),
+          'Error: $msg',
+          style: const TextStyle(color: Colors.red),
+        ),
       };
     });
 
@@ -227,8 +227,8 @@ class DataWidget extends CompositionWidget {
 // ============================================================
 class ValidatedFormProps {
   ValidatedFormProps({required String email, required String password})
-      : _email = email,
-        _password = password {
+    : _email = email,
+      _password = password {
     if (!_email.contains('@')) {
       throw ArgumentError('Invalid email format');
     }

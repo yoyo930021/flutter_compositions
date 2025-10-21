@@ -66,7 +66,7 @@ T hotReloadableContainer<T>(
 
   final value =
       context!.previousHotReloadableValues?[context.hotReloadableIndex] as T? ??
-          createFn();
+      createFn();
 
   context.addHotReloadable(
     _HotReloadableContainer<T>(

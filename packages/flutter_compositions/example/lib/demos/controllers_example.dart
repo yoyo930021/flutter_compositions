@@ -90,57 +90,56 @@ class ControllersDemo extends CompositionWidget {
     });
 
     return (context) => Scaffold(
-          appBar: AppBar(
-            backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-            title: const Text('Controllers Integration'),
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: const Text('Controllers Integration'),
+      ),
+      body: PageView(
+        controller: pageControllerRef.value,
+        children: [
+          // Page 1: Form Example
+          _buildFormPage(
+            context,
+            searchController,
+            searchText,
+            searchFocusRef.value,
+            usernameControllerRef,
+            usernameText,
+            usernameFocusRef.value,
+            passwordControllerRef,
+            passwordText,
+            passwordFocusRef.value,
+            isValid,
+            statusMessage,
+            focusedField,
           ),
-          body: PageView(
-            controller: pageControllerRef.value,
-            children: [
-              // Page 1: Form Example
-              _buildFormPage(
-                context,
-                searchController,
-                searchText,
-                searchFocusRef.value,
-                usernameControllerRef,
-                usernameText,
-                usernameFocusRef.value,
-                passwordControllerRef,
-                passwordText,
-                passwordFocusRef.value,
-                isValid,
-                statusMessage,
-                focusedField,
-              ),
 
-              // Page 2: Scroll Example
-              _buildScrollPage(
-                  context, scrollControllerRef.value, scrollOffset),
+          // Page 2: Scroll Example
+          _buildScrollPage(context, scrollControllerRef.value, scrollOffset),
 
-              // Page 3: Basic Example
-              _buildBasicPage(context, basicController),
-            ],
+          // Page 3: Basic Example
+          _buildBasicPage(context, basicController),
+        ],
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: currentPage.value,
+        onTap: (index) {
+          pageControllerRef.value.animateToPage(
+            index,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+          );
+        },
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.edit), label: 'Form'),
+          BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Scroll'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.text_fields),
+            label: 'Basic',
           ),
-          bottomNavigationBar: BottomNavigationBar(
-            currentIndex: currentPage.value,
-            onTap: (index) {
-              pageControllerRef.value.animateToPage(
-                index,
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeInOut,
-              );
-            },
-            items: const [
-              BottomNavigationBarItem(icon: Icon(Icons.edit), label: 'Form'),
-              BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Scroll'),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.text_fields),
-                label: 'Basic',
-              ),
-            ],
-          ),
-        );
+        ],
+      ),
+    );
   }
 
   Widget _buildFormPage(
@@ -196,8 +195,8 @@ class ControllersDemo extends CompositionWidget {
               prefixIcon: const Icon(Icons.person),
               errorText:
                   usernameText.value.isNotEmpty && usernameText.value.length < 3
-                      ? 'Too short'
-                      : null,
+                  ? 'Too short'
+                  : null,
             ),
           ),
           const SizedBox(height: 16),
@@ -213,16 +212,17 @@ class ControllersDemo extends CompositionWidget {
               prefixIcon: const Icon(Icons.lock),
               errorText:
                   passwordText.value.isNotEmpty && passwordText.value.length < 6
-                      ? 'Too short'
-                      : null,
+                  ? 'Too short'
+                  : null,
             ),
           ),
           const SizedBox(height: 20),
 
           // Status message
           Card(
-            color:
-                isValid.value ? Colors.green.shade100 : Colors.orange.shade100,
+            color: isValid.value
+                ? Colors.green.shade100
+                : Colors.orange.shade100,
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(

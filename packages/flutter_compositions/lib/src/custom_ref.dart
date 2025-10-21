@@ -17,8 +17,8 @@ class ReadonlyCustomRef<T> implements ReadonlyRef<T> {
   /// Creates a read-only custom ref.
   ReadonlyCustomRef({
     required T Function(void Function() track) getter,
-  })  : _getter = getter,
-        _version = ref(0);
+  }) : _getter = getter,
+       _version = ref(0);
 
   final T Function(void Function() track) _getter;
   final Ref<int> _version;
@@ -131,9 +131,9 @@ class CustomRef<T> implements WritableRef<T> {
   CustomRef({
     required T Function(void Function() track) getter,
     required void Function(T value, void Function() trigger) setter,
-  })  : _getter = getter,
-        _setter = setter,
-        _version = ref(0);
+  }) : _getter = getter,
+       _setter = setter,
+       _version = ref(0);
 
   final T Function(void Function() track) _getter;
   final void Function(T value, void Function() trigger) _setter;

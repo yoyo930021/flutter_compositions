@@ -542,14 +542,14 @@ class UseStreamControllerHarness extends CompositionWidget {
     final (controller, stream) = useStreamController<int>(initialValue: 0);
 
     return (context) => Column(
-          children: [
-            Text('Value: ${stream.value}'),
-            ElevatedButton(
-              onPressed: () => controller.add(stream.value + 1),
-              child: const Text('Increment'),
-            ),
-          ],
-        );
+      children: [
+        Text('Value: ${stream.value}'),
+        ElevatedButton(
+          onPressed: () => controller.add(stream.value + 1),
+          child: const Text('Increment'),
+        ),
+      ],
+    );
   }
 }
 
@@ -583,15 +583,15 @@ class BroadcastStreamControllerHarness extends CompositionWidget {
     final value2 = useStream(controller.stream, initialValue: 0);
 
     return (context) => Column(
-          children: [
-            Text('Value1: ${value1.value}'),
-            Text('Value2: ${value2.value}'),
-            ElevatedButton(
-              onPressed: () => controller.add(stream.value + 1),
-              child: const Text('Increment'),
-            ),
-          ],
-        );
+      children: [
+        Text('Value1: ${value1.value}'),
+        Text('Value2: ${value2.value}'),
+        ElevatedButton(
+          onPressed: () => controller.add(stream.value + 1),
+          child: const Text('Increment'),
+        ),
+      ],
+    );
   }
 }
 
@@ -670,12 +670,12 @@ class UseAsyncDataHarness extends CompositionWidget {
     final (data, error, loading, hasData) = useAsyncValue(status);
 
     return (context) => Column(
-          children: [
-            Text('Data: ${data.value}'),
-            Text('Loading: ${loading.value}'),
-            Text('Error: ${error.value}'),
-          ],
-        );
+      children: [
+        Text('Data: ${data.value}'),
+        Text('Loading: ${loading.value}'),
+        Text('Error: ${error.value}'),
+      ],
+    );
   }
 }
 
@@ -703,15 +703,15 @@ class UseAsyncDataReactiveHarness extends CompositionWidget {
     final (data, _, loading, hasData) = useAsyncValue(status);
 
     return (context) => Column(
-          children: [
-            Text('Data: ${data.value}'),
-            Text('Loading: ${loading.value}'),
-            TextButton(
-              onPressed: () => userId.value++,
-              child: const Text('Change User'),
-            ),
-          ],
-        );
+      children: [
+        Text('Data: ${data.value}'),
+        Text('Loading: ${loading.value}'),
+        TextButton(
+          onPressed: () => userId.value++,
+          child: const Text('Change User'),
+        ),
+      ],
+    );
   }
 }
 
@@ -736,11 +736,11 @@ class UseAsyncDataStatusHarness extends CompositionWidget {
     final (data, _, loading, hasData) = useAsyncValue(status);
 
     return (context) => Column(
-          children: [
-            Text('Status: ${status.value.runtimeType}'),
-            Text('Data: ${data.value}'),
-          ],
-        );
+      children: [
+        Text('Status: ${status.value.runtimeType}'),
+        Text('Data: ${data.value}'),
+      ],
+    );
   }
 }
 
@@ -766,11 +766,11 @@ class UseAsyncDataErrorHarness extends CompositionWidget {
     final (_, error, loading, hasData) = useAsyncValue(status);
 
     return (context) => Column(
-          children: [
-            Text('Error: ${error.value}'),
-            Text('Status: ${status.value.runtimeType}'),
-          ],
-        );
+      children: [
+        Text('Error: ${error.value}'),
+        Text('Status: ${status.value.runtimeType}'),
+      ],
+    );
   }
 }
 
@@ -797,13 +797,13 @@ class UseAsyncDataConcurrentHarness extends CompositionWidget {
     );
 
     return (context) => Column(
-          children: [
-            TextButton(
-              onPressed: refresh,
-              child: const Text('Refresh'),
-            ),
-          ],
-        );
+      children: [
+        TextButton(
+          onPressed: refresh,
+          child: const Text('Refresh'),
+        ),
+      ],
+    );
   }
 }
 
@@ -845,22 +845,22 @@ class RefreshableFutureHarness extends CompositionWidget {
       return switch (data.value) {
         AsyncLoading() => const Text('Loading...'),
         AsyncData(:final value) => Column(
-            children: [
-              Text('Count: $value'),
-              TextButton(
-                onPressed: refresh,
-                child: const Text('Refresh'),
-              ),
-            ],
-          ),
+          children: [
+            Text('Count: $value'),
+            TextButton(
+              onPressed: refresh,
+              child: const Text('Refresh'),
+            ),
+          ],
+        ),
         _ => Column(
-            children: [
-              TextButton(
-                onPressed: refresh,
-                child: const Text('Refresh'),
-              ),
-            ],
-          ),
+          children: [
+            TextButton(
+              onPressed: refresh,
+              child: const Text('Refresh'),
+            ),
+          ],
+        ),
       };
     };
   }

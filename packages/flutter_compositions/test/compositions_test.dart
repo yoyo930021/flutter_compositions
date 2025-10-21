@@ -68,8 +68,9 @@ void main() {
     expect(values, ['new:0 old:null', 'new:1 old:0']);
   });
 
-  testWidgets('watchEffect re-runs on dependency changes and can be disposed',
-      (tester) async {
+  testWidgets('watchEffect re-runs on dependency changes and can be disposed', (
+    tester,
+  ) async {
     final samples = <int>[];
     Ref<int>? countRef;
 
@@ -173,19 +174,19 @@ class WatchTestHarness extends CompositionWidget {
     );
 
     return (context) => Scaffold(
-          body: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text('Count: ${count.value}'),
-                ElevatedButton(
-                  onPressed: () => count.value++,
-                  child: const Text('Increment'),
-                ),
-              ],
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('Count: ${count.value}'),
+            ElevatedButton(
+              onPressed: () => count.value++,
+              child: const Text('Increment'),
             ),
-          ),
-        );
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -212,18 +213,18 @@ class WatchEffectTestHarness extends CompositionWidget {
     });
 
     return (context) => Scaffold(
-          body: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text('Count: ${count.value}'),
-                ElevatedButton(
-                  onPressed: () => count.value = 3,
-                  child: const Text('Set to 3'),
-                ),
-              ],
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('Count: ${count.value}'),
+            ElevatedButton(
+              onPressed: () => count.value = 3,
+              child: const Text('Set to 3'),
             ),
-          ),
-        );
+          ],
+        ),
+      ),
+    );
   }
 }
