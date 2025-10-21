@@ -1,0 +1,6 @@
+# Dart test configuration for flutter_compositions_lints
+# Only run tests in specific directories, excluding fixtures
+
+paths:
+  - test/lints/
+  - test/integration_test.dart
