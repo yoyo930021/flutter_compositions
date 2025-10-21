@@ -2,6 +2,7 @@ import { defineConfig } from 'vitepress'
 
 export default defineConfig({
   // Top-level site configuration
+  base: '/flutter_compositions/',
   socialLinks: [
     { icon: 'github', link: 'https://github.com/yoyo930021/flutter_compositions' }
   ],
