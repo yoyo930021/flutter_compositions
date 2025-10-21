@@ -1,1 +1,28 @@
 include: ../analysis_options.yaml
+
+analyzer:
+  exclude:
+    - test/**
+
+linter:
+  rules:
+    # Disable lints that are too strict for example/demo code
+    public_member_api_docs: false
+    always_put_required_named_parameters_first: false
+    always_use_package_imports: false
+    avoid_escaping_inner_quotes: false
+    avoid_print: false
+    cascade_invocations: false
+    cast_nullable_to_non_nullable: false
+    constant_identifier_names: false
+    dangling_library_doc_comments: false
+    discarded_futures: false
+    document_ignores: false
+    lines_longer_than_80_chars: false
+    non_constant_identifier_names: false
+    prefer_const_constructors: false
+    prefer_int_literals: false
+    sort_pub_dependencies: false
+    specify_nonobvious_property_types: false
+    unnecessary_lambdas: false
+    unnecessary_underscores: false

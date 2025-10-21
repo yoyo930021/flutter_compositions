@@ -107,7 +107,7 @@ class ExamplesHomePage extends StatelessWidget {
               onTap: () {
                 Navigator.of(
                   context,
-                ).push(MaterialPageRoute(builder: demo.builder));
+                ).push(MaterialPageRoute<void>(builder: demo.builder));
               },
             ),
           );

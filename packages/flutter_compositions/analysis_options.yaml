@@ -13,6 +13,7 @@ analyzer:
   exclude:
     - example/**
     - docs/**
+    - test/**
 
 linter:
   # The lint rules applied to this project can be customized in the
