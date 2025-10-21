@@ -8,6 +8,15 @@
 
 Flutter Compositions brings Vue 3's Composition API patterns to Flutter, enabling fine-grained reactivity and composable logic with a clean, declarative API.
 
+## Documentation
+
+**📚 [Read the full documentation →](https://yoyo930021.github.io/flutter_compositions/)**
+
+- **[Getting Started](https://yoyo930021.github.io/flutter_compositions/en/guide/getting-started)** - Quick start guide and installation
+- **[Guide](https://yoyo930021.github.io/flutter_compositions/en/guide/what-is-a-composition)** - Learn core concepts and patterns
+- **[API Reference](https://yoyo930021.github.io/flutter_compositions/en/api/)** - Complete API documentation
+- **[Internals](https://yoyo930021.github.io/flutter_compositions/en/internals/architecture)** - Architecture and design decisions
+
 ## Features
 
 ✨ **Vue-inspired API** - Familiar `ref`, `computed`, `watch`, and `watchEffect` for reactive state
@@ -295,15 +304,7 @@ Available rules:
 - `flutter_compositions_no_mutable_fields` - Enforce immutable widget fields
 - `flutter_compositions_provide_inject_type_match` - Warn against common type conflicts
 
-[See all lint rules →](../../docs/lints/rules.md)
-
-## Documentation
-
-- **[Guide](../../docs/guide/)** - Comprehensive guides and tutorials
-- **[API Reference](../../docs/api/)** - Complete API documentation
-- **[Lint Rules](../../docs/lints/)** - Custom lint rules reference
-- **[Architecture](../../docs/internals/architecture.md)** - Internal architecture details
-- **[Performance](../../docs/internals/performance.md)** - Performance considerations
+[See all lint rules →](https://yoyo930021.github.io/flutter_compositions/lints/rules)
 
 ## Examples
 
