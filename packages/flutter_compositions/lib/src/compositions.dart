@@ -106,8 +106,7 @@ Ref<T> ref<T>(T initialValue, {String? debugLabel}) {
   final setupContext = getCurrentSetupContext();
 
   final refInstance = Ref<T>(
-    setupContext
-            ?.previousHotReloadableValues?[setupContext.hotReloadableIndex]
+    setupContext?.previousHotReloadableValues?[setupContext.hotReloadableIndex]
             as T? ??
         initialValue,
   );
@@ -131,7 +130,7 @@ Ref<T> ref<T>(T initialValue, {String? debugLabel}) {
 class ComputedRef<T> implements ReadonlyRef<T> {
   /// Creates a read-only computed ref whose value is produced by [getter].
   ComputedRef(T Function() getter)
-    : _computed = signals.computed<T>((_) => getter());
+      : _computed = signals.computed<T>((_) => getter());
 
   final signals.Computed<T> _computed;
 
@@ -153,8 +152,8 @@ class ComputedRef<T> implements ReadonlyRef<T> {
 class WritableComputedRef<T> implements WritableRef<T> {
   /// Creates a writable computed ref with the provided [getter] and [setter].
   WritableComputedRef(T Function() getter, void Function(T) setter)
-    : _computed = signals.computed<T>((_) => getter()),
-      _setter = setter;
+      : _computed = signals.computed<T>((_) => getter()),
+        _setter = setter;
 
   final signals.Computed<T> _computed;
   final void Function(T) _setter;

@@ -33,11 +33,9 @@ class ProvideInjectTypeMatch extends DartLintRule {
 
   static const _code = LintCode(
     name: 'flutter_compositions_provide_inject_type_match',
-    problemMessage:
-        'Avoid using common types like Ref<String> or Ref<int> '
+    problemMessage: 'Avoid using common types like Ref<String> or Ref<int> '
         'with provide/inject.',
-    correctionMessage:
-        'Use custom data classes to avoid type conflicts. '
+    correctionMessage: 'Use custom data classes to avoid type conflicts. '
         'Example: class AppTheme { ... }, then '
         'provide<Ref<AppTheme>>(theme)',
   );

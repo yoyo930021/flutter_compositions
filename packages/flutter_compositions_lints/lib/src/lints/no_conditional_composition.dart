@@ -55,8 +55,7 @@ class NoConditionalComposition extends DartLintRule {
     problemMessage:
         'Composition API calls must not be inside conditionals or loops. '
         'Call composition APIs unconditionally at the top level of setup().',
-    correctionMessage:
-        'Move the composition API call to the top level of '
+    correctionMessage: 'Move the composition API call to the top level of '
         'setup(). You can still use conditional logic to set values.',
   );
 

@@ -89,15 +89,15 @@ class _SectionHeader extends StatelessWidget {
         Text(
           title,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+            fontWeight: FontWeight.bold,
+          ),
         ),
         const SizedBox(height: 4),
         Text(
           subtitle,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Colors.grey[600],
-              ),
+            color: Colors.grey[600],
+          ),
         ),
       ],
     );
@@ -317,23 +317,24 @@ class StaggeredAnimationDemo extends CompositionWidget {
     );
 
     // Create staggered animations for 3 items
-    final animations = [
-      (0.0, 0.3),
-      (0.2, 0.5),
-      (0.4, 0.7),
-    ].map((interval) {
-      final (anim, value) = manageAnimation(
-        CurvedAnimation(
-          parent: controller,
-          curve: Interval(
-            interval.$1,
-            interval.$2,
-            curve: Curves.easeOut,
-          ),
-        ),
-      );
-      return (anim, value);
-    }).toList();
+    final animations =
+        [
+          (0.0, 0.3),
+          (0.2, 0.5),
+          (0.4, 0.7),
+        ].map((interval) {
+          final (anim, value) = manageAnimation(
+            CurvedAnimation(
+              parent: controller,
+              curve: Interval(
+                interval.$1,
+                interval.$2,
+                curve: Curves.easeOut,
+              ),
+            ),
+          );
+          return (anim, value);
+        }).toList();
 
     return (context) => Card(
       child: Padding(

@@ -239,7 +239,8 @@ class SingleTickerProvider implements TickerProvider {
 
   // AnimationController is an Animation<double>, so we use manageAnimation
   // for listener management, and manually handle disposal
-  final (managedController, animValue) = manageAnimation<AnimationController, double>(controller);
+  final (managedController, animValue) =
+      manageAnimation<AnimationController, double>(controller);
 
   onUnmounted(() {
     // Stop the controller before disposing to prevent "active ticker" assertion

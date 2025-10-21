@@ -83,13 +83,13 @@ class TestTextField extends CompositionWidget {
     final (controllerRef, text, _) = useTextEditingController();
 
     return (context) => Scaffold(
-      body: Column(
-        children: [
-          TextField(controller: controllerRef),
-          Text('Text: ${text.value}'),
-        ],
-      ),
-    );
+          body: Column(
+            children: [
+              TextField(controller: controllerRef),
+              Text('Text: ${text.value}'),
+            ],
+          ),
+        );
   }
 }
 
@@ -102,14 +102,14 @@ class TestMultipleControllers extends CompositionWidget {
     final (controllerRef2, text2, _) = useTextEditingController();
 
     return (context) => Scaffold(
-      body: Column(
-        children: [
-          TextField(key: const Key('field1'), controller: controllerRef1),
-          Text('Field 1: ${text1.value}'),
-          TextField(key: const Key('field2'), controller: controllerRef2),
-          Text('Field 2: ${text2.value}'),
-        ],
-      ),
-    );
+          body: Column(
+            children: [
+              TextField(key: const Key('field1'), controller: controllerRef1),
+              Text('Field 1: ${text1.value}'),
+              TextField(key: const Key('field2'), controller: controllerRef2),
+              Text('Field 2: ${text2.value}'),
+            ],
+          ),
+        );
   }
 }

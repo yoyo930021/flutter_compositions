@@ -37,11 +37,9 @@ class ControllerLifecycle extends DartLintRule {
 
   static const _code = LintCode(
     name: 'flutter_compositions_controller_lifecycle',
-    problemMessage:
-        'Flutter controllers must be disposed. Use '
+    problemMessage: 'Flutter controllers must be disposed. Use '
         'use*Controller() helpers or call dispose() in onUnmounted().',
-    correctionMessage:
-        'Use useScrollController(), usePageController(), '
+    correctionMessage: 'Use useScrollController(), usePageController(), '
         'useFocusNode(), or useTextEditingController() helpers, or manually '
         'dispose the controller in onUnmounted().',
   );

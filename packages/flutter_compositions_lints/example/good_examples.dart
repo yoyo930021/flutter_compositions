@@ -87,9 +87,9 @@ class GoodControllerWithHelper extends CompositionWidget {
     final controller = useScrollController();
 
     return (context) => ListView(
-      controller: controller.value as ScrollController,
-      children: [],
-    );
+          controller: controller.value as ScrollController,
+          children: [],
+        );
   }
 }
 

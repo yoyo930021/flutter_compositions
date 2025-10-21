@@ -155,7 +155,8 @@ class ComputedBuilder extends StatefulWidget {
   /// return a widget. When any reactive dependencies accessed in [builder]
   /// change, only this widget rebuilds.
   const ComputedBuilder({
-    required this.builder, super.key,
+    required this.builder,
+    super.key,
   });
 
   /// The builder function that creates the widget.

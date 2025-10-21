@@ -79,18 +79,18 @@ void main() {
                 final doubled = computed(() => count.value * 2);
 
                 return (context) => Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ComputedBuilder(
-                      builder: () => Text('Doubled: ${doubled.value}'),
-                    ),
-                    ElevatedButton(
-                      key: const ValueKey('increment'),
-                      onPressed: () => count.value++,
-                      child: const Text('Increment'),
-                    ),
-                  ],
-                );
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ComputedBuilder(
+                          builder: () => Text('Doubled: ${doubled.value}'),
+                        ),
+                        ElevatedButton(
+                          key: const ValueKey('increment'),
+                          onPressed: () => count.value++,
+                          child: const Text('Increment'),
+                        ),
+                      ],
+                    );
               },
             ),
           ),
@@ -119,24 +119,24 @@ void main() {
                 final count2 = ref(0);
 
                 return (context) => Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ComputedBuilder(
-                      builder: () {
-                        buildCount++;
-                        return Text('Sum: ${count1.value + count2.value}');
-                      },
-                    ),
-                    ElevatedButton(
-                      key: const ValueKey('update-both'),
-                      onPressed: () {
-                        count1.value++;
-                        count2.value++;
-                      },
-                      child: const Text('Update Both'),
-                    ),
-                  ],
-                );
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ComputedBuilder(
+                          builder: () {
+                            buildCount++;
+                            return Text('Sum: ${count1.value + count2.value}');
+                          },
+                        ),
+                        ElevatedButton(
+                          key: const ValueKey('update-both'),
+                          onPressed: () {
+                            count1.value++;
+                            count2.value++;
+                          },
+                          child: const Text('Update Both'),
+                        ),
+                      ],
+                    );
               },
             ),
           ),
@@ -207,37 +207,37 @@ void main() {
                 final count2 = ref(0);
 
                 return (context) => Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ComputedBuilder(
-                      builder: () {
-                        buildLog.add('outer');
-                        return Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            ComputedBuilder(
-                              builder: () {
-                                buildLog.add('inner1');
-                                return Text('Count1: ${count1.value}');
-                              },
-                            ),
-                            ComputedBuilder(
-                              builder: () {
-                                buildLog.add('inner2');
-                                return Text('Count2: ${count2.value}');
-                              },
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-                    ElevatedButton(
-                      key: const ValueKey('increment1'),
-                      onPressed: () => count1.value++,
-                      child: const Text('Increment 1'),
-                    ),
-                  ],
-                );
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ComputedBuilder(
+                          builder: () {
+                            buildLog.add('outer');
+                            return Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                ComputedBuilder(
+                                  builder: () {
+                                    buildLog.add('inner1');
+                                    return Text('Count1: ${count1.value}');
+                                  },
+                                ),
+                                ComputedBuilder(
+                                  builder: () {
+                                    buildLog.add('inner2');
+                                    return Text('Count2: ${count2.value}');
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                        ElevatedButton(
+                          key: const ValueKey('increment1'),
+                          onPressed: () => count1.value++,
+                          child: const Text('Increment 1'),
+                        ),
+                      ],
+                    );
               },
             ),
           ),
@@ -274,25 +274,25 @@ void main() {
                 );
 
                 return (context) => ListView.builder(
-                  itemCount: items.length,
-                  itemBuilder: (context, index) {
-                    final item = items[index];
-                    return ListTile(
-                      key: ValueKey('item-$index'),
-                      title: ComputedBuilder(
-                        builder: () {
-                          buildLog.add('item-$index');
-                          return Text('Item $index: ${item.value}');
-                        },
-                      ),
-                      trailing: IconButton(
-                        key: ValueKey('increment-$index'),
-                        icon: const Icon(Icons.add),
-                        onPressed: () => item.value++,
-                      ),
+                      itemCount: items.length,
+                      itemBuilder: (context, index) {
+                        final item = items[index];
+                        return ListTile(
+                          key: ValueKey('item-$index'),
+                          title: ComputedBuilder(
+                            builder: () {
+                              buildLog.add('item-$index');
+                              return Text('Item $index: ${item.value}');
+                            },
+                          ),
+                          trailing: IconButton(
+                            key: ValueKey('increment-$index'),
+                            icon: const Icon(Icons.add),
+                            onPressed: () => item.value++,
+                          ),
+                        );
+                      },
                     );
-                  },
-                );
               },
             ),
           ),
@@ -322,29 +322,29 @@ void main() {
                 final progress = ref(0.toDouble());
 
                 return (context) => Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ComputedBuilder(
-                      builder: () {
-                        buildCount++;
-                        return LinearProgressIndicator(
-                          value: progress.value,
-                        );
-                      },
-                    ),
-                    const Text('Loading...'),
-                    ElevatedButton(
-                      key: const ValueKey('update'),
-                      onPressed: () {
-                        // Simulate multiple updates
-                        for (var i = 0; i < 10; i++) {
-                          progress.value = (i + 1) / 10;
-                        }
-                      },
-                      child: const Text('Update'),
-                    ),
-                  ],
-                );
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ComputedBuilder(
+                          builder: () {
+                            buildCount++;
+                            return LinearProgressIndicator(
+                              value: progress.value,
+                            );
+                          },
+                        ),
+                        const Text('Loading...'),
+                        ElevatedButton(
+                          key: const ValueKey('update'),
+                          onPressed: () {
+                            // Simulate multiple updates
+                            for (var i = 0; i < 10; i++) {
+                              progress.value = (i + 1) / 10;
+                            }
+                          },
+                          child: const Text('Update'),
+                        ),
+                      ],
+                    );
               },
             ),
           ),
@@ -410,31 +410,31 @@ class MultipleComputedBuildersWidget extends CompositionWidget {
     final count2 = ref(0);
 
     return (context) => Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        ComputedBuilder(
-          builder: () {
-            buildLog.add('builder1');
-            return Text('Count1: ${count1.value}');
-          },
-        ),
-        ComputedBuilder(
-          builder: () {
-            buildLog.add('builder2');
-            return Text('Count2: ${count2.value}');
-          },
-        ),
-        ElevatedButton(
-          key: const ValueKey('increment1'),
-          onPressed: () => count1.value++,
-          child: const Text('Increment 1'),
-        ),
-        ElevatedButton(
-          key: const ValueKey('increment2'),
-          onPressed: () => count2.value++,
-          child: const Text('Increment 2'),
-        ),
-      ],
-    );
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ComputedBuilder(
+              builder: () {
+                buildLog.add('builder1');
+                return Text('Count1: ${count1.value}');
+              },
+            ),
+            ComputedBuilder(
+              builder: () {
+                buildLog.add('builder2');
+                return Text('Count2: ${count2.value}');
+              },
+            ),
+            ElevatedButton(
+              key: const ValueKey('increment1'),
+              onPressed: () => count1.value++,
+              child: const Text('Increment 1'),
+            ),
+            ElevatedButton(
+              key: const ValueKey('increment2'),
+              onPressed: () => count2.value++,
+              child: const Text('Increment 2'),
+            ),
+          ],
+        );
   }
 }

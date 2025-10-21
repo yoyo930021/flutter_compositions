@@ -191,8 +191,8 @@ class GoodUnconditional extends CompositionWidget {
     });
 
     return (context) => ListView(
-      controller: controller.raw,
-      children: [Text('${count.value}'), Text(text.value)],
-    );
+          controller: controller.raw,
+          children: [Text('${count.value}'), Text(text.value)],
+        );
   }
 }

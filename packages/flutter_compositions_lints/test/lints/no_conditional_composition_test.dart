@@ -10,7 +10,8 @@ void main() {
     final rule = const NoConditionalComposition();
 
     test('detects composition APIs in conditionals', () async {
-      final fixturePath = getFixturePath('no_conditional_composition_test.dart');
+      final fixturePath =
+          getFixturePath('no_conditional_composition_test.dart');
       final file = File(fixturePath);
 
       expect(file.existsSync(), isTrue,

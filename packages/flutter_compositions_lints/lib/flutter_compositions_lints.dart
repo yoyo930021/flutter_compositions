@@ -23,11 +23,11 @@ PluginBase createPlugin() => _FlutterCompositionsLints();
 class _FlutterCompositionsLints extends PluginBase {
   @override
   List<LintRule> getLintRules(CustomLintConfigs configs) => [
-    const EnsureReactiveProps(),
-    const NoAsyncSetup(),
-    const NoMutableFields(),
-    const ControllerLifecycle(),
-    const ProvideInjectTypeMatch(),
-    const NoConditionalComposition(),
-  ];
+        const EnsureReactiveProps(),
+        const NoAsyncSetup(),
+        const NoMutableFields(),
+        const ControllerLifecycle(),
+        const ProvideInjectTypeMatch(),
+        const NoConditionalComposition(),
+      ];
 }

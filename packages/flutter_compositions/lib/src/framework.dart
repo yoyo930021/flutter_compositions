@@ -64,9 +64,9 @@ T hotReloadableContainer<T>(
     'CompositionWidget or CompositionBuilder',
   );
 
-  final value = context!
-          .previousHotReloadableValues?[context.hotReloadableIndex] as T? ??
-      createFn();
+  final value =
+      context!.previousHotReloadableValues?[context.hotReloadableIndex] as T? ??
+          createFn();
 
   context.addHotReloadable(
     _HotReloadableContainer<T>(
@@ -394,10 +394,12 @@ class SetupContextImpl implements SetupContext {
   final List<VoidCallback> _mountedCallbacks = [];
   final List<VoidCallback> _unmountedCallbacks = [];
   final List<void Function(BuildContext)> _buildCallbacks = [];
+
   /// Effect scope for managing reactive effects (package-private)
   signals.EffectScope? effectScope;
   final Map<Object, dynamic> _provided = {};
   signals.WritableSignal<CompositionWidget>? _widgetSignal;
+
   /// Parent context for provide/inject (package-private)
   SetupContext? parent;
 

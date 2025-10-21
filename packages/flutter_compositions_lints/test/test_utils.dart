@@ -18,7 +18,8 @@ String getFixturePath(String fileName) {
     }
 
     // Also check in packages/flutter_compositions_lints/test/fixtures
-    final lintsFixturesDir = Directory('${dir.path}/packages/flutter_compositions_lints/test/fixtures');
+    final lintsFixturesDir = Directory(
+        '${dir.path}/packages/flutter_compositions_lints/test/fixtures');
     if (lintsFixturesDir.existsSync()) {
       final fixturePath = '${lintsFixturesDir.path}/$fileName';
       if (File(fixturePath).existsSync()) {

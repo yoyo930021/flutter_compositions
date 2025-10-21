@@ -189,7 +189,7 @@ ReadonlyRef<FocusNode> useFocusNode({
 /// }
 /// ```
 (TextEditingController, WritableRef<String>, WritableRef<TextEditingValue>)
-useTextEditingController({String? text}) {
+    useTextEditingController({String? text}) {
   // TextEditingController implements ValueListenable<TextEditingValue>,
   // but it's also a ChangeNotifier, so we need to manage it properly.
   final controller = hotReloadableContainer(

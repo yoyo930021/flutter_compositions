@@ -192,20 +192,21 @@ class ProvideAndInjectWidget extends CompositionWidget {
     final optional = inject(optionalStringKey, defaultValue: null);
 
     return (context) => Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text('provided:${injected.value}', key: const ValueKey('providedText')),
-        Text(
-          'optional:${optional == null ? 'none' : optional.value}',
-          key: const ValueKey('optionalText'),
-        ),
-        ElevatedButton(
-          key: const ValueKey('increment-counter'),
-          onPressed: () => injected.value++,
-          child: const Text('Increment'),
-        ),
-      ],
-    );
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('provided:${injected.value}',
+                key: const ValueKey('providedText')),
+            Text(
+              'optional:${optional == null ? 'none' : optional.value}',
+              key: const ValueKey('optionalText'),
+            ),
+            ElevatedButton(
+              key: const ValueKey('increment-counter'),
+              onPressed: () => injected.value++,
+              child: const Text('Increment'),
+            ),
+          ],
+        );
   }
 }
 
@@ -251,10 +252,10 @@ class LifecycleWatcherWidget extends CompositionWidget {
     onUnmounted(() => events.add('unmounted'));
 
     return (context) => ElevatedButton(
-      key: const ValueKey('increment'),
-      onPressed: () => counter.value++,
-      child: const Text('Increment'),
-    );
+          key: const ValueKey('increment'),
+          onPressed: () => counter.value++,
+          child: const Text('Increment'),
+        );
   }
 }
 

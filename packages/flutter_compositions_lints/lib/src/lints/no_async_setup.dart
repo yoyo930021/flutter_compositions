@@ -37,8 +37,7 @@ class NoAsyncSetup extends DartLintRule {
   static const _code = LintCode(
     name: 'flutter_compositions_no_async_setup',
     problemMessage: 'The setup() method must not be async.',
-    correctionMessage:
-        'Remove async keyword. Use onMounted() or '
+    correctionMessage: 'Remove async keyword. Use onMounted() or '
         'onUnmounted() for async operations.',
   );
 
