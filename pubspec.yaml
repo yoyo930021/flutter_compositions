@@ -22,4 +22,6 @@ melos:
     analyze:
       run: melos exec -- flutter analyze
     test:
-      run: melos exec -- flutter test
+      run: |
+        melos exec --no-flutter --depends-on="test" -- dart test
+        melos exec --flutter --depends-on="flutter_test" -- flutter test
