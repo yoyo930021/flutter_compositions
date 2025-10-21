@@ -51,8 +51,6 @@ jobs:
         # Test against the latest 3 stable Flutter versions
         flutter-version:
           - 3.35.x  # Latest stable
-          - 3.32.x  # Previous stable
-          - 3.24.x  # Previous stable
 
     steps:
       - name: Checkout repository

@@ -8,6 +8,7 @@ linter:
   rules:
     # Disable lints that are too strict for example/demo code
     public_member_api_docs: false
+    require_trailing_commas: false
     always_put_required_named_parameters_first: false
     always_use_package_imports: false
     avoid_escaping_inner_quotes: false

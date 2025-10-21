@@ -7,7 +7,7 @@ documentation: https://yoyo930021.github.io/flutter_compositions
 resolution: workspace
 
 environment:
-  sdk: ^3.5.4
+  sdk: ^3.9.0
 
 dependencies:
   analyzer: ^7.6.0

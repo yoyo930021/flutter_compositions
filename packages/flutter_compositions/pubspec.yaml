@@ -7,8 +7,8 @@ documentation: https://yoyo930021.github.io/flutter_compositions
 resolution: workspace
 
 environment:
-  sdk: ^3.5.4
-  flutter: ">=3.19.0"
+  sdk: ^3.9.0
+  flutter: ">=3.35.0"
 
 dependencies:
   alien_signals: ^1.0.1
