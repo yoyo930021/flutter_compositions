@@ -52,29 +52,29 @@ class _BasicCounterSection extends StatelessWidget {
                 final isEven = computed(() => count.value.isEven);
 
                 return (context) => Row(
-                  children: [
-                    Text(
-                      'Count: ${count.value}',
-                      style: Theme.of(context).textTheme.headlineSmall,
-                    ),
-                    const SizedBox(width: 16),
-                    Text(
-                      isEven.value ? '(Even)' : '(Odd)',
-                      style: TextStyle(
-                        color: isEven.value ? Colors.green : Colors.orange,
-                      ),
-                    ),
-                    const Spacer(),
-                    IconButton(
-                      icon: const Icon(Icons.remove),
-                      onPressed: () => count.value--,
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.add),
-                      onPressed: () => count.value++,
-                    ),
-                  ],
-                );
+                      children: [
+                        Text(
+                          'Count: ${count.value}',
+                          style: Theme.of(context).textTheme.headlineSmall,
+                        ),
+                        const SizedBox(width: 16),
+                        Text(
+                          isEven.value ? '(Even)' : '(Odd)',
+                          style: TextStyle(
+                            color: isEven.value ? Colors.green : Colors.orange,
+                          ),
+                        ),
+                        const Spacer(),
+                        IconButton(
+                          icon: const Icon(Icons.remove),
+                          onPressed: () => count.value--,
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.add),
+                          onPressed: () => count.value++,
+                        ),
+                      ],
+                    );
               },
             ),
           ],
@@ -113,37 +113,38 @@ class _ExpandableCardsSection extends StatelessWidget {
                   final expanded = ref(false);
 
                   return (context) => Card(
-                    margin: const EdgeInsets.only(bottom: 8),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        ListTile(
-                          leading: CircleAvatar(child: Text('${index + 1}')),
-                          title: Text('Item ${index + 1}'),
-                          subtitle: Text(
-                            expanded.value
-                                ? 'Tap to collapse'
-                                : 'Tap to expand',
-                          ),
-                          trailing: Icon(
-                            expanded.value
-                                ? Icons.expand_less
-                                : Icons.expand_more,
-                          ),
-                          onTap: () => expanded.value = !expanded.value,
-                        ),
-                        if (expanded.value)
-                          Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Text(
-                              'This is the expanded content for item ${index + 1}. '
-                              'Each card maintains its own independent state!',
-                              style: Theme.of(context).textTheme.bodyMedium,
+                        margin: const EdgeInsets.only(bottom: 8),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ListTile(
+                              leading:
+                                  CircleAvatar(child: Text('${index + 1}')),
+                              title: Text('Item ${index + 1}'),
+                              subtitle: Text(
+                                expanded.value
+                                    ? 'Tap to collapse'
+                                    : 'Tap to expand',
+                              ),
+                              trailing: Icon(
+                                expanded.value
+                                    ? Icons.expand_less
+                                    : Icons.expand_more,
+                              ),
+                              onTap: () => expanded.value = !expanded.value,
                             ),
-                          ),
-                      ],
-                    ),
-                  );
+                            if (expanded.value)
+                              Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Text(
+                                  'This is the expanded content for item ${index + 1}. '
+                                  'Each card maintains its own independent state!',
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                ),
+                              ),
+                          ],
+                        ),
+                      );
                 },
               ),
             ),
@@ -215,68 +216,68 @@ class _TodoListSection extends StatelessWidget {
             }
 
             return (context) => Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Todo List (Inline State)',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Complex state management without defining a class',
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Completed: ${completedCount.value}/${todos.value.length}',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 16),
-                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: TextField(
-                        controller: newTodoController,
-                        decoration: const InputDecoration(
-                          hintText: 'Add a new todo',
-                          border: OutlineInputBorder(),
-                        ),
-                        onSubmitted: (_) => addTodo(),
-                      ),
+                    Text(
+                      'Todo List (Inline State)',
+                      style: Theme.of(context).textTheme.titleLarge,
                     ),
-                    const SizedBox(width: 8),
-                    IconButton.filled(
-                      icon: const Icon(Icons.add),
-                      onPressed: addTodo,
+                    const SizedBox(height: 8),
+                    Text(
+                      'Complex state management without defining a class',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Completed: ${completedCount.value}/${todos.value.length}',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: newTodoController,
+                            decoration: const InputDecoration(
+                              hintText: 'Add a new todo',
+                              border: OutlineInputBorder(),
+                            ),
+                            onSubmitted: (_) => addTodo(),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        IconButton.filled(
+                          icon: const Icon(Icons.add),
+                          onPressed: addTodo,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    ...todos.value.map(
+                      (todo) => Card(
+                        margin: const EdgeInsets.only(bottom: 8),
+                        child: ListTile(
+                          leading: Checkbox(
+                            value: todo.completed,
+                            onChanged: (_) => toggleTodo(todo.id),
+                          ),
+                          title: Text(
+                            todo.title,
+                            style: TextStyle(
+                              decoration: todo.completed
+                                  ? TextDecoration.lineThrough
+                                  : null,
+                            ),
+                          ),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.delete_outline),
+                            onPressed: () => removeTodo(todo.id),
+                          ),
+                        ),
+                      ),
                     ),
                   ],
-                ),
-                const SizedBox(height: 16),
-                ...todos.value.map(
-                  (todo) => Card(
-                    margin: const EdgeInsets.only(bottom: 8),
-                    child: ListTile(
-                      leading: Checkbox(
-                        value: todo.completed,
-                        onChanged: (_) => toggleTodo(todo.id),
-                      ),
-                      title: Text(
-                        todo.title,
-                        style: TextStyle(
-                          decoration: todo.completed
-                              ? TextDecoration.lineThrough
-                              : null,
-                        ),
-                      ),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.delete_outline),
-                        onPressed: () => removeTodo(todo.id),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            );
+                );
           },
         ),
       ),

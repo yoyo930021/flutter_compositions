@@ -151,29 +151,30 @@ class UserCard extends CompositionWidget {
     });
 
     return (context) => Card(
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(greeting.value, style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: 8),
-            Text(
-              displayName.value,
-              style: Theme.of(context).textTheme.bodyLarge,
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(greeting.value,
+                    style: Theme.of(context).textTheme.titleLarge),
+                const SizedBox(height: 8),
+                Text(
+                  displayName.value,
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  roleInfo.value,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+                ),
+              ],
             ),
-            const SizedBox(height: 4),
-            Text(
-              roleInfo.value,
-              style: Theme.of(
-                context,
-              ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
-            ),
-          ],
-        ),
-      ),
-    );
+          ),
+        );
   }
 }
 
@@ -199,33 +200,33 @@ class ThemeProvider extends CompositionWidget {
     provide(themeKey, theme);
 
     return (context) => Column(
-      children: [
-        Card(
-          margin: const EdgeInsets.symmetric(vertical: 8),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Current Theme: ${theme.value.mode}'),
-                SegmentedButton<String>(
-                  segments: const [
-                    ButtonSegment(value: 'light', label: Text('Light')),
-                    ButtonSegment(value: 'dark', label: Text('Dark')),
+          children: [
+            Card(
+              margin: const EdgeInsets.symmetric(vertical: 8),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Current Theme: ${theme.value.mode}'),
+                    SegmentedButton<String>(
+                      segments: const [
+                        ButtonSegment(value: 'light', label: Text('Light')),
+                        ButtonSegment(value: 'dark', label: Text('Dark')),
+                      ],
+                      selected: {theme.value.mode},
+                      onSelectionChanged: (Set<String> newSelection) {
+                        // Replace the entire object to trigger reactivity
+                        theme.value = AppTheme(newSelection.first);
+                      },
+                    ),
                   ],
-                  selected: {theme.value.mode},
-                  onSelectionChanged: (Set<String> newSelection) {
-                    // Replace the entire object to trigger reactivity
-                    theme.value = AppTheme(newSelection.first);
-                  },
                 ),
-              ],
+              ),
             ),
-          ),
-        ),
-        const ThemeConsumer(),
-      ],
-    );
+            const ThemeConsumer(),
+          ],
+        );
   }
 }
 
@@ -243,15 +244,15 @@ class ThemeConsumer extends CompositionWidget {
     );
 
     return (context) => Card(
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Text(
-          themeMessage.value,
-          style: Theme.of(context).textTheme.bodyLarge,
-        ),
-      ),
-    );
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text(
+              themeMessage.value,
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+          ),
+        );
   }
 }
 
@@ -279,40 +280,40 @@ class UserGreeting extends CompositionWidget {
     });
 
     return (context) => Card(
-      margin: const EdgeInsets.symmetric(vertical: 10),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              greeting.value,
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: usernameController,
-              decoration: const InputDecoration(
-                labelText: 'Username',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 8),
-            SegmentedButton<String>(
-              segments: const [
-                ButtonSegment(value: 'Hello', label: Text('Hello')),
-                ButtonSegment(value: 'Hi', label: Text('Hi')),
-                ButtonSegment(value: 'Welcome', label: Text('Welcome')),
+          margin: const EdgeInsets.symmetric(vertical: 10),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  greeting.value,
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: usernameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Username',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                SegmentedButton<String>(
+                  segments: const [
+                    ButtonSegment(value: 'Hello', label: Text('Hello')),
+                    ButtonSegment(value: 'Hi', label: Text('Hi')),
+                    ButtonSegment(value: 'Welcome', label: Text('Welcome')),
+                  ],
+                  selected: {prefix.value},
+                  onSelectionChanged: (Set<String> newSelection) {
+                    prefix.value = newSelection.first;
+                  },
+                ),
               ],
-              selected: {prefix.value},
-              onSelectionChanged: (Set<String> newSelection) {
-                prefix.value = newSelection.first;
-              },
             ),
-          ],
-        ),
-      ),
-    );
+          ),
+        );
   }
 }
 
@@ -359,122 +360,125 @@ class CounterPage extends CompositionWidget {
     // Return a builder function that will be called on reactive updates
     // Access InheritedWidgets (Theme, MediaQuery) here, not in setup!
     return (context) => Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text('Flutter Compositions Demo'),
-      ),
-      body: SingleChildScrollView(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                // widget() demo section
-                const Text(
-                  'widget() Demo - Reactive Props',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 10),
-                UserCard(
-                  userId: currentUserId.value,
-                  name: currentUserName.value,
-                  role: 'Administrator',
-                ),
-                const SizedBox(height: 10),
-                ElevatedButton(
-                  onPressed: () {
-                    // Toggle user to demonstrate reactive props
-                    if (currentUserId.value == 'user-1') {
-                      currentUserId.value = 'user-2';
-                      currentUserName.value = 'Bob';
-                    } else {
-                      currentUserId.value = 'user-1';
-                      currentUserName.value = 'Alice';
-                    }
-                  },
-                  child: const Text('Toggle User'),
-                ),
-                const Divider(height: 40),
-                // provide/inject demo section
-                const Text(
-                  'Provide/Inject Demo',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 10),
-                const ThemeProvider(),
-                const Divider(height: 40),
-                // useTextEditingController demo section
-                const Text(
-                  'useTextEditingController Demo',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 10),
-                const UserGreeting(),
-                const Divider(height: 40),
-                // Counter section
-                const Text('You have pushed the button this many times:'),
-                const SizedBox(height: 20),
-                Text(
-                  '${count.value}',
-                  style: Theme.of(context).textTheme.headlineMedium,
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  'Doubled: ${doubled.value}',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  'Quadrupled: ${quadrupled.value}',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 40),
-                Text(
-                  'Sum (Quadrupled * 2): ${sum.value}',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                const SizedBox(height: 20),
-                Row(
+          appBar: AppBar(
+            backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+            title: const Text('Flutter Compositions Demo'),
+          ),
+          body: SingleChildScrollView(
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        count.value--;
-                      },
-                      icon: const Icon(Icons.remove),
-                      label: const Text('Decrement'),
+                  children: <Widget>[
+                    // widget() demo section
+                    const Text(
+                      'widget() Demo - Reactive Props',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
-                    const SizedBox(width: 20),
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        count.value = 0;
-                      },
-                      icon: const Icon(Icons.refresh),
-                      label: const Text('Reset'),
+                    const SizedBox(height: 10),
+                    UserCard(
+                      userId: currentUserId.value,
+                      name: currentUserName.value,
+                      role: 'Administrator',
                     ),
-                    const SizedBox(width: 20),
-                    ElevatedButton.icon(
+                    const SizedBox(height: 10),
+                    ElevatedButton(
                       onPressed: () {
-                        count.value++;
+                        // Toggle user to demonstrate reactive props
+                        if (currentUserId.value == 'user-1') {
+                          currentUserId.value = 'user-2';
+                          currentUserName.value = 'Bob';
+                        } else {
+                          currentUserId.value = 'user-1';
+                          currentUserName.value = 'Alice';
+                        }
                       },
-                      icon: const Icon(Icons.add),
-                      label: const Text('Increment'),
+                      child: const Text('Toggle User'),
+                    ),
+                    const Divider(height: 40),
+                    // provide/inject demo section
+                    const Text(
+                      'Provide/Inject Demo',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 10),
+                    const ThemeProvider(),
+                    const Divider(height: 40),
+                    // useTextEditingController demo section
+                    const Text(
+                      'useTextEditingController Demo',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 10),
+                    const UserGreeting(),
+                    const Divider(height: 40),
+                    // Counter section
+                    const Text('You have pushed the button this many times:'),
+                    const SizedBox(height: 20),
+                    Text(
+                      '${count.value}',
+                      style: Theme.of(context).textTheme.headlineMedium,
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Doubled: ${doubled.value}',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Quadrupled: ${quadrupled.value}',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 40),
+                    Text(
+                      'Sum (Quadrupled * 2): ${sum.value}',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            count.value--;
+                          },
+                          icon: const Icon(Icons.remove),
+                          label: const Text('Decrement'),
+                        ),
+                        const SizedBox(width: 20),
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            count.value = 0;
+                          },
+                          icon: const Icon(Icons.refresh),
+                          label: const Text('Reset'),
+                        ),
+                        const SizedBox(width: 20),
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            count.value++;
+                          },
+                          icon: const Icon(Icons.add),
+                          label: const Text('Increment'),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
+              ),
             ),
           ),
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          count.value++;
-        },
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ),
-    );
+          floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              count.value++;
+            },
+            tooltip: 'Increment',
+            child: const Icon(Icons.add),
+          ),
+        );
   }
 }

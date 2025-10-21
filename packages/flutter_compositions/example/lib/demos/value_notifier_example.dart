@@ -8,16 +8,16 @@ class ValueNotifierDemo extends CompositionWidget {
   @override
   Widget Function(BuildContext) setup() {
     return (context) => Scaffold(
-      appBar: AppBar(title: const Text('ValueNotifier Integration')),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: const [
-          _LocalNotifierSection(),
-          SizedBox(height: 16),
-          _ExternalNotifierSection(),
-        ],
-      ),
-    );
+          appBar: AppBar(title: const Text('ValueNotifier Integration')),
+          body: ListView(
+            padding: const EdgeInsets.all(16),
+            children: const [
+              _LocalNotifierSection(),
+              SizedBox(height: 16),
+              _ExternalNotifierSection(),
+            ],
+          ),
+        );
   }
 }
 
@@ -77,37 +77,37 @@ class _LocalNotifierSection extends CompositionWidget {
     });
 
     return (context) => _SectionCard(
-      title: 'Local ValueNotifier',
-      description:
-          'manageValueListenable keeps the ValueNotifier in sync and we dispose it when the composition unmounts.',
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Count: ${counter.value} (${parity.value})',
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 12,
+          title: 'Local ValueNotifier',
+          description:
+              'manageValueListenable keeps the ValueNotifier in sync and we dispose it when the composition unmounts.',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              FilledButton(
-                onPressed: () => counter.value--,
-                child: const Icon(Icons.remove),
+              Text(
+                'Count: ${counter.value} (${parity.value})',
+                style: Theme.of(context).textTheme.headlineSmall,
               ),
-              OutlinedButton(
-                onPressed: () => counter.value = 0,
-                child: const Text('Reset'),
-              ),
-              FilledButton(
-                onPressed: () => counter.value++,
-                child: const Icon(Icons.add),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 12,
+                children: [
+                  FilledButton(
+                    onPressed: () => counter.value--,
+                    child: const Icon(Icons.remove),
+                  ),
+                  OutlinedButton(
+                    onPressed: () => counter.value = 0,
+                    child: const Text('Reset'),
+                  ),
+                  FilledButton(
+                    onPressed: () => counter.value++,
+                    child: const Icon(Icons.add),
+                  ),
+                ],
               ),
             ],
           ),
-        ],
-      ),
-    );
+        );
   }
 }
 
@@ -135,31 +135,31 @@ class _ExternalNotifierSection extends CompositionWidget {
     );
 
     return (context) => _SectionCard(
-      title: 'External ValueNotifier',
-      description:
-          'Pass an existing notifier without disposal so other parts of the app can share it.',
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Current theme: ${theme.value}',
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
-          const SizedBox(height: 8),
-          Text(bannerText.value),
-          const SizedBox(height: 12),
-          SegmentedButton<String>(
-            segments: const [
-              ButtonSegment(value: 'light', label: Text('Light')),
-              ButtonSegment(value: 'dark', label: Text('Dark')),
+          title: 'External ValueNotifier',
+          description:
+              'Pass an existing notifier without disposal so other parts of the app can share it.',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Current theme: ${theme.value}',
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
+              const SizedBox(height: 8),
+              Text(bannerText.value),
+              const SizedBox(height: 12),
+              SegmentedButton<String>(
+                segments: const [
+                  ButtonSegment(value: 'light', label: Text('Light')),
+                  ButtonSegment(value: 'dark', label: Text('Dark')),
+                ],
+                selected: {theme.value},
+                onSelectionChanged: (selection) {
+                  theme.value = selection.first;
+                },
+              ),
             ],
-            selected: {theme.value},
-            onSelectionChanged: (selection) {
-              theme.value = selection.first;
-            },
           ),
-        ],
-      ),
-    );
+        );
   }
 }
