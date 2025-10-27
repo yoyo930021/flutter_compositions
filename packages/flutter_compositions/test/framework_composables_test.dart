@@ -49,6 +49,114 @@ void main() {
 
       expect(contextInSetup, isFalse);
     });
+
+    testWidgets('context is available after first build', (tester) async {
+      BuildContext? contextAfterBuild;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: UseContextAfterBuildHarness(
+            onContextAfterBuild: (ctx) => contextAfterBuild = ctx,
+          ),
+        ),
+      );
+
+      // Context should be available after first build
+      expect(contextAfterBuild, isNotNull);
+      expect(contextAfterBuild, isA<BuildContext>());
+    });
+
+    testWidgets('context remains the same across rebuilds', (tester) async {
+      final capturedContexts = <BuildContext>[];
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: UseContextRebuildHarness(
+            onContextCaptured: capturedContexts.add,
+          ),
+        ),
+      );
+
+      // Wait for first build
+      await tester.pump();
+
+      // Trigger rebuilds
+      await tester.pump();
+      await tester.pump();
+      await tester.pump();
+
+      // All captured contexts should be the same instance
+      expect(capturedContexts.length, greaterThan(0));
+      final firstContext = capturedContexts.first;
+      for (final ctx in capturedContexts) {
+        expect(identical(ctx, firstContext), isTrue,
+            reason: 'Context should remain the same across rebuilds');
+      }
+    });
+
+    testWidgets('context can be used in async callbacks', (tester) async {
+      String? themeModeName;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: ThemeData(brightness: Brightness.light),
+          home: UseContextAsyncHarness(
+            onThemeMode: (mode) => themeModeName = mode,
+          ),
+        ),
+      );
+
+      // Wait for async operation to complete
+      await tester.pumpAndSettle();
+
+      expect(themeModeName, isNotNull);
+      expect(themeModeName, equals('light'));
+    });
+
+    testWidgets('multiple useContext calls work independently', (tester) async {
+      final results = <String>[];
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: MultipleUseContextHarness(
+            onResult: results.add,
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      // Both contexts should be captured independently
+      expect(results, hasLength(2));
+      expect(results[0], equals('context1'));
+      expect(results[1], equals('context2'));
+    });
+
+    testWidgets('context updates only on first build', (tester) async {
+      var updateCount = 0;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: UseContextUpdateCountHarness(
+            onUpdate: () => updateCount++,
+          ),
+        ),
+      );
+
+      // Wait for first build
+      await tester.pump();
+
+      final initialCount = updateCount;
+
+      // Trigger multiple rebuilds
+      await tester.pump();
+      await tester.pump();
+      await tester.pump();
+
+      // Context should only be set once (on first build)
+      expect(updateCount, equals(initialCount),
+          reason: 'Context should only be set once');
+    });
   });
 
   group('useSearchController', () {
@@ -279,10 +387,7 @@ class UseContextHarness extends CompositionWidget {
 
     onMounted(() => onContext(contextRef.value!));
 
-    return (context) {
-      contextRef.value = context;
-      return const SizedBox();
-    };
+    return (context) => const SizedBox();
   }
 }
 
@@ -293,12 +398,12 @@ class InheritedWidgetAccessHarness extends CompositionWidget {
   Widget Function(BuildContext) setup() {
     final contextRef = useContext();
 
-    return (context) {
-      contextRef.value = context;
+    final primaryColor = computed(() {
+      if (contextRef.value == null) return Colors.transparent;
+      return Theme.of(contextRef.value!).primaryColor;
+    });
 
-      final theme = Theme.of(contextRef.value!);
-      return Text('Primary: ${theme.primaryColor}');
-    };
+    return (context) => Text('Primary: ${primaryColor.value}');
   }
 }
 
@@ -319,10 +424,133 @@ class UseContextSetupCheckHarness extends CompositionWidget {
 
     onMounted(() => onContextInSetup(hasContext: hasContextInSetup));
 
+    return (context) => const SizedBox();
+  }
+}
+
+class UseContextAfterBuildHarness extends CompositionWidget {
+  const UseContextAfterBuildHarness({
+    required this.onContextAfterBuild,
+    super.key,
+  });
+
+  final void Function(BuildContext? context) onContextAfterBuild;
+
+  @override
+  Widget Function(BuildContext) setup() {
+    final contextRef = useContext();
+
     return (context) {
-      contextRef.value = context;
+      // Pass context after build completes
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        onContextAfterBuild(contextRef.value);
+      });
       return const SizedBox();
     };
+  }
+}
+
+class UseContextRebuildHarness extends CompositionWidget {
+  const UseContextRebuildHarness({
+    required this.onContextCaptured,
+    super.key,
+  });
+
+  final void Function(BuildContext context) onContextCaptured;
+
+  @override
+  Widget Function(BuildContext) setup() {
+    final contextRef = useContext();
+
+    return (context) {
+      // Capture context on each build (without triggering reactive updates)
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (contextRef.value != null) {
+          onContextCaptured(contextRef.value!);
+        }
+      });
+
+      return const SizedBox();
+    };
+  }
+}
+
+class UseContextAsyncHarness extends CompositionWidget {
+  const UseContextAsyncHarness({
+    required this.onThemeMode,
+    super.key,
+  });
+
+  final void Function(String mode) onThemeMode;
+
+  @override
+  Widget Function(BuildContext) setup() {
+    final contextRef = useContext();
+
+    onMounted(() async {
+      // Simulate async operation
+      await Future.delayed(const Duration(milliseconds: 10));
+
+      if (contextRef.value != null) {
+        final theme = Theme.of(contextRef.value!);
+        final mode = theme.brightness == Brightness.light ? 'light' : 'dark';
+        onThemeMode(mode);
+      }
+    });
+
+    return (context) => const SizedBox();
+  }
+}
+
+class MultipleUseContextHarness extends CompositionWidget {
+  const MultipleUseContextHarness({
+    required this.onResult,
+    super.key,
+  });
+
+  final void Function(String result) onResult;
+
+  @override
+  Widget Function(BuildContext) setup() {
+    final context1 = useContext();
+    final context2 = useContext();
+
+    onMounted(() {
+      if (context1.value != null) {
+        onResult('context1');
+      }
+      if (context2.value != null) {
+        onResult('context2');
+      }
+    });
+
+    return (context) => const SizedBox();
+  }
+}
+
+class UseContextUpdateCountHarness extends CompositionWidget {
+  const UseContextUpdateCountHarness({
+    required this.onUpdate,
+    super.key,
+  });
+
+  final VoidCallback onUpdate;
+
+  @override
+  Widget Function(BuildContext) setup() {
+    final contextRef = useContext();
+
+    // Track when context value changes
+    watch(
+      () => contextRef.value,
+      (newValue, oldValue) {
+        if (newValue != null) {
+          onUpdate();
+        }
+      },
+    );
+
+    return (context) => const SizedBox();
   }
 }
 

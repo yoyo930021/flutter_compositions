@@ -532,7 +532,6 @@ class SetupContextImpl implements SetupContext {
 
   /// Resets the hot reload state
   void resetHotReload() {
-    _previousHotReloadableValues = null;
     _hotReloadableIndex = 0;
   }
 

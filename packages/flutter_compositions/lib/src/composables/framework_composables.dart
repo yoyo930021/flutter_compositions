@@ -4,46 +4,83 @@ import 'package:flutter_compositions/src/framework.dart';
 
 /// Creates a reactive reference to the BuildContext.
 ///
-/// **Important**: The context is only available in the returned builder
-/// function, not in setup(). This returns a [Ref] that will be populated
-/// when the builder runs.
+/// **Important**: The context is only available after the first build,
+/// not during setup(). Use this when you need to access context in
+/// lifecycle hooks or pass it to async operations.
 ///
-/// This is useful when you need to access InheritedWidgets or the context
-/// in reactive computations.
+/// **In most cases, you should access context directly in the builder
+/// function instead of using this composable.**
 ///
-/// Example:
+/// Example - Perform side effect with context in onMounted:
 /// ```dart
 /// @override
 /// Widget Function(BuildContext) setup() {
 ///   final context = useContext();
 ///
-///   // ❌ This won't work - context is null in setup()
-///   // final theme = Theme.of(context.value);
+///   onMounted(() {
+///     // ✅ Use context for imperative operations
+///     showDialog(
+///       context: context.value!,
+///       builder: (context) => const AlertDialog(
+///         content: Text('Widget mounted!'),
+///       ),
+///     );
+///   });
 ///
-///   return (buildContext) {
-///     // ✅ Set the context value
-///     context.value = buildContext;
-///
-///     // Now you can use it
-///     final theme = Theme.of(context.value);
-///     return Text('Primary color: ${theme.primaryColor}');
-///   };
+///   return (buildContext) => const SizedBox();
 /// }
 /// ```
 ///
-/// Better approach - access context directly in builder:
+/// Example - Store context for async operations:
 /// ```dart
 /// @override
 /// Widget Function(BuildContext) setup() {
-///   return (context) {
-///     // ✅ Direct access is simpler
-///     final theme = Theme.of(context);
-///     return Text('Primary color: ${theme.primaryColor}');
-///   };
+///   final context = useContext();
+///
+///   void handleAsyncAction() async {
+///     final result = await fetchData();
+///
+///     // ✅ Use stored context in async callback
+///     if (context.value != null && context.value!.mounted) {
+///       ScaffoldMessenger.of(context.value!).showSnackBar(
+///         SnackBar(content: Text('Result: $result')),
+///       );
+///     }
+///   }
+///
+///   return (buildContext) => ElevatedButton(
+///     onPressed: handleAsyncAction,
+///     child: const Text('Fetch Data'),
+///   );
 /// }
 /// ```
+///
+/// **❌ Anti-pattern - Don't use for InheritedWidgets**:
+/// ```dart
+/// // ❌ WRONG: Accessing InheritedWidgets through useContext()
+/// final context = useContext();
+/// final theme = computed(() => Theme.of(context.value!));
+///
+/// // ✅ CORRECT: Access directly in builder
+/// return (context) {
+///   final theme = Theme.of(context);
+///   return Text('Primary: ${theme.primaryColor}');
+/// };
+/// ```
 Ref<BuildContext?> useContext() {
-  return ref<BuildContext?>(null);
+  final contextRef = ref<BuildContext?>(null);
+
+  // Set the context on the first build only
+  // BuildContext doesn't change during the widget's lifetime
+  var isFirstBuild = true;
+  onBuild((context) {
+    if (isFirstBuild) {
+      contextRef.value = context;
+      isFirstBuild = false;
+    }
+  });
+
+  return contextRef;
 }
 
 /// Creates a SearchController with automatic lifecycle management and
