@@ -89,8 +89,11 @@ void main() {
       expect(capturedContexts.length, greaterThan(0));
       final firstContext = capturedContexts.first;
       for (final ctx in capturedContexts) {
-        expect(identical(ctx, firstContext), isTrue,
-            reason: 'Context should remain the same across rebuilds');
+        expect(
+          identical(ctx, firstContext),
+          isTrue,
+          reason: 'Context should remain the same across rebuilds',
+        );
       }
     });
 
@@ -154,8 +157,11 @@ void main() {
       await tester.pump();
 
       // Context should only be set once (on first build)
-      expect(updateCount, equals(initialCount),
-          reason: 'Context should only be set once');
+      expect(
+        updateCount,
+        equals(initialCount),
+        reason: 'Context should only be set once',
+      );
     });
   });
 

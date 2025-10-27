@@ -83,4 +83,3 @@ class BadMutableField extends CompositionWidget {
     return (context) => Text('Count: $count');
   }
 }
-
