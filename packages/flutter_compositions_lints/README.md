@@ -114,23 +114,6 @@ class MyWidget extends CompositionWidget {
 }
 ```
 
-### 5. `flutter_compositions_provide_inject_type_match`
-
-**Severity:** Info
-
-Warns against using common types (String, int, etc.) with provide/inject to avoid type conflicts.
-
-❌ **Bad:**
-```dart
-provide<Ref<String>>(theme); // Common type - conflicts likely!
-```
-
-✅ **Good:**
-```dart
-class AppTheme { ... } // Custom type
-provide<Ref<AppTheme>>(theme); // No conflicts!
-```
-
 ## Installation
 
 Add to your `pubspec.yaml`:

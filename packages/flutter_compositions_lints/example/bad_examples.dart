@@ -84,21 +84,3 @@ class BadMutableField extends CompositionWidget {
   }
 }
 
-/// ❌ BAD: Common type in provide/inject
-/// Should trigger: flutter_compositions_provide_inject_type_match
-class BadProvideType extends CompositionWidget {
-  const BadProvideType({super.key});
-
-  @override
-  Widget Function(BuildContext) setup() {
-    final theme = ref('light');
-
-    // Using Ref<String> - common type, likely to cause conflicts!
-    provide<Ref<String>>(theme);
-
-    return (context) => Text('Theme provided');
-  }
-}
-
-// Mock provide function
-void provide<T>(T value) {}

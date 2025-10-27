@@ -6,7 +6,6 @@ Complete reference for all available lint rules.
 
 - **Reactivity**: Rules ensuring proper reactive state management
 - **Lifecycle**: Rules managing component lifecycle and resource cleanup
-- **Type Safety**: Rules enforcing type safety and avoiding conflicts
 - **Best Practices**: General best practice rules
 
 ---
@@ -260,61 +259,6 @@ class Counter extends CompositionWidget {
     return (context) => Text('${count.value}');
   }
 }
-```
-
----
-
-## Type Safety Rules
-
-### `flutter_compositions_provide_inject_type_match`
-
-**Category:** Type Safety
-**Severity:** Info
-**Auto-fixable:** No
-
-#### Description
-
-Warns when using common types (String, int, bool, etc.) with `provide`/`inject` that are likely to cause type conflicts.
-
-#### Why it matters
-
-Using `Ref<String>` or `Ref<int>` makes it easy for different parts of your app to accidentally provide/inject the wrong value. Custom types make intent explicit and prevent conflicts.
-
-#### Flagged common types
-
-- String
-- int
-- double
-- bool
-- num
-- List
-- Map
-- Set
-
-#### Examples
-
-❌ **Bad:**
-```dart
-// Parent
-provide<Ref<String>>(theme); // Too generic!
-
-// Child
-final theme = inject<Ref<String>>(); // Which string?
-```
-
-✅ **Good:**
-```dart
-// Define custom type
-class AppTheme {
-  const AppTheme(this.mode);
-  final String mode;
-}
-
-// Parent
-provide<Ref<AppTheme>>(theme); // Explicit and type-safe!
-
-// Child
-final theme = inject<Ref<AppTheme>>(); // No ambiguity
 ```
 
 ---
