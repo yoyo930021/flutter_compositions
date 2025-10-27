@@ -408,7 +408,7 @@ Found a false positive or have suggestions for new rules?
 - [Complete Rules Reference](./rules.md) - Detailed documentation for each rule
 - [Reactivity Fundamentals](../guide/reactivity-fundamentals.md) - Learn reactive patterns
 - [Best Practices Guide](../guide/best-practices.md) - General best practices
-- [API Reference](../api/README.md) - Complete API documentation
+- [Composables Reference](../guide/built-in-composables.md) - Catalog of built-in helpers
 
 ## Quick Reference
 

@@ -1023,4 +1023,4 @@ class SpecificWidget extends CompositionWidget {
 
 - 探索[狀態管理](./state-management.md)以了解應用程式狀態模式
 - 學習[測試](../testing/testing-guide.md)以了解如何測試依賴注入
-- 閱讀 [Provide/Inject API](../api/provide-inject.md) 以了解完整 API 參考
+- 閱讀 [Provide/Inject 基礎](#provideinject-基礎) 以了解完整 API 參考

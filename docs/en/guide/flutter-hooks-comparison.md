@@ -41,4 +41,4 @@ Choose **flutter_hooks** when:
 - You prefer to stay closer to Flutter’s traditional `build` flow.
 - You need the maturity and ecosystem around flutter_hooks.
 
-For a deeper dive, see the [Chinese guide](../../guide/flutter-hooks-comparison.md) or the [Design Trade-offs](../internals/design-trade-offs.md).
+For a deeper dive, check the [Design Trade-offs](../internals/design-trade-offs.md).

@@ -2,8 +2,6 @@
 
 This document connects the dots between the runtime, lifecycle hooks, and the composable helpers that ship with Flutter Compositions.
 
-> Translating the full Traditional Chinese article is ongoing. This outline highlights the core mechanics.
-
 ## Setup Execution
 
 `setup()` runs exactly once:
@@ -50,6 +48,7 @@ Helpers like `useScrollController` and `useAnimationController` automatically:
 
 - Composables may call `inject` directly when they rely on shared services.
 - Prefer passing dependencies explicitly when the composable should stay pure; use `inject` for cross-cutting concerns (analytics, localization, feature flags).
+- `_SetupContext` stores provided values in an internal map and walks the parent chain when resolving keys, similar to `InheritedWidget` without forcing a widget-tree rebuild.
 
 ## Extending the Runtime
 

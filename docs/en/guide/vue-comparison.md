@@ -37,4 +37,3 @@ Flutter Compositions draws heavy inspiration from Vue, yet the platforms differ.
 
 - Compare with `flutter_hooks`: [Flutter vs flutter_hooks](./flutter-hooks-comparison.md)
 - Deep dive on the runtime: [Reactivity In Depth](../internals/reactivity-in-depth.md)
-- Original Chinese article: [點我閱讀](../../guide/vue-comparison.md)

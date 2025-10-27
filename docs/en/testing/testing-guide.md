@@ -710,6 +710,6 @@ Use this checklist for comprehensive testing:
 ## See Also
 
 - [Best Practices](../guide/best-practices.md) - General best practices
-- [API Reference](../api/README.md) - Complete API documentation
+- [Composables Reference](../guide/built-in-composables.md) - Catalog of built-in helpers
 - [Dependency Injection](../guide/dependency-injection.md) - DI patterns
 - [Composables Guide](../guide/creating-composables.md) - Creating testable composables

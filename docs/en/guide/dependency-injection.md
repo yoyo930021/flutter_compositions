@@ -9,7 +9,76 @@ Flutter Compositions ships a minimal DI story built on two APIs:
 
 The APIs ride on `InjectionKey<T>` so you get compile-time safety.
 
-> Looking for the in-depth Traditional Chinese article? It lives at `/guide/dependency-injection.md`.
+## Why Dependency Injection?
+
+Without DI you end up threading services through every constructor:
+
+```dart
+// ❌ No DI – props drilling everywhere
+class App extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final authService = AuthService();
+
+    return MaterialApp(
+      home: HomePage(authService: authService),
+    );
+  }
+}
+
+class HomePage extends StatelessWidget {
+  const HomePage({required this.authService, super.key});
+  final AuthService authService;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Header(authService: authService),
+        ProfileSection(authService: authService),
+      ],
+    );
+  }
+}
+
+class Header extends StatelessWidget {
+  const Header({required this.authService, super.key});
+  final AuthService authService; // Even if Header never touches it
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        UserMenu(authService: authService),
+      ],
+    );
+  }
+}
+
+// ✅ With DI – cleaner and easier to maintain
+const authServiceKey = InjectionKey<AuthService>('authService');
+
+class App extends CompositionWidget {
+  @override
+  Widget Function(BuildContext) setup() {
+    final authService = AuthService();
+    provide(authServiceKey, authService);
+
+    return (context) => MaterialApp(home: const HomePage());
+  }
+}
+
+class UserMenu extends CompositionWidget {
+  const UserMenu({super.key});
+
+  @override
+  Widget Function(BuildContext) setup() {
+    final authService = inject(authServiceKey); // Pull only where needed
+
+    return (context) => /* ... */;
+  }
+}
+```
 
 ## Defining Keys
 

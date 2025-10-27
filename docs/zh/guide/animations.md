@@ -1013,4 +1013,4 @@ onUnmounted(() {
 
 - 探索[表單處理](./forms.md)以構建響應式表單
 - 學習[非同步操作](./async-operations.md)以處理非同步動畫
-- 閱讀 [Animation API](../api/composables/animations.md) 以了解完整 API 參考
+- 閱讀 [useAnimationController API](https://pub.dev/documentation/flutter_compositions/latest/flutter_compositions/useAnimationController.html) 以了解完整 API 參考

@@ -96,4 +96,4 @@ If you need intermediate frames, schedule them explicitly with `Future.microtask
 ## Next Steps
 
 - Dive deep into the internals in [Reactivity In Depth](../internals/reactivity-in-depth.md).
-- Explore how `ComputedBuilder` optimizes rebuilds in the [utilities reference](../api/utilities/computed-builder.md).
+- Explore how `ComputedBuilder` optimizes rebuilds in the [official API docs](https://pub.dev/documentation/flutter_compositions/latest/flutter_compositions/ComputedBuilder-class.html).

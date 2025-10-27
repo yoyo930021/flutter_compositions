@@ -45,6 +45,17 @@ class LoginForm extends CompositionWidget {
 }
 ```
 
+### 使用 Domain Model 表達狀態
+
+相較於直接操作 `Map<String, dynamic>`，以類別封裝狀態能降低欄位名稱打錯的風險，也讓重構更輕鬆。
+
+```dart
+class SessionState {
+  final user = ref<User?>(null);
+  final isAuthenticated = ref(false);
+}
+```
+
 ### Setup 保持同步
 
 `setup()` 必須同步回傳 builder。若需要非同步流程，使用 `onMounted` 或其他生命週期鉤子。
@@ -64,6 +75,16 @@ Widget Function(BuildContext) setup() {
       ? const CircularProgressIndicator()
       : Text(profile.value!.name);
 }
+```
+
+### 使用 watch / watchEffect 處理副作用
+
+將導頁、分析、紀錄等副作用寫在 `watch` 或 `watchEffect` 中，系統會在卸載時自動清理監聽。
+
+```dart
+watch(() => session.isAuthenticated.value, (isAuthed, _) {
+  if (!isAuthed) navigator.showLogin();
+});
 ```
 
 ## 狀態管理
@@ -99,6 +120,11 @@ class ProfileMenu extends CompositionWidget {
 
 即使目前只有單一實例，也建議宣告 `const InjectionKey<T>`，避免衝突並讓錯誤更好追蹤。
 
+### 使用 AsyncValue 表示非同步狀態
+
+- 以 `AsyncValue<T>` 包裝所有非同步結果，將載入、錯誤、資料狀態集中在同一個地方。
+- 需要重新整理或重試時，可暴露 `useAsyncData` 回傳的 `refresh()`。
+
 ## 效能優化
 
 - **使用 `computed` 快取昂貴計算**：避免在 builder 中重複計算篩選、排序等昂貴邏輯。
@@ -127,6 +153,7 @@ Widget Function(BuildContext) setup() {
 1. **命名清楚**：`useDebouncedSearch()`、`useAuthSession()` 等名稱能立即說明用途。
 2. **按照功能分層**：`lib/features/<feature>/composables`、`services`、`widgets` 等資料夾讓團隊快速定位。
 3. **維持小型 composable**：若單一 composable 處理所有流程（驗證、呼叫 API、路由），應拆成多個函式。
+4. **測試與程式碼共置**：將測試檔案放在對應的 composable 或 widget 同層，方便一起維護。
 
 範例結構：
 
@@ -168,7 +195,7 @@ custom_lint:
 ```
 
 - 開發時執行 `dart run custom_lint --watch`，提交前可搭配 `--fix`。
-- 詳細規則請參考 [Lint 使用指南](../lints/README.md)。
+- 詳細規則請參考 [Lint 使用指南](../lints/index.md)。
 
 ## 測試策略
 
@@ -199,6 +226,7 @@ testWidgets('ProfilePage 顯示使用者名稱', (tester) async {
     ),
   );
 
+  await tester.pumpAndSettle();
   expect(find.text('Alice'), findsOneWidget);
 });
 ```
@@ -220,5 +248,5 @@ testWidgets('ProfilePage 顯示使用者名稱', (tester) async {
 - [響應式基礎](./reactivity-fundamentals.md)
 - [非同步操作實戰](./async-operations.md)
 - [依賴注入指南](./dependency-injection.md)
-- [Lint 規則總覽](../lints/README.md)
+- [Lint 規則總覽](../lints/index.md)
 - [測試指南](../testing/testing-guide.md)

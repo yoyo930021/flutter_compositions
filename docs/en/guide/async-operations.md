@@ -8,8 +8,6 @@ Flutter apps regularly talk to the network, disk, and other asynchronous sources
 - Share asynchronous state with descendants without prop drilling.
 - Make retries and refresh flows explicit.
 
-> Need the full deep-dive in Traditional Chinese? See the original version in `/guide/async-operations.md`.
-
 ## Choosing the Right Composable
 
 | Use case | Recommended tool | Notes |

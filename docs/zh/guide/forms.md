@@ -1073,4 +1073,4 @@ ElevatedButton(
 
 - 探索[非同步操作](./async-operations.md)以處理表單提交
 - 學習[狀態管理](./state-management.md)以管理表單狀態
-- 閱讀 [Controller API](../api/composables/controllers.md) 以了解完整 API 參考
+- 閱讀 [useTextEditingController API](./built-in-composables.md#usetexteditingcontroller) 以了解完整 API 參考

@@ -2,8 +2,6 @@
 
 This document explains how Flutter Compositions builds fine-grained reactivity on top of Flutter’s widget system.
 
-> The original Traditional Chinese article lives at `/internals/reactivity-in-depth.md`. This version summarizes the key ideas for English readers.
-
 ## Building Blocks
 
 ### Ref
@@ -62,8 +60,20 @@ The runtime exposes `onCleanup` behind the scenes so every effect can register t
 - Each write is proportional to the number of subscribed observers.
 - Builders stay granular: only the widgets that read a changing ref rebuild.
 
+## ComputedBuilder Utility
+
+`ComputedBuilder` wraps a section of UI in its own reactive effect. It observes the refs that are read inside the provided builder and only rebuilds that subtree when one of those refs changes.
+
+- Use it to isolate hot spots that update frequently from parents that should stay static.
+- Pair it with `computed` values so expensive derivations only re-run when their dependencies change.
+- Prefer small builders—`ComputedBuilder` is most effective when it owns a focused fragment of the widget tree.
+
+Internally it registers an effect during `initState`, triggers `setState` on change, and automatically disposes itself when unmounted, so there is no manual cleanup required.
+
+For the widget constructor and parameters, consult the [ComputedBuilder API reference](https://pub.dev/documentation/flutter_compositions/latest/flutter_compositions/ComputedBuilder-class.html).
+
 ## Further Reading
 
 - [Reactivity Fundamentals](../guide/reactivity-fundamentals.md)
 - [Advanced Reactivity](../guide/reactivity.md)
-- [ComputedBuilder Utility](../api/utilities/computed-builder.md)
+- [ComputedBuilder API](https://pub.dev/documentation/flutter_compositions/latest/flutter_compositions/ComputedBuilder-class.html)

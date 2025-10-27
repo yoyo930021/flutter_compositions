@@ -1,7 +1,5 @@
 # 效能考量
 
-> 本頁提供繁體中文重點整理。完整數據與範例可參考英文版資源（目前以 [Technical Deep Dive](../en/internals/technical-deep-dive.md) 為主，未來會補上專門的 Performance 章節）。
-
 ## 最小化重建
 
 - builder 只會在讀取到的 `ref` 或 `computed` 變化時重新執行。

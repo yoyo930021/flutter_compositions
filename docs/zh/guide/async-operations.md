@@ -913,4 +913,4 @@ onPressed: refresh;
 
 - 探索[表單處理](./forms.md)以構建響應式表單
 - 學習[狀態管理](./state-management.md)以管理應用程式狀態
-- 閱讀 [AsyncValue API](../api/types/async-value.md) 以了解完整 API 參考
+- 閱讀 [AsyncValue 模式](#asyncvalue-模式) 以了解完整 API 參考

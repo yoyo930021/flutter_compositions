@@ -383,6 +383,6 @@ items.value = [...items.value, 'new'];
 
 ## Next Steps
 
-- Learn about [Built-in Composables](../../guide/built-in-composables.md) for common patterns
-- Explore [Async Operations](../../guide/async-operations.md) for handling futures and streams
+- Learn about [Built-in Composables](./built-in-composables.md) for common patterns
+- Explore [Async Operations](./async-operations.md) for handling futures and streams
 - Read [Reactivity In-Depth](../internals/reactivity-in-depth.md) for advanced concepts

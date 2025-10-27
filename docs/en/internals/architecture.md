@@ -2,8 +2,6 @@
 
 This page outlines how Flutter Compositions layers a composition-oriented runtime on top of Flutter’s `StatefulWidget`.
 
-> A full translation of the Traditional Chinese article is in progress. Until then, use this summary or read `/internals/architecture.md`.
-
 ## Key Components
 
 | Piece | Responsibility |

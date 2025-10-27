@@ -2,8 +2,6 @@
 
 Flutter Compositions prioritises developer ergonomics and fine-grained updates. These choices come with deliberate trade-offs.
 
-> This is a condensed summary. For the detailed Traditional Chinese article, see `/internals/design-trade-offs.md`.
-
 ## Familiar API vs. Flutter Conventions
 
 - **Pro:** Developers coming from Vue or React Hooks feel at home with `setup()`, `ref`, `computed`, and lifecycle hooks.
@@ -18,6 +16,11 @@ Flutter Compositions prioritises developer ergonomics and fine-grained updates. 
 
 - **Pro:** Declaring state inside `setup()` mirrors Vue’s Composition API and guarantees predictable lifecycle behaviour.
 - **Con:** Props are not reactive unless you access them via `widget<T>()`, which is easy to forget.
+
+## Hot Reload Semantics
+
+- **Pro:** Hot reload reruns `setup()` and restores refs by declaration order, so state sticks around during iterative work.
+- **Con:** Reordering or removing refs can shuffle the saved state; team members need to know when a hot restart is safer.
 
 ## Dependency Injection Scope
 
@@ -34,6 +37,8 @@ Flutter Compositions prioritises developer ergonomics and fine-grained updates. 
 - Adopt team lint rules to enforce `widget<T>()` and `InjectionKey` usage.
 - Wrap legacy widgets progressively; mixing paradigms is supported but requires clear coding standards.
 - Document how and where services are provided so onboarding stays smooth.
+- Define a project structure for composables/services (e.g. `features/<name>/composables`).
+- Share hot-reload etiquette so developers know when to restart and how to order refs.
 
 ## Related Reading
 
