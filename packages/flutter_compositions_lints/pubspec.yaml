@@ -16,4 +16,6 @@ dependencies:
 
 dev_dependencies:
   custom_lint: ^0.8.0
+  flutter:
+    sdk: flutter
   test: ^1.26.2
