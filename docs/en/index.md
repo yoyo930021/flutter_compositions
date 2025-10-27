@@ -8,13 +8,13 @@ hero:
   actions:
     - theme: brand
       text: Get Started
-      link: /en/guide/getting-started
+      link: /guide/getting-started
     - theme: alt
       text: Why Flutter Compositions?
-      link: /en/guide/why-choose
+      link: /guide/why-choose
     - theme: alt
       text: Lint Setup
-      link: /en/lints/README
+      link: /lints/README
 
 features:
   - title: Composable

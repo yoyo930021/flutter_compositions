@@ -66,7 +66,7 @@ void Function() useShowWelcomeDialog() {
 Now, you can use `useMediaQuery` in your `setup` method just like any built-in Composable.
 
 ```dart
-import './use_media_query.dart'; // Import the Composable you created
+import '../en/guide/use_media_query.dart'; // Import the Composable you created
 
 class ResponsiveWidget extends CompositionWidget {
   const ResponsiveWidget({super.key});

@@ -8,13 +8,13 @@ hero:
   actions:
     - theme: brand
       text: 快速上手
-      link: /guide/getting-started
+      link: /zh/guide/getting-started
     - theme: alt
       text: 為什麼選擇本框架？
-      link: /guide/why-choose
+      link: /zh/guide/why-choose
     - theme: alt
       text: Lint 使用
-      link: /lints/README
+      link: /zh/lints/README
 
 features:
   - title: 組合式 (Composable)
