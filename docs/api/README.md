@@ -1,23 +1,23 @@
-# API Reference
+# API 參考
 
-Complete API documentation for Flutter Compositions.
+完整的 Flutter Compositions API 文件。
 
-## Core APIs
+## 核心 API
 
-### Reactivity
-- [ref, computed, writableComputed](./reactivity.md) - Reactive state primitives
-- [watch, watchEffect](./watch.md) - Side effects and watchers
-- [customRef](./custom-ref.md) - Custom reactive references
+### 響應式
+- [ref, computed, writableComputed](./reactivity.md) - 響應式狀態原始型別
+- [watch, watchEffect](./watch.md) - 副作用與監看器
+- [customRef](./custom-ref.md) - 客製化響應式參照
 
 ### Widget
-- [CompositionWidget](./composition-widget.md) - Base widget class
-- [CompositionBuilder](./composition-builder.md) - Functional composition API
+- [CompositionWidget](./composition-widget.md) - 基礎組合式 Widget 類別
+- [CompositionBuilder](./composition-builder.md) - 函式式組合 API
 
-### Lifecycle
-- [onMounted, onUnmounted, onBuild](./lifecycle.md) - Lifecycle hooks
+### 生命週期
+- [onMounted, onUnmounted, onBuild](./lifecycle.md) - 生命週期掛勾
 
-### Dependency Injection
-- [provide, inject](./provide-inject.md) - Dependency injection
+### 依賴注入
+- [provide, inject](./provide-inject.md) - 依賴注入工具
 - [InjectionKey](./injection-key.md) - Type-safe injection keys
 
 ## Composables

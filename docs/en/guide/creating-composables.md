@@ -16,61 +16,78 @@ The main benefits of creating your own Composables are:
 
 Let's create a `useOrientation` Composable that returns a reactive `Ref` indicating the current device orientation (portrait or landscape).
 
-**1. Create a `use_orientation.dart` file**
+**1. Create a `use_media_query.dart` file**
 
 ```dart
 import 'package:flutter/widgets.dart';
 import 'package:flutter_compositions/flutter_compositions.dart';
 
 // A Composable is just a function that starts with `use`
-Ref<Orientation> useOrientation() {
-  // 1. Create a ref to store the current orientation
+(Ref<Size>, Ref<Orientation>) useMediaQuery() {
+  // 1. Create refs to store reactive values
+  final size = ref(Size.zero);
   final orientation = ref(Orientation.portrait);
 
-  // 2. Use onMounted because we need a BuildContext to get MediaQuery
-  onMounted(() {
-    // Get the current BuildContext
-    final context = inject<BuildContext>();
-
-    // Set the initial value
-    orientation.value = MediaQuery.of(context).orientation;
-
-    // Note: In a real-world app, you would need a more robust way
-    // to listen for orientation changes, e.g., using `WidgetsBindingObserver`.
-    // For simplicity, we only set it once on mount.
+  // 2. Use onBuild to access BuildContext on each build
+  // This allows us to react to MediaQuery changes
+  onBuild((context) {
+    final mediaQuery = MediaQuery.of(context);
+    size.value = mediaQuery.size;
+    orientation.value = mediaQuery.orientation;
   });
 
-  // 3. Return the reactive reference
-  return orientation;
+  // 3. Return the reactive references
+  return (size, orientation);
 }
 ```
 
-**Important Tip**: In the example above, we used `inject<BuildContext>()` to get the `BuildContext` inside `onMounted`. This is a little trick, as the `CompositionWidget` framework automatically provides the current `BuildContext` before executing the `builder` function.
+**Important Tip**: The example above uses `onBuild()` to access `BuildContext` on each build. This is the recommended way to integrate with Flutter's `InheritedWidget` system (like `MediaQuery`, `Theme`, etc.).
+
+**Alternative - Using useContext()**: If you need to access context in lifecycle hooks for imperative operations (like showing dialogs or navigation), use `useContext()`:
+
+```dart
+void Function() useShowWelcomeDialog() {
+  final context = useContext();
+
+  return () {
+    // Imperative operation using context
+    showDialog(
+      context: context.value!,
+      builder: (context) => const AlertDialog(
+        title: Text('Welcome!'),
+      ),
+    );
+  };
+}
+```
 
 **2. Use It in Your Widget**
 
-Now, you can use `useOrientation` in your `setup` method just like any built-in Composable.
+Now, you can use `useMediaQuery` in your `setup` method just like any built-in Composable.
 
 ```dart
-import './use_orientation.dart'; // Import the Composable you created
+import './use_media_query.dart'; // Import the Composable you created
 
-class OrientationAwareWidget extends CompositionWidget {
-  const OrientationAwareWidget({super.key});
+class ResponsiveWidget extends CompositionWidget {
+  const ResponsiveWidget({super.key});
 
   @override
   Widget Function(BuildContext) setup() {
     // Call it just like a built-in function
-    final orientation = useOrientation();
+    final (screenSize, orientation) = useMediaQuery();
 
-    // Create a computed property to display different text
+    // Create computed properties based on screen info
+    final isPortrait = computed(() => orientation.value == Orientation.portrait);
+    final isSmallScreen = computed(() => screenSize.value.width < 600);
+
     final message = computed(() {
-      return orientation.value == Orientation.portrait
-          ? 'Currently in Portrait Mode'
-          : 'Currently in Landscape Mode';
+      final orientationText = isPortrait.value ? 'Portrait' : 'Landscape';
+      final sizeText = isSmallScreen.value ? 'Small' : 'Large';
+      return 'Screen: $sizeText, $orientationText (${screenSize.value.width.toInt()}x${screenSize.value.height.toInt()})';
     });
 
     return (context) => Scaffold(
-      appBar: AppBar(title: const Text('Orientation')),
+      appBar: AppBar(title: const Text('Responsive')),
       body: Center(
         child: Text(message.value), // The UI will react to changes automatically
       ),

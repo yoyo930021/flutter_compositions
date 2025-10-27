@@ -1,26 +1,26 @@
-# Async Composables
+# 非同步組合式函式
 
-Composables for handling asynchronous operations with reactive state tracking.
+用於處理非同步操作並追蹤其響應式狀態的組合式函式。
 
 ## `useFuture`
 
-Executes a Future and tracks its state (loading/success/error).
+執行 Future 並追蹤其狀態（載入/成功/失敗）。
 
-### Signature
+### 方法簽章
 
 ```dart
 Ref<AsyncValue<T>> useFuture<T>(Future<T> Function() future)
 ```
 
-### Parameters
+### 參數
 
-- `future`: A function that returns the Future to execute
+- `future`：回傳要執行之 Future 的函式
 
-### Returns
+### 回傳值
 
-A `Ref<AsyncValue<T>>` that tracks the operation state.
+`Ref<AsyncValue<T>>`，負責追蹤操作狀態。
 
-### Example
+### 範例
 
 ```dart
 @override
@@ -38,19 +38,19 @@ Widget Function(BuildContext) setup() {
 }
 ```
 
-### Lifecycle
+### 生命週期
 
-- Future executes automatically when component mounts (in `onMounted`)
-- Starts in `AsyncLoading` state
-- Updates to `AsyncData` on success or `AsyncError` on failure
+- 元件掛載時（`onMounted`）自動執行 Future
+- 初始狀態為 `AsyncLoading`
+- 成功時轉換為 `AsyncData`，失敗時變為 `AsyncError`
 
 ---
 
 ## `useAsyncData`
 
-Advanced async operation with watch support and manual refresh.
+進階非同步操作，支援 watch 與手動更新。
 
-### Signature
+### 方法簽章
 
 ```dart
 (
@@ -62,18 +62,18 @@ Advanced async operation with watch support and manual refresh.
 })
 ```
 
-### Parameters
+### 參數
 
-- `future`: Async function that receives the watch value
-- `watch`: Optional function to watch for changes. When return value changes, future is re-executed
+- `future`：接受 watch 值的非同步函式
+- `watch`：可選的監看函式，其回傳值變更時會重新執行 future
 
-### Returns
+### 回傳值
 
-Tuple of:
-- `status`: Reactive AsyncValue tracking operation state
-- `refresh`: Function to manually trigger the async operation
+包含以下項目的元組：
+- `status`：追蹤操作狀態的 AsyncValue
+- `refresh`：手動重新執行的函式
 
-### Example - Basic Usage
+### 範例：基本使用
 
 ```dart
 @override
@@ -95,14 +95,14 @@ Widget Function(BuildContext) setup() {
 }
 ```
 
-### Example - With Watch
+### 範例：搭配 watch
 
 ```dart
 @override
 Widget Function(BuildContext) setup() {
   final userId = ref(1);
 
-  // Auto-refetch when userId changes
+  // userId 改變時自動重新取得
   final (status, refresh) = useAsyncData<User, int>(
     (id) => api.fetchUser(id),
     watch: () => userId.value,
@@ -120,20 +120,20 @@ Widget Function(BuildContext) setup() {
 }
 ```
 
-### Behavior
+### 行為說明
 
-- **Without watch**: Executes once on mount
-- **With watch**: Executes on mount and whenever watch value changes
-- **Concurrent execution**: Prevented - refresh() is ignored if already loading
-- **Manual refresh**: Call `refresh()` to manually trigger execution
+- **未提供 watch**：元件掛載時執行一次
+- **提供 watch**：掛載時以及 watch 值改變時執行
+- **避免並發**：若正在載入中，`refresh()` 會被忽略
+- **手動刷新**：呼叫 `refresh()` 可強制重新執行
 
 ---
 
 ## `useAsyncValue`
 
-Splits AsyncValue into individual reactive refs for easier access.
+將 AsyncValue 拆成數個響應式 ref，讓讀取更方便。
 
-### Signature
+### 方法簽章
 
 ```dart
 (
@@ -144,19 +144,19 @@ Splits AsyncValue into individual reactive refs for easier access.
 ) useAsyncValue<T>(ReadonlyRef<AsyncValue<T>> statusRef)
 ```
 
-### Parameters
+### 參數
 
-- `statusRef`: An AsyncValue ref (from `useFuture` or `useAsyncData`)
+- `statusRef`：由 `useFuture` 或 `useAsyncData` 取得的 AsyncValue ref
 
-### Returns
+### 回傳值
 
-Tuple of:
-- `data`: The successful result (null if loading/error/idle)
-- `error`: The error object (null if not in error state)
-- `loading`: Boolean indicating if operation is in progress
-- `hasData`: Boolean indicating if data or error is available
+包含以下項目的元組：
+- `data`：成功取得的資料（若為載入/錯誤/閒置狀態則為 null）
+- `error`：錯誤物件（非錯誤狀態時為 null）
+- `loading`：布林值，表示是否正在執行
+- `hasData`：布林值，表示是否已有資料或錯誤
 
-### Example
+### 範例
 
 ```dart
 @override
@@ -188,9 +188,9 @@ Widget Function(BuildContext) setup() {
 
 ## `useStream`
 
-Tracks the latest value emitted by a Stream.
+追蹤 Stream 最新輸出的值。
 
-### Signature
+### 方法簽章
 
 ```dart
 Ref<T> useStream<T>(Stream<T> stream, {required T initialValue})
@@ -198,14 +198,14 @@ Ref<T> useStream<T>(Stream<T> stream, {required T initialValue})
 
 ### Parameters
 
-- `stream`: The Stream to listen to
-- `initialValue`: Initial value before first emission
+- `stream`：要監聽的 Stream
+- `initialValue`：第一筆資料發出前的初始值
 
-### Returns
+### 回傳值
 
-A `Ref<T>` that updates with each stream emission.
+`Ref<T>`，會在每次 Stream 發出資料時更新。
 
-### Example
+### 範例
 
 ```dart
 @override
@@ -221,19 +221,19 @@ Widget Function(BuildContext) setup() {
 }
 ```
 
-### Lifecycle
+### 生命週期
 
-- Stream is subscribed when component mounts
-- Subscription is automatically canceled when component unmounts
-- Errors are not handled - use separate error handling if needed
+- 元件掛載時訂閱 Stream
+- 元件卸載時自動取消訂閱
+- 不會自動處理錯誤，需要的話請自行補上
 
 ---
 
 ## `useStreamController`
 
-Creates a StreamController with reactive stream tracking.
+建立 StreamController，並提供響應式的流狀態追蹤。
 
-### Signature
+### 方法簽章
 
 ```dart
 (StreamController<T>, Ref<T>) useStreamController<T>({
@@ -241,17 +241,17 @@ Creates a StreamController with reactive stream tracking.
 })
 ```
 
-### Parameters
+### 參數
 
-- `initialValue`: Initial value for the tracked stream
+- `initialValue`：追蹤流的初始值
 
-### Returns
+### 回傳值
 
-Tuple of:
-- `controller`: StreamController for adding events
-- `stream`: Reactive Ref tracking latest stream value
+包含以下項目的元組：
+- `controller`：可加入事件的 StreamController
+- `stream`：追蹤最新值的響應式 Ref
 
-### Example
+### 範例
 
 ```dart
 @override
@@ -270,18 +270,18 @@ Widget Function(BuildContext) setup() {
 }
 ```
 
-### Lifecycle
+### 生命週期
 
-- Controller is automatically closed when component unmounts
-- Uses broadcast StreamController internally
+- 元件卸載時自動關閉 Controller
+- 內部使用 broadcast StreamController
 
 ---
 
-## AsyncValue Types
+## AsyncValue 型別
 
 ### `AsyncValue<T>`
 
-Sealed class representing async operation state.
+代表非同步操作狀態的密封類別。
 
 ```dart
 sealed class AsyncValue<T> {
@@ -292,27 +292,27 @@ sealed class AsyncValue<T> {
 }
 ```
 
-### Properties
+### 屬性
 
 ```dart
-// State checks
+// 狀態檢查
 bool get isIdle;
 bool get isLoading;
 bool get isData;
 bool get isError;
-bool get hasData; // true if data or error
+bool get hasData; // 若已有資料或錯誤則為 true
 
-// Value access (returns null if not available)
+// 取得值（若不存在則回傳 null）
 T? get dataOrNull;
 Object? get errorOrNull;
 StackTrace? get stackTraceOrNull;
 ```
 
-### State Types
+### 狀態型別
 
 #### `AsyncIdle<T>`
 
-No connection - operation hasn't started yet.
+尚未連線，操作尚未啟動。
 
 ```dart
 const idle = AsyncIdle<String>();
@@ -320,7 +320,7 @@ const idle = AsyncIdle<String>();
 
 #### `AsyncLoading<T>`
 
-Waiting for data - operation in progress.
+等待資料中，操作正在進行。
 
 ```dart
 const loading = AsyncLoading<String>();
@@ -328,7 +328,7 @@ const loading = AsyncLoading<String>();
 
 #### `AsyncData<T>`
 
-Success - operation completed with data.
+成功完成，取得資料。
 
 ```dart
 final data = AsyncData('result');
@@ -337,7 +337,7 @@ print(data.value); // 'result'
 
 #### `AsyncError<T>`
 
-Failure - operation completed with error.
+失敗，操作回傳錯誤。
 
 ```dart
 final error = AsyncError('Connection failed', StackTrace.current);
@@ -345,10 +345,10 @@ print(error.errorValue); // 'Connection failed'
 print(error.stackTrace); // StackTrace
 ```
 
-### Pattern Matching
+### 模式比對
 
 ```dart
-// Exhaustive switch
+// 完整的 switch
 return switch (asyncValue) {
   AsyncIdle() => Text('Not started'),
   AsyncLoading() => CircularProgressIndicator(),
@@ -356,7 +356,7 @@ return switch (asyncValue) {
   AsyncError(:final errorValue) => Text('Error: $errorValue'),
 };
 
-// Conditional checks
+// 條件判斷
 if (asyncValue.isLoading) {
   return CircularProgressIndicator();
 }
@@ -368,12 +368,12 @@ if (asyncValue case AsyncData(:final value)) {
 
 ---
 
-## Best Practices
+## 最佳實務
 
-### 1. Use Pattern Matching for AsyncValue
+### 1. 使用模式匹配處理 AsyncValue
 
 ```dart
-// ✅ Good - exhaustive and type-safe
+// ✅ 較佳：完整且型別安全
 return switch (userData.value) {
   AsyncLoading() => CircularProgressIndicator(),
   AsyncError(:final errorValue) => ErrorWidget(errorValue),
@@ -381,56 +381,56 @@ return switch (userData.value) {
   AsyncIdle() => SizedBox.shrink(),
 };
 
-// ❌ Bad - not exhaustive
+// ❌ 不佳：未涵蓋所有情況
 if (userData.value.isData) {
   return UserCard(userData.value.dataOrNull!);
 }
 return CircularProgressIndicator();
 ```
 
-### 2. Use `useAsyncData` with Watch for Dependent Fetches
+### 2. 透過 `useAsyncData` 搭配 watch 處理相依擷取
 
 ```dart
-// ✅ Good - auto-refetch on dependency change
+// ✅ 較佳：依賴變更時自動重新取得
 final (status, _) = useAsyncData<User, int>(
   (id) => api.fetchUser(id),
   watch: () => userId.value,
 );
 
-// ❌ Bad - manual refetch
+// ❌ 不佳：需手動重新擷取
 final status = useFuture(() => api.fetchUser(userId.value));
 watch(() => userId.value, (_) {
   // Can't refetch easily
 });
 ```
 
-### 3. Use `useAsyncValue` for Simpler UI Logic
+### 3. 使用 `useAsyncValue` 讓 UI 邏輯更簡潔
 
 ```dart
-// ✅ Good - clear intent
+// ✅ 較佳：語意清楚
 final (data, error, loading, _) = useAsyncValue(status);
 
 if (loading.value) return CircularProgressIndicator();
 if (error.value != null) return ErrorWidget(error.value!);
 return DataWidget(data.value!);
 
-// ❌ Less clear
+// ❌ 可讀性較差
 if (status.value case AsyncLoading()) return CircularProgressIndicator();
 // ...
 ```
 
-### 4. Prevent Concurrent Executions
+### 4. 避免同時執行
 
 ```dart
-// ✅ Good - useAsyncData handles this
+// ✅ 較佳：useAsyncData 已內建處理
 final (status, refresh) = useAsyncData<Data, void>(
   (_) => fetchData(),
 );
 
-// Multiple refresh() calls are safe - ignored if already loading
+// 多次呼叫 refresh() 沒問題，若仍在載入會被忽略
 onPressed: refresh;
 
-// ❌ Bad - manual coordination needed
+// ❌ 不佳：需要自行協調
 final loading = ref(false);
 Future<void> fetch() async {
   if (loading.value) return;
@@ -441,9 +441,9 @@ Future<void> fetch() async {
 
 ---
 
-## Error Handling
+## 錯誤處理
 
-### Handle Errors in UI
+### 在 UI 中處理錯誤
 
 ```dart
 return switch (userData.value) {
@@ -458,7 +458,7 @@ return switch (userData.value) {
 };
 ```
 
-### Log Errors with Watch
+### 利用 watch 記錄錯誤
 
 ```dart
 watch(
@@ -474,8 +474,8 @@ watch(
 
 ---
 
-## See Also
+## 延伸閱讀
 
-- [AsyncValue Types](../types/async-value.md)
-- [watch, watchEffect](../watch.md)
-- [useFuture example](../../guide/async-operations.md)
+- [AsyncValue 型別說明](../types/async-value.md)
+- [watch、watchEffect](../watch.md)
+- [useFuture 範例](../../guide/async-operations.md)

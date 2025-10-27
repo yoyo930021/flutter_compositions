@@ -20,6 +20,8 @@ export default defineConfig({
         nav: [
           { text: '指南', link: '/guide/getting-started' },
           { text: '深入原理', link: '/internals/architecture' },
+          { text: '測試', link: '/testing/testing-guide' },
+          { text: 'Lint 規則', link: '/lints/README' },
         ],
         sidebar: {
           '/guide/': [
@@ -29,9 +31,34 @@ export default defineConfig({
                 { text: '快速上手', link: '/guide/getting-started' },
                 { text: '深入理解組合式 API', link: '/guide/what-is-a-composition' },
                 { text: '響應式基礎', link: '/guide/reactivity-fundamentals' },
+                { text: '進階響應式技巧', link: '/guide/reactivity' },
                 { text: '從 StatefulWidget 遷移', link: '/guide/from-stateful-widget' },
                 { text: '內建 Composables', link: '/guide/built-in-composables' },
                 { text: '建立您自己的 Composables', link: '/guide/creating-composables' },
+                { text: '非同步操作', link: '/guide/async-operations' },
+                { text: '依賴注入', link: '/guide/dependency-injection' },
+                { text: '與 flutter_hooks 比較', link: '/guide/flutter-hooks-comparison' },
+                { text: '與 Vue Composition API 比較', link: '/guide/vue-comparison' },
+                { text: '最佳實務', link: '/guide/best-practices' },
+                { text: '為什麼選擇本框架', link: '/guide/why-choose' },
+              ]
+            }
+          ],
+          '/testing/': [
+            {
+              text: '測試',
+              items: [
+                { text: '測試指南', link: '/testing/testing-guide' },
+              ]
+            }
+          ],
+          '/lints/': [
+            {
+              text: 'Lint 規則',
+              items: [
+                { text: '使用說明', link: '/lints/README' },
+                { text: '快速索引', link: '/lints/index' },
+                { text: '規則一覽', link: '/lints/rules' },
               ]
             }
           ],
@@ -70,6 +97,8 @@ export default defineConfig({
         nav: [
           { text: 'Guide', link: '/en/guide/getting-started' },
           { text: 'Internals', link: '/en/internals/architecture' },
+          { text: 'Testing', link: '/en/testing/testing-guide' },
+          { text: 'Lints', link: '/en/lints/README' },
         ],
         sidebar: {
           '/en/guide/': [
@@ -79,9 +108,34 @@ export default defineConfig({
                 { text: 'Getting Started', link: '/en/guide/getting-started' },
                 { text: 'Understanding the API', link: '/en/guide/what-is-a-composition' },
                 { text: 'Reactivity Fundamentals', link: '/en/guide/reactivity-fundamentals' },
+                { text: 'Advanced Reactivity', link: '/en/guide/reactivity' },
                 { text: 'From StatefulWidget', link: '/en/guide/from-stateful-widget' },
                 { text: 'Built-in Composables', link: '/en/guide/built-in-composables' },
                 { text: 'Creating Your Own', link: '/en/guide/creating-composables' },
+                { text: 'Async Operations', link: '/en/guide/async-operations' },
+                { text: 'Dependency Injection', link: '/en/guide/dependency-injection' },
+                { text: 'Flutter vs flutter_hooks', link: '/en/guide/flutter-hooks-comparison' },
+                { text: 'Flutter vs Vue Composition API', link: '/en/guide/vue-comparison' },
+                { text: 'Best Practices', link: '/en/guide/best-practices' },
+                { text: 'Why This Framework', link: '/en/guide/why-choose' },
+              ]
+            }
+          ],
+          '/en/testing/': [
+            {
+              text: 'Testing',
+              items: [
+                { text: 'Testing Guide', link: '/en/testing/testing-guide' },
+              ]
+            }
+          ],
+          '/en/lints/': [
+            {
+              text: 'Lints',
+              items: [
+                { text: 'Getting Started', link: '/en/lints/README' },
+                { text: 'Quick Reference', link: '/en/lints/index' },
+                { text: 'Rule Catalogue', link: '/en/lints/rules' },
               ]
             }
           ],

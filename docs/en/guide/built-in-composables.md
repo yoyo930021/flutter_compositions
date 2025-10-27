@@ -1,19 +1,61 @@
 # Built-in Composables
 
-`flutter_compositions` not only provides the core reactive APIs but also includes a series of utility functions prefixed with `use`, which we call "Composables." These functions are designed to encapsulate common logic related to Flutter-specific objects (like controllers), especially for automatic lifecycle management.
+`flutter_compositions` provides two categories of composable utilities to help you integrate Flutter objects with the reactive system: **`use*` functions** and **`manage*` functions**.
 
-The main benefits of using these `use` functions are:
+## Understanding `use*` vs `manage*`
 
-1.  **Automatic Disposal**: You no longer need to manually call `controller.dispose()` in a `dispose` method. The `use` function handles it for you automatically in `onUnmounted`.
-2.  **Reactivity Integration**: They often return a reactive `Ref` or `ComputedRef`, allowing you to easily use the controller's state within `computed` or `watch` effects.
+### `use*` Functions - Create and Manage
 
-## `useController<T extends ChangeNotifier>`
+Functions prefixed with `use` (like `useScrollController`, `useTextEditingController`) **create new instances** and **automatically manage their lifecycle**:
 
-This is a generic utility for managing any controller that extends `ChangeNotifier`. It automatically handles disposal and returns a `ComputedRef<T>` that updates whenever the controller calls `notifyListeners()`.
+- **Creates**: Returns a new instance of the controller/object
+- **Disposes**: Automatically calls `dispose()` when the widget is unmounted
+- **Returns**: A reactive `Ref` wrapping the controller
 
-`useScrollController`, `usePageController`, and `useFocusNode` are all specialized versions built on top of `useController`.
+**When to use**: When you need a new controller for your widget.
 
-**Example: Using `useScrollController`**
+```dart
+// ✅ Use when you need a new controller
+final scrollController = useScrollController();
+// Automatically disposed on unmount
+```
+
+### `manage*` Functions - Integrate Existing
+
+Functions prefixed with `manage` (like `manageValueListenable`, `manageChangeNotifier`) **integrate existing instances** into the reactive system with **automatic lifecycle management**:
+
+- **Requires**: You pass in an existing object
+- **Automatic Cleanup**: Always removes listeners on unmount
+- **Automatic Disposal** (when applicable):
+  - `manageListenable` / `manageValueListenable`: Can't dispose (`Listenable` has no `dispose()`)
+  - `manageChangeNotifier`: Automatically calls `dispose()` on unmount
+- **Returns**: A reactive `Ref` that syncs with the object
+
+**When to use**: When you have an existing controller/notifier from somewhere else (e.g., inherited from parent, shared state, third-party libraries) that you want to integrate into the reactive system.
+
+```dart
+// ✅ Use for Listenable objects (e.g., Animation)
+// Automatically removes listener, but can't dispose (Listenable has no dispose method)
+final animation = ...; // From AnimationController
+final reactiveAnimation = manageListenable(animation);
+
+// ✅ Use for ChangeNotifier objects (e.g., ScrollController)
+// Automatically removes listener AND disposes
+final controller = ScrollController();
+final reactiveController = manageChangeNotifier(controller);
+```
+
+## Key Differences
+
+| Feature | `use*` Functions | `manage*` Functions |
+|---------|-----------------|---------------------|
+| **Creates Instance** | ✅ Yes | ❌ No (you provide it) |
+| **Auto Cleanup** | ✅ Always | ✅ Always (removes listeners) |
+| **Auto Dispose** | ✅ Always | `manageChangeNotifier`: ✅<br>`manageListenable`: N/A (no dispose method) |
+| **Use Case** | New controllers for this widget | Integrate existing objects |
+| **Example** | `useScrollController()` | `manageValueListenable(existing)` |
+
+## `useScrollController`
 
 ```dart
 @override
@@ -36,6 +78,65 @@ Widget Function(BuildContext) setup() {
     controller: scrollController.value, // Pass the controller to the ListView
     itemCount: 100,
     itemBuilder: (context, index) => ListTile(title: Text('Item $index')),
+  );
+}
+```
+
+## `usePageController`
+
+Create an auto-disposed `PageController` and react to page changes without manual bookkeeping.
+
+```dart
+@override
+Widget Function(BuildContext) setup() {
+  final pageController = usePageController(initialPage: 0);
+  final currentPage = ref(0);
+
+  watchEffect(() {
+    currentPage.value = pageController.value.page?.round() ?? 0;
+  });
+
+  return (context) => Column(
+    children: [
+      Text('Page: ${currentPage.value}'),
+      Expanded(
+        child: PageView(
+          controller: pageController.value,
+          children: const [Page1(), Page2(), Page3()],
+        ),
+      ),
+    ],
+  );
+}
+```
+
+## `useFocusNode`
+
+Manage focus state reactively with automatic disposal.
+
+```dart
+@override
+Widget Function(BuildContext) setup() {
+  final focusNode = useFocusNode();
+  final hasFocus = ref(false);
+
+  watchEffect(() {
+    hasFocus.value = focusNode.value.hasFocus;
+  });
+
+  return (context) => Column(
+    children: [
+      TextField(
+        focusNode: focusNode.value,
+        decoration: InputDecoration(
+          labelText: hasFocus.value ? 'Focused!' : 'Not focused',
+        ),
+      ),
+      ElevatedButton(
+        onPressed: () => focusNode.value.requestFocus(),
+        child: const Text('Focus'),
+      ),
+    ],
   );
 }
 ```
@@ -84,13 +185,15 @@ Widget Function(BuildContext) setup() {
 }
 ```
 
-## `useValueNotifier`
+## `manageValueListenable`
 
-`useValueNotifier` is a bridge for when you need to integrate with existing `ValueNotifier`s or legacy code that uses `ValueListenableBuilder`.
+`manageValueListenable` is a bridge for when you need to integrate with existing `ValueNotifier`s or `ValueListenable`s from legacy code or third-party libraries.
 
-It converts a `ValueNotifier<T>` into a writable `ComputedRef<T>`, enabling two-way synchronization between them.
+It extracts and tracks the value from any `ValueListenable`, returning a tuple of `(listenable, value)`.
 
-**Example: Bridging a `ValueNotifier`**
+**Automatic Management**: This function automatically removes listeners on unmount. It cannot dispose the listenable because the `ValueListenable` interface doesn't have a `dispose()` method. If you're working with a `ChangeNotifier` (which extends both `Listenable` and has `dispose()`), use `manageChangeNotifier` instead.
+
+**Example: Integrating an Existing `ValueNotifier`**
 
 ```dart
 // Assume you have a ValueNotifier from another part of your app
@@ -98,25 +201,26 @@ final legacyCounter = ValueNotifier(0);
 
 @override
 Widget Function(BuildContext) setup() {
-  // Convert the ValueNotifier into a reactive Ref
-  // `disposeNotifier: true` will automatically dispose the passed-in notifier on unmount
-  final count = useValueNotifier(legacyCounter, disposeNotifier: false);
+  // Integrate the existing ValueNotifier into the reactive system
+  // Returns (listenable, value) tuple
+  final (notifier, count) = manageValueListenable(legacyCounter);
 
   final doubled = computed(() => count.value * 2);
 
   return (context) => Column(
     children: [
       Text('Reactive Doubled: ${doubled.value}'),
-      ElevatedButton(
-        onPressed: () => count.value++, // Modifying the Ref syncs back to the ValueNotifier
-        child: const Text('Increment'),
-      ),
       // You can also continue to use it with Flutter's native tools
       ValueListenableBuilder<int>(
-        valueListenable: legacyCounter,
+        valueListenable: notifier,
         builder: (context, value, child) => Text('Legacy Value: $value'),
       ),
     ],
   );
 }
 ```
+
+**Note**:
+- The returned value is **read-only**. To modify it, access the original listenable.
+- If you're creating a new `ValueNotifier` specifically for this widget, use `ref()` instead.
+- If you need to dispose a `ChangeNotifier`, use `manageChangeNotifier()` instead.

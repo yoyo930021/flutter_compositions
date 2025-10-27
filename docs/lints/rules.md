@@ -1,49 +1,47 @@
-# Flutter Compositions Lint Rules
+# Flutter Compositions Lint 規則
 
-Complete reference for all available lint rules.
+完整列出所有可用規則與詳細說明。
 
-## Rule Categories
+## 規則分類
 
-- **Reactivity**: Rules ensuring proper reactive state management
-- **Lifecycle**: Rules managing component lifecycle and resource cleanup
-- **Type Safety**: Rules enforcing type safety and avoiding conflicts
-- **Best Practices**: General best practice rules
+- **Reactivity**：與響應式狀態管理相關的規則
+- **Lifecycle**：控制生命週期與資源釋放
+- **Best Practices**：通用的最佳實務規範
 
 ---
 
-## Reactivity Rules
+## Reactivity 規則
 
 ### `flutter_compositions_ensure_reactive_props`
 
-**Category:** Reactivity
-**Severity:** Warning
-**Auto-fixable:** No
+**類別：** Reactivity  
+**嚴重度：** Warning  
+**是否可自動修正：** 否
 
-#### Description
+#### 規則說明
 
-Ensures that widget properties are accessed through `widget()` in the `setup()` method to maintain reactivity. Direct property access will not trigger reactive updates.
+要求在 `setup()` 中透過 `widget()` 取得 props，維持響應式更新。直接取用 `this.property` 只會保留初始值，之後不會自動更新。
 
-#### Why it matters
+#### 為什麼重要
 
-The `setup()` method runs only once. If you directly access `this.propertyName`, you capture a snapshot of the value at setup time. When the parent passes new props, your component won't react to the change.
+`setup()` 只執行一次，若直接抓取欄位值，就會固定在初始值；父層更新 props 也不會反映到子層。
 
-#### Examples
+#### 範例
 
-❌ **Bad:**
+❌ **不佳：**
 ```dart
 class UserCard extends CompositionWidget {
   final String name;
 
   @override
   Widget Function(BuildContext) setup() {
-    // Captures initial value only - NOT reactive
-    final greeting = 'Hello, $name!';
+    final greeting = 'Hello, $name!'; // 只會取得初始值
     return (context) => Text(greeting);
   }
 }
 ```
 
-✅ **Good:**
+✅ **較佳：**
 ```dart
 class UserCard extends CompositionWidget {
   final String name;
@@ -51,7 +49,6 @@ class UserCard extends CompositionWidget {
   @override
   Widget Function(BuildContext) setup() {
     final props = widget();
-    // Reacts to prop changes
     final greeting = computed(() => 'Hello, ${props.value.name}!');
     return (context) => Text(greeting.value);
   }
@@ -60,25 +57,25 @@ class UserCard extends CompositionWidget {
 
 ---
 
-## Lifecycle Rules
+## Lifecycle 規則
 
 ### `flutter_compositions_no_async_setup`
 
-**Category:** Lifecycle
-**Severity:** Error
-**Auto-fixable:** No
+**類別：** Lifecycle  
+**嚴重度：** Error  
+**是否可自動修正：** 否
 
-#### Description
+#### 規則說明
 
-Prevents `setup()` methods from being async. The setup function must synchronously return a builder function.
+禁止將 `setup()` 宣告為 `async`。該方法必須同步回傳 builder。
 
-#### Why it matters
+#### 為什麼重要
 
-Making `setup()` async breaks the composition lifecycle. The framework expects a synchronous builder function return, and async setups can cause timing issues and unpredictable behavior.
+非同步的 `setup()` 會打亂組合式生命週期，造成框架在建立 widget 時時序不一致。
 
-#### Examples
+#### 範例
 
-❌ **Bad:**
+❌ **不佳：**
 ```dart
 @override
 Future<Widget Function(BuildContext)> setup() async {
@@ -87,7 +84,7 @@ Future<Widget Function(BuildContext)> setup() async {
 }
 ```
 
-✅ **Good:**
+✅ **較佳：**
 ```dart
 @override
 Widget Function(BuildContext) setup() {
@@ -103,51 +100,45 @@ Widget Function(BuildContext) setup() {
 
 ### `flutter_compositions_controller_lifecycle`
 
-**Category:** Lifecycle
-**Severity:** Warning
-**Auto-fixable:** No
+**類別：** Lifecycle  
+**嚴重度：** Warning  
+**是否可自動修正：** 否
 
-#### Description
+#### 規則說明
 
-Ensures Flutter controllers (ScrollController, TextEditingController, etc.) are properly disposed using either:
-1. `use*` helper functions (recommended)
-2. Manual disposal in `onUnmounted()`
+確保 Flutter 控制器（如 ScrollController、TextEditingController 等）會被正確釋放。建議使用 `use*` 輔助函式，或在 `onUnmounted()` 中手動 `dispose()`。
 
-#### Why it matters
+#### 為什麼重要
 
-Controllers hold native resources and listeners. Failing to dispose them causes memory leaks.
+控制器持有系統資源與監聽器，未釋放會導致記憶體洩漏。
 
-#### Detected controller types
+#### 會檢查的控制器
 
-- ScrollController
-- PageController
-- TextEditingController
-- TabController
-- AnimationController
-- VideoPlayerController
-- WebViewController
+- ScrollController / PageController / TextEditingController
+- TabController / AnimationController
+- VideoPlayerController / WebViewController 等
 
-#### Examples
+#### 範例
 
-❌ **Bad:**
+❌ **不佳：**
 ```dart
 @override
 Widget Function(BuildContext) setup() {
-  final controller = ScrollController(); // Never disposed!
+  final controller = ScrollController(); // 未釋放
   return (context) => ListView(controller: controller);
 }
 ```
 
-✅ **Good (Option 1 - Recommended):**
+✅ **較佳（推薦）：**
 ```dart
 @override
 Widget Function(BuildContext) setup() {
-  final controller = useScrollController(); // Auto-disposed
+  final controller = useScrollController(); // 自動釋放
   return (context) => ListView(controller: controller.value);
 }
 ```
 
-✅ **Good (Option 2 - Manual):**
+✅ **較佳（手動）：**
 ```dart
 @override
 Widget Function(BuildContext) setup() {
@@ -159,88 +150,77 @@ Widget Function(BuildContext) setup() {
 
 ### `flutter_compositions_no_conditional_composition`
 
-**Category:** Lifecycle
-**Severity:** Error
-**Auto-fixable:** No
+**類別：** Lifecycle  
+**嚴重度：** Error  
+**是否可自動修正：** 否
 
-#### Description
+#### 規則說明
 
-Ensures composition API calls (`ref()`, `computed()`, `watch()`, `useController()`, etc.) are not placed inside conditionals or loops. Similar to React Hooks rules, composition APIs must be called unconditionally at the top level of `setup()`.
+禁止在條件式或迴圈中呼叫組合式 API（例如 `ref()`、`computed()`、`watch()`、`useScrollController()` 等）。規則和 React Hooks 類似，所有組合式 API 必須在 `setup()` 的頂層呼叫。
 
-#### Why it matters
+#### 為什麼重要
 
-Conditional composition API calls can cause:
-- Inconsistent ordering of reactive dependencies across renders
-- Unpredictable reactivity behavior
-- Difficult to debug lifecycle issues
-- Memory leaks when cleanup hooks are skipped
+條件式呼叫會導致依賴順序不一致、行為不可預期、清理流程缺失，甚至造成記憶體洩漏。
 
-#### Flagged composition APIs
+#### 會被偵測的 API
 
-- Reactivity: `ref`, `computed`, `writableComputed`, `customRef`, `watch`, `watchEffect`
-- Lifecycle: `onMounted`, `onUnmounted`
-- Dependency injection: `provide`, `inject`
-- Controllers: `useController`, `useScrollController`, `usePageController`, `useFocusNode`, `useTextEditingController`, `useListenable`, `useValueNotifier`
+- Reactivity：`ref`, `computed`, `writableComputed`, `customRef`, `watch`, `watchEffect`
+- Lifecycle：`onMounted`, `onUnmounted`
+- 依賴注入：`provide`, `inject`
+- 控制器相關：`useScrollController`, `usePageController`, `useFocusNode`, `useTextEditingController`, `useValueNotifier`, `useAnimationController`, `manageListenable`, `manageValueListenable` 等
 
-#### Examples
+#### 範例
 
-❌ **Bad:**
+❌ **不佳：**
 ```dart
 @override
 Widget Function(BuildContext) setup() {
   if (someCondition) {
-    final count = ref(0); // ❌ Conditional composition API
+    final count = ref(0); // ❌ 不可在條件內呼叫
   }
 
   for (var i = 0; i < 10; i++) {
-    final item = ref(i); // ❌ Inside loop
+    final item = ref(i); // ❌ 迴圈內呼叫
   }
 
   return (context) => Text('Hello');
 }
 ```
 
-✅ **Good:**
+✅ **較佳：**
 ```dart
 @override
 Widget Function(BuildContext) setup() {
-  // ✅ Composition APIs at top level
   final count = ref(0);
-  final items = ref(<int>[]);
 
-  // ✅ Conditional logic for values is OK
   if (someCondition) {
-    count.value = 10;
+    count.value = 10; // 只改值可以
   }
 
-  return (context) => Text('Count: ${count.value}');
+  return (context) => Text('${count.value}');
 }
 ```
 
 ---
 
-## Best Practices Rules
+## Best Practices 規則
 
 ### `flutter_compositions_no_mutable_fields`
 
-**Category:** Best Practices
-**Severity:** Warning
-**Auto-fixable:** No
+**類別：** Best Practices  
+**嚴重度：** Warning  
+**是否可自動修正：** 否
 
-#### Description
+#### 規則說明
 
-Ensures all fields in CompositionWidget classes are `final`. Mutable state should be managed through `ref()` or `computed()` in the `setup()` method.
+要求 CompositionWidget 的欄位必須為 `final`，真正的可變狀態應交給 `ref()` 或 `computed()`。
 
-#### Why it matters
+#### 範例
 
-Mutable fields bypass the reactive system. Changes to them won't trigger rebuilds, and they violate the composition pattern's design.
-
-#### Examples
-
-❌ **Bad:**
+❌ **不佳：**
 ```dart
 class Counter extends CompositionWidget {
-  int count = 0; // Mutable field!
+  int count = 0; // 可變欄位
 
   @override
   Widget Function(BuildContext) setup() {
@@ -249,14 +229,14 @@ class Counter extends CompositionWidget {
 }
 ```
 
-✅ **Good:**
+✅ **較佳：**
 ```dart
 class Counter extends CompositionWidget {
-  final int initialCount; // Immutable prop
+  final int initialCount;
 
   @override
   Widget Function(BuildContext) setup() {
-    final count = ref(initialCount); // Mutable via ref
+    final count = ref(initialCount);
     return (context) => Text('${count.value}');
   }
 }
@@ -264,87 +244,8 @@ class Counter extends CompositionWidget {
 
 ---
 
-## Type Safety Rules
+## 其他資源
 
-### `flutter_compositions_provide_inject_type_match`
-
-**Category:** Type Safety
-**Severity:** Info
-**Auto-fixable:** No
-
-#### Description
-
-Warns when using common types (String, int, bool, etc.) with `provide`/`inject` that are likely to cause type conflicts.
-
-#### Why it matters
-
-Using `Ref<String>` or `Ref<int>` makes it easy for different parts of your app to accidentally provide/inject the wrong value. Custom types make intent explicit and prevent conflicts.
-
-#### Flagged common types
-
-- String
-- int
-- double
-- bool
-- num
-- List
-- Map
-- Set
-
-#### Examples
-
-❌ **Bad:**
-```dart
-// Parent
-provide<Ref<String>>(theme); // Too generic!
-
-// Child
-final theme = inject<Ref<String>>(); // Which string?
-```
-
-✅ **Good:**
-```dart
-// Define custom type
-class AppTheme {
-  const AppTheme(this.mode);
-  final String mode;
-}
-
-// Parent
-provide<Ref<AppTheme>>(theme); // Explicit and type-safe!
-
-// Child
-final theme = inject<Ref<AppTheme>>(); // No ambiguity
-```
-
----
-
-## Disabling Rules
-
-### Per-file
-
-```dart
-// ignore_for_file: flutter_compositions_ensure_reactive_props
-```
-
-### Per-line
-
-```dart
-// ignore: flutter_compositions_ensure_reactive_props
-final name = this.name;
-```
-
-### In analysis_options.yaml
-
-```yaml
-custom_lint:
-  rules:
-    - flutter_compositions_ensure_reactive_props: false
-    - flutter_compositions_no_async_setup: true
-```
-
----
-
-## Contributing
-
-Have suggestions for new rules or improvements to existing ones? Please open an issue or pull request!
+- [lint 規則總覽](./index.md)
+- [最佳實務指南](../guide/best-practices.md)
+- [API 參考](../api/README.md)

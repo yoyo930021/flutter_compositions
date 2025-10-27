@@ -1,16 +1,14 @@
-# Custom Lint Guidance for Flutter Compositions
+# Flutter Compositions Lint 指南
 
-## English
+使用這組自訂 lint 規則，可以確保 CompositionWidget 保持響應式並維持一致的寫法。
 
-Use custom lint rules to keep CompositionWidgets reactive and consistent:
+- **在 `setup()` 內優先呼叫 `widget()` / `this.widget()`**，直接讀取欄位會跳過響應式系統。
+- **避免在 Widget 類別上使用可變欄位**，所有可變狀態應存放於 `ref` 或 `ComputedRef`。
+- **驗證 `provide` / `inject` 的型別**，確保兩者泛型一致。
+- **禁止 `setup()` 使用 async**，必須同步回傳 builder。
+- **針對未釋放的控制器發出警告**，強制使用 `use*` 輔助函式或自行 `dispose()`。
 
-- **Prefer calling `widget()` / `this.widget()` inside `setup()`** – direct field access skips reactivity.
-- **Avoid mutable fields on the widget class**; keep mutable state in `ref` or `ComputedRef`.
-- **Validate `provide` / `inject` pairs** by linting for matching generic types.
-- **Disallow async void `setup()`** bodies; `setup()` must synchronously return a builder.
-- **Flag orphaned controllers** by requiring `useController` or explicit dispose calls.
-
-Example configuration snippet for `custom_lint`:
+`custom_lint` 設定範例：
 
 ```yaml
 custom_lint:
@@ -20,7 +18,7 @@ custom_lint:
     - flutter_compositions_controller_lifecycle
 ```
 
-Recommended quick fixes:
+建議修正步驟：
 
-- Wrap direct property usage with `widget()` and, when necessary, computed selectors.
-- Replace manual controller wiring with the provided `use*` helpers.
+- 將直接使用的 props 包裝成 `widget()`，必要時搭配 computed selector。
+- 將手動建立／釋放控制器改寫成 `use*` 輔助函式。

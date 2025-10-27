@@ -11,7 +11,10 @@ hero:
       link: /guide/getting-started
     - theme: alt
       text: 為什麼選擇本框架？
-      link: /internals/design-trade-offs
+      link: /guide/why-choose
+    - theme: alt
+      text: Lint 使用
+      link: /lints/README
 
 features:
   - title: 組合式 (Composable)
@@ -22,4 +25,6 @@ features:
     details: 利用 Dart 強大的型別系統，提供完全型別安全的依賴注入 (provide/inject) 和屬性 (props)。
   - title: 簡單直觀 (Simple & Intuitive)
     details: 熟悉的 `ref`, `computed`, `watch` API，讓具備 Vue 或 React Hooks 開發經驗的開發者能快速上手。
+  - title: Hot Reload 支援
+    details: Hot Reload 時會重新執行 setup() 並依宣告順序保留 `ref` 狀態，調整程式碼也能延續現有資料。
 ---

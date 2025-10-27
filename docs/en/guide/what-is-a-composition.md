@@ -31,7 +31,7 @@ class UserCard extends CompositionWidget {
   @override
   Widget Function(BuildContext) setup() {
     // ✅ CORRECT: Get a reactive reference to props using widget()
-    final props = widget();
+    final props = widget<UserCard>();
 
     // ❌ WRONG: Direct access to this.name or name is NOT reactive!
     // final greeting = computed(() => 'Hello, $name');
@@ -49,7 +49,7 @@ class UserCard extends CompositionWidget {
 }
 ```
 
-**Key takeaway**: Always access props via `widget().value.yourProp` to ensure your `computed` and `watch` effects react correctly to changes.
+**Key takeaway**: Always access props via `widget<YourWidget>().value.yourProp` to ensure your `computed` and `watch` effects react correctly to changes.
 
 ## Lifecycle Hooks
 
@@ -61,20 +61,26 @@ class UserCard extends CompositionWidget {
 ```dart
 @override
 Widget Function(BuildContext) setup() {
-  final myController = useController(AnimationController());
+  final (animationController, progress) = useAnimationController(
+    duration: const Duration(milliseconds: 300),
+  );
 
   onMounted(() {
     print('Widget is mounted!');
-    myController.value.forward();
+    animationController.forward();
   });
 
   onUnmounted(() {
     print('Widget is unmounted, cleaning up.');
-    // `useController` disposes automatically, but this is for demonstration
-    // myController.value.dispose();
+    // `useAnimationController` disposes automatically,
+    // but you can clean up other resources here if needed
   });
 
-  return (context) => /* ... */;
+  return (context) => AnimatedOpacity(
+        opacity: progress.value,
+        duration: const Duration(milliseconds: 300),
+        child: const Placeholder(),
+      );
 }
 ```
 
@@ -82,10 +88,10 @@ Widget Function(BuildContext) setup() {
 
 When you need to pass data down the component tree without passing it through constructors at every level, you can use `provide` and `inject`. This is similar to the Provider package but is more lightweight and type-safe.
 
-- `provide(value)`: Makes a value available to all descendant `CompositionWidget`s.
-- `inject<T>()`: Retrieves a value of type `T` from an ancestor `CompositionWidget`.
+- `provide(key, value)`: Makes a value available to all descendant `CompositionWidget`s using an `InjectionKey`.
+- `inject(key)`: Retrieves a value from an ancestor `CompositionWidget` using the same `InjectionKey`.
 
-This mechanism is **type-based**, so it's recommended to use custom classes as keys to avoid conflicts.
+This mechanism relies on `InjectionKey<T>` instances as lookup keys. The generic type participates in equality, so defining distinct keys (often as const values) keeps lookups precise and prevents type conflicts.
 
 **Example: Providing a Theme State**
 
@@ -96,12 +102,17 @@ class AppTheme {
   String mode;
 }
 
-// 2. Provide a reactive state in the parent widget
+// 2. Define an injection key for type-safe dependency injection
+final themeKey = InjectionKey<Ref<AppTheme>>('app.theme');
+
+// 3. Provide a reactive state in the parent widget
 class ThemeProvider extends CompositionWidget {
   @override
   Widget Function(BuildContext) setup() {
     final theme = ref(AppTheme('light'));
-    provide(theme); // Type is automatically inferred as Ref<AppTheme>
+
+    // Provide using InjectionKey - type safe!
+    provide(themeKey, theme);
 
     return (context) => Column(
       children: [
@@ -112,12 +123,12 @@ class ThemeProvider extends CompositionWidget {
   }
 }
 
-// 3. Inject it in a child widget
+// 4. Inject it in a child widget
 class ThemeDisplay extends CompositionWidget {
   @override
   Widget Function(BuildContext) setup() {
-    // Inject by type - fully type-safe!
-    final theme = inject<Ref<AppTheme>>();
+    // Inject by key - fully type-safe!
+    final theme = inject(themeKey);
 
     return (context) => Text('Current mode: ${theme.value.mode}');
   }

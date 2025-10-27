@@ -1,65 +1,69 @@
-# Reactivity in Depth
+# Reactivity In Depth
 
-`flutter_compositions` is powered by the `alien_signals` package, a high-performance reactive library tailored for Dart. Understanding the basic principles of `alien_signals` will help you fully grasp how `flutter_compositions` works.
+This document explains how Flutter Compositions builds fine-grained reactivity on top of Flutter’s widget system.
 
-## The Three Pillars of a Signal System
+> The original Traditional Chinese article lives at `/internals/reactivity-in-depth.md`. This version summarizes the key ideas for English readers.
 
-A signal system typically consists of three core concepts:
+## Building Blocks
 
-1.  **Signal (or Ref)**: The **source of truth** in a reactive system. In our framework, this is created by `ref()`. It's a container that wraps a value. When you read its `.value`, you are reading a value; when you write to its `.value`, you are triggering a change.
+### Ref
 
-2.  **Computed**: **Derived data**. Created by `computed()`. It doesn't have a value of its own; its value is calculated from other `Signal`s or `Computed`s via a function. It automatically tracks the dependencies it uses during its computation.
+`ref(value)` returns a `Ref<T>`—a wrapper that tracks reads and writes to `.value`.
 
-3.  **Effect**: The **end-point** of the reactive system. Created by `watchEffect()`, `watch()`, or implicitly by a `CompositionWidget`'s `builder` function. It's a function that performs some action (like printing to the console, making a network request, or **updating the UI**). An `Effect` also tracks the dependencies it uses during its execution.
+- Reads register the current reactive observer (builder, computed, or effect).
+- Writes mark the ref as dirty and notify subscribers.
 
-These three pillars form a **Dependency Graph**. `Computed`s and `Effect`s subscribe to the `Signal`s and `Computed`s they depend on.
+### Computed
 
-## How the "Magic" Works: Automatic Tracking
+`computed(() => ...)` lazily evaluates a function and caches the result until any dependency changes. It behaves like a memoized getter.
 
-When you read the `.value` of a `ref` inside a `computed` or `effect` function, something magical happens:
+### Effect
 
-1.  Before executing the `computed` or `effect` function, `alien_signals` sets a global "current listener".
-2.  When you access `ref.value`, the `ref`'s getter checks if this "current listener" exists.
-3.  If it does, the `ref` adds this "listener" (i.e., the `computed` or `effect`) to its own list of subscribers.
-4.  After the function finishes executing, the global "current listener" is cleared.
+Effects are registered by builders, `watch`, or `watchEffect`. Each effect captures the refs it touches and reruns when any of them change.
 
-This is why you don't need to manually declare dependencies. The system automatically records who depends on whom.
+## Dependency Tracking
 
-## The Update Process
+1. Before a reactive function executes, the runtime pushes it onto a “current observer” stack.
+2. When a ref’s getter runs, it attaches the current observer to its subscriber list.
+3. Once the function finishes, the observer is popped.
+4. When `.value` mutates, every subscriber is queued for re-execution.
 
-When you modify the value of a `ref` (e.g., `count.value++`), the update process is as follows:
+This is the same model popularized by Vue’s reactivity system.
 
-1.  The `ref`'s setter is called.
-2.  The `ref` iterates through its internal list of subscribers (all the `computed`s and `effect`s that depend on it).
-3.  It notifies these subscribers, saying, "My value has changed!"
-4.  A notified `computed` marks itself as "stale" but **does not immediately re-calculate**. It waits until the next time its `.value` is read to perform a lazy evaluation.
-5.  A notified `effect` is added to a queue and re-executed asynchronously in a batch by the `alien_signals` scheduler in a microtask.
+## Scheduler
 
-## Integration with Flutter: The Role of the `builder`
+Updates are batched in a microtask queue:
 
-The most clever part of `CompositionWidget` is how it integrates this reactive system with Flutter's widget system.
+1. A setter marks the ref dirty and enqueues observers.
+2. Flutter Compositions deduplicates observers to avoid redundant work.
+3. Once the microtask runs, each observer executes in order.
 
-The `_CompositionWidgetState` wraps your `builder` function in an `effect`. The content of this `effect` is roughly as follows:
+Builders wrap their work in `setState`, so Flutter sees them as ordinary widget updates.
 
-```dart
-// This is a simplified illustration
-_renderEffect = effect(() {
-  // Execute the builder function you returned from setup()
-  final newWidget = builder(context);
+## Integration with Flutter
 
-  // If the generated widget is different from the last one, call setState
-  if (_cachedWidget != newWidget) {
-    setState(() {
-      _cachedWidget = newWidget;
-    });
-  }
-});
-```
+- `CompositionWidget` runs `setup()` once, grabs the returned builder, and registers it as an effect.
+- When dependencies change, the builder triggers `setState`, scheduling a rebuild that Flutter diffs like any other widget.
+- Lifecycle hooks (`onMounted`, `onUnmounted`, `onBuild`) piggyback on Flutter’s lifecycle and the reactive scheduler.
 
-This means:
+## Avoiding Common Pitfalls
 
-- The `_renderEffect` is only re-executed when the **reactive data** used inside the `builder` function changes.
-- `setState` is only potentially called when the `_renderEffect` is re-executed.
-- `setState` only triggers a small rebuild of this `CompositionWidget` itself, not the entire page.
+- **Stale props:** Access props via `widget<T>()` so you get a reactive wrapper around the latest widget instance.
+- **Mutable collections:** Replace lists or maps wholesale (`todos.value = [...todos.value, todo]`) so the runtime sees a new reference.
+- **Async gaps:** When mixing async callbacks and refs, read the latest value inside the callback instead of capturing stale data.
 
-This is the secret to how `flutter_compositions` achieves **fine-grained updates** and **high performance**. It transforms Flutter's coarse-grained `setState` mechanism into an automated update system precisely controlled by the underlying reactive system, allowing developers to focus on business logic without manually managing the synchronization between state and UI.
+## Tooling Hooks
+
+The runtime exposes `onCleanup` behind the scenes so every effect can register teardown logic. Composables like `watch` and `useStream` rely on it to remove listeners automatically.
+
+## Performance Characteristics
+
+- Accessing refs is O(1).
+- Each write is proportional to the number of subscribed observers.
+- Builders stay granular: only the widgets that read a changing ref rebuild.
+
+## Further Reading
+
+- [Reactivity Fundamentals](../guide/reactivity-fundamentals.md)
+- [Advanced Reactivity](../guide/reactivity.md)
+- [ComputedBuilder Utility](../api/utilities/computed-builder.md)

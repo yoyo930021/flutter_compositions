@@ -11,7 +11,10 @@ hero:
       link: /en/guide/getting-started
     - theme: alt
       text: Why Flutter Compositions?
-      link: /en/internals/design-trade-offs
+      link: /en/guide/why-choose
+    - theme: alt
+      text: Lint Setup
+      link: /en/lints/README
 
 features:
   - title: Composable
@@ -22,4 +25,6 @@ features:
     details: Leverage Dart's powerful type system for fully type-safe dependency injection (provide/inject) and props.
   - title: Simple & Intuitive
     details: With a familiar API (`ref`, `computed`, `watch`), developers with Vue or React Hooks experience will feel right at home.
+  - title: Hot Reload Friendly
+    details: Hot reload reruns setup() while preserving `ref` state order, so tweaks to code keep your live data intact.
 ---

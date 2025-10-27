@@ -1,19 +1,61 @@
 # 內建 Composables
 
-`flutter_compositions` 不僅提供核心的響應式 API，還包含了一系列以 `use` 為前綴的工具函式，我們稱之為 "Composables"。這些函式旨在封裝與 Flutter 特定物件（如控制器）相關的常見邏輯，特別是自動化的生命週期管理。
+`flutter_compositions` 提供兩類 composable 工具來幫助您將 Flutter 物件與響應式系統整合：**`use*` 函式**和 **`manage*` 函式**。
 
-使用這些 `use` 函式的主要好處是：
+## 理解 `use*` 與 `manage*` 的差異
 
-1.  **自動銷毀 (Automatic Disposal)**: 您不再需要在 `dispose` 方法中手動呼叫 `controller.dispose()`。`use` 函式會在 `onUnmounted` 中自動為您處理。
-2.  **響應式整合 (Reactivity Integration)**: 它們通常會返回一個響應式的 `Ref` 或 `ComputedRef`，讓您可以輕易地在 `computed` 或 `watch` 中使用控制器的狀態。
+### `use*` 函式 - 建立並管理
 
-## `useController<T extends ChangeNotifier>`
+以 `use` 為前綴的函式（如 `useScrollController`、`useTextEditingController`）會**建立新實例**並**自動管理其生命週期**:
 
-這是一個通用的工具，用於管理任何繼承自 `ChangeNotifier` 的控制器。它會自動處理 `dispose`，並返回一個 `ComputedRef<T>`，該 Ref 會在控制器呼叫 `notifyListeners()` 時更新。
+- **建立**: 返回控制器/物件的新實例
+- **銷毀**: 在 Widget 卸載時自動呼叫 `dispose()`
+- **返回**: 包裝控制器的響應式 `Ref`
 
-`useScrollController`, `usePageController`, `useFocusNode` 都是基於 `useController` 實現的特化版本。
+**何時使用**: 當您需要為 Widget 建立新的控制器時。
 
-**範例：使用 `useScrollController`**
+```dart
+// ✅ 當您需要新的控制器時使用
+final scrollController = useScrollController();
+// 在卸載時自動銷毀
+```
+
+### `manage*` 函式 - 整合既有物件
+
+以 `manage` 為前綴的函式（如 `manageValueListenable`、`manageChangeNotifier`）會將**既有實例整合**到響應式系統中，並提供**自動生命週期管理**:
+
+- **需要**: 您傳入一個既有的物件
+- **自動清理**: 總是在卸載時移除監聽器
+- **自動銷毀**（如果適用）:
+  - `manageListenable` / `manageValueListenable`: 無法銷毀（`Listenable` 沒有 `dispose()` 方法）
+  - `manageChangeNotifier`: 會在卸載時自動呼叫 `dispose()`
+- **返回**: 與物件同步的響應式 `Ref`
+
+**何時使用**: 當您有來自其他地方的既有控制器/notifier（例如：從父組件繼承、共享狀態、第三方函式庫），想要整合到響應式系統中。
+
+```dart
+// ✅ 用於 Listenable 物件（例如：Animation）
+// 自動移除監聽器，但無法銷毀（Listenable 沒有 dispose 方法）
+final animation = ...; // 來自 AnimationController
+final reactiveAnimation = manageListenable(animation);
+
+// ✅ 用於 ChangeNotifier 物件（例如：ScrollController）
+// 自動移除監聽器並且銷毀
+final controller = ScrollController();
+final reactiveController = manageChangeNotifier(controller);
+```
+
+## 主要差異
+
+| 特性 | `use*` 函式 | `manage*` 函式 |
+|------|------------|---------------|
+| **建立實例** | ✅ 是 | ❌ 否（您提供） |
+| **自動清理** | ✅ 總是 | ✅ 總是（移除監聽器） |
+| **自動銷毀** | ✅ 總是 | `manageChangeNotifier`: ✅<br>`manageListenable`: 不適用（沒有 dispose 方法） |
+| **使用情境** | 為此 Widget 建立新控制器 | 整合既有物件 |
+| **範例** | `useScrollController()` | `manageValueListenable(existing)` |
+
+## `useScrollController`
 
 ```dart
 @override
@@ -36,6 +78,65 @@ Widget Function(BuildContext) setup() {
     controller: scrollController.value, // 將控制器傳給 ListView
     itemCount: 100,
     itemBuilder: (context, index) => ListTile(title: Text('Item $index')),
+  );
+}
+```
+
+## `usePageController`
+
+建立自動釋放的 `PageController`，並搭配 `computed` 或 `watch` 追蹤分頁索引。
+
+```dart
+@override
+Widget Function(BuildContext) setup() {
+  final pageController = usePageController(initialPage: 0);
+  final currentPage = ref(0);
+
+  watchEffect(() {
+    currentPage.value = pageController.value.page?.round() ?? 0;
+  });
+
+  return (context) => Column(
+    children: [
+      Text('Page: ${currentPage.value}'),
+      Expanded(
+        child: PageView(
+          controller: pageController.value,
+          children: const [Page1(), Page2(), Page3()],
+        ),
+      ),
+    ],
+  );
+}
+```
+
+## `useFocusNode`
+
+以響應式方式管理 `FocusNode`，并在卸載時自動釋放。
+
+```dart
+@override
+Widget Function(BuildContext) setup() {
+  final focusNode = useFocusNode();
+  final hasFocus = ref(false);
+
+  watchEffect(() {
+    hasFocus.value = focusNode.value.hasFocus;
+  });
+
+  return (context) => Column(
+    children: [
+      TextField(
+        focusNode: focusNode.value,
+        decoration: InputDecoration(
+          labelText: hasFocus.value ? 'Focused!' : 'Not focused',
+        ),
+      ),
+      ElevatedButton(
+        onPressed: () => focusNode.value.requestFocus(),
+        child: const Text('Focus'),
+      ),
+    ],
   );
 }
 ```
@@ -84,39 +185,42 @@ Widget Function(BuildContext) setup() {
 }
 ```
 
-## `useValueNotifier`
+## `manageValueListenable`
 
-當您需要與既有的 `ValueNotifier` 或使用 `ValueListenableBuilder` 的舊有程式碼整合時，`useValueNotifier` 是一個橋樑。
+當您需要與既有的 `ValueNotifier` 或 `ValueListenable` 整合（來自舊有程式碼或第三方函式庫）時，`manageValueListenable` 是一個橋樑。
 
-它會將一個 `ValueNotifier<T>` 轉換成一個可寫的 `ComputedRef<T>`，實現兩者之間的雙向同步。
+它會從任何 `ValueListenable` 中提取並追蹤值，返回一個 `(listenable, value)` 元組。
 
-**範例：橋接一個 `ValueNotifier`**
+**自動管理**: 此函式會在卸載時自動移除監聽器。它無法銷毀 listenable，因為 `ValueListenable` 介面本身沒有 `dispose()` 方法。如果您使用的是 `ChangeNotifier`（它同時繼承 `Listenable` 並具有 `dispose()` 方法），請改用 `manageChangeNotifier`。
+
+**範例：整合既有的 `ValueNotifier`**
 
 ```dart
-// 假設您有一個來自其他地方的 ValueNotifier
+// 假設您有一個來自應用程式其他部分的 ValueNotifier
 final legacyCounter = ValueNotifier(0);
 
 @override
 Widget Function(BuildContext) setup() {
-  // 將 ValueNotifier 轉換為響應式的 Ref
-  // `disposeNotifier: true` 會在 unmount 時自動銷毀傳入的 notifier
-  final count = useValueNotifier(legacyCounter, disposeNotifier: false);
+  // 將既有的 ValueNotifier 整合到響應式系統中
+  // 返回 (listenable, value) 元組
+  final (notifier, count) = manageValueListenable(legacyCounter);
 
   final doubled = computed(() => count.value * 2);
 
   return (context) => Column(
     children: [
       Text('Reactive Doubled: ${doubled.value}'),
-      ElevatedButton(
-        onPressed: () => count.value++, // 修改 Ref 會同步回 ValueNotifier
-        child: const Text('Increment'),
-      ),
       // 也可以繼續與 Flutter 的原生工具一起使用
       ValueListenableBuilder<int>(
-        valueListenable: legacyCounter,
+        valueListenable: notifier,
         builder: (context, value, child) => Text('Legacy Value: $value'),
       ),
     ],
   );
 }
 ```
+
+**注意**:
+- 返回的值是**唯讀的**。若要修改它，請存取原始的 listenable。
+- 如果您專門為此 Widget 建立新的 `ValueNotifier`，請使用 `ref()` 替代。
+- 如果您需要銷毀 `ChangeNotifier`，請使用 `manageChangeNotifier()` 替代。

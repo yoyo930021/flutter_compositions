@@ -1,108 +1,29 @@
-# Performance Considerations
+# 效能考量
 
-## Provide/Inject Performance
+> 本頁提供繁體中文重點整理。完整數據與範例可參考英文版資源（目前以 [Technical Deep Dive](../en/internals/technical-deep-dive.md) 為主，未來會補上專門的 Performance 章節）。
 
-### Current Implementation
+## 最小化重建
 
-The `provide/inject` mechanism uses a parent chain approach, similar to Vue's provide/inject:
+- builder 只會在讀取到的 `ref` 或 `computed` 變化時重新執行。
+- 搭配 `ComputedBuilder` 或拆成小部件，可進一步縮小重建範圍。
 
-```dart
-// Each widget stores a reference to its parent context
-_setupContext._parent = _findParentSetupContext(context);
+## 批次更新
 
-// Lookup walks up the parent chain
-dynamic getProvided(Object key) {
-  if (_provided.containsKey(key)) return _provided[key];
-  return _parent?.getProvided(key);  // Recursive lookup
-}
-```
+- 多次 `.value = ...` 操作會在同一個 microtask 中批次觸發，避免重複 rebuild。
+- 若需要立即看到中間狀態，可使用 `await Future.microtask((){})` 強制切割更新。
 
-### Performance Characteristics
+## 建議實務
 
-#### Time Complexity
-- **Lookup**: O(n) where n = number of ancestor CompositionWidgets
-- **First lookup during setup()**: One-time cost
-- **Subsequent access**: O(1) via cached reference
+- 用 `computed` 快取昂貴的計算，例如排序、過濾或統計。
+- 在 builder 中只讀取必要的 ref，其餘資料可透過 `const` widget 或拆成子 widget。
+- 利用 `provide` / `inject` 傳遞 `Ref`，而非直接傳遞大型物件，可確保真正使用者才會重建。
 
-#### Space Complexity
-- **Per widget**: One `_parent` reference + `_provided` Map for local values
-- **Total overhead**: O(w) where w = total number of widgets with provided values
+## 監控與除錯
 
-### Comparison with InheritedWidget
+- 使用 `watchEffect` 臨時觀察依賴，搭配 `debugPrint` 確認哪些值觸發更新。
+- 若遇到 Hot Reload 後狀態錯亂，檢查 `ref` 宣告順序是否被改動。
 
-| Aspect | Current (Parent Chain) | InheritedWidget |
-|--------|----------------------|-----------------|
-| Lookup time | O(n) | O(1) |
-| Memory per element | 1 reference | Full Map |
-| Update propagation | Manual (via Ref) | Automatic rebuild |
-| Rebuild overhead | None | All dependents rebuild |
-| Setup cost | One-time in initState | Per build |
+## 延伸閱讀
 
-### When to Use Which?
-
-#### Use `provide/inject` (Current) when:
-✅ You want **fine-grained reactivity** via `Ref<T>`
-✅ You want to **avoid unnecessary rebuilds**
-✅ Ancestor chain depth is shallow (< 10 levels)
-✅ You need **type-safe dependency injection**
-
-#### Use InheritedWidget when:
-✅ You need **O(1) lookup** for deeply nested trees
-✅ You want **automatic rebuilds** when values change
-✅ You're working with **Flutter's built-in widgets** (Theme, MediaQuery)
-
-### Optimization Tips
-
-1. **Keep provide/inject chains shallow**
-   ```dart
-   // Good: Direct parent-child
-   ParentWidget -> ChildWidget
-
-   // Acceptable: 2-3 levels
-   GrandparentWidget -> ParentWidget -> ChildWidget
-
-   // Consider alternatives for very deep trees
-   ```
-
-2. **Use Ref for reactive updates**
-   ```dart
-   // Efficient: Only reactive consumers update
-   final theme = ref(AppTheme('dark'));
-   provide(theme);
-
-   // In child: Only rebuilds when theme.value changes
-   final localTheme = inject<Ref<AppTheme>>();
-   return (context) => Text(localTheme.value.mode);
-   ```
-
-3. **Benchmark your specific use case**
-   ```dart
-   import 'package:flutter_test/flutter_test.dart';
-
-   void main() {
-     testWidgets('benchmark provide/inject', (tester) async {
-       final stopwatch = Stopwatch()..start();
-
-       await tester.pumpWidget(/* your widget tree */);
-
-       stopwatch.stop();
-       print('Time: ${stopwatch.elapsedMicroseconds}μs');
-     });
-   }
-   ```
-
-## Future Optimizations
-
-Potential improvements being considered:
-
-1. **Cache lookup results** in `inject()` for repeated calls
-2. **Hybrid approach**: Use InheritedWidget for common values, parent chain for custom types
-3. **Lazy parent chain**: Only build chain when first `inject()` is called
-
-## Benchmarks
-
-_(TODO: Add benchmark results for common scenarios)_
-
-- 10 nested widgets with 1 provide/inject: ~Xμs
-- 100 nested widgets with 10 provide/inject: ~Xμs
-- Comparison with equivalent InheritedWidget setup: ~Xμs
+- [最佳實務指南](../guide/best-practices.md)
+- [Technical Deep Dive](./technical-deep-dive.md)

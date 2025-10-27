@@ -31,7 +31,7 @@ class UserCard extends CompositionWidget {
   @override
   Widget Function(BuildContext) setup() {
     // ✅ 正確：使用 widget() 獲取響應式的屬性參考
-    final props = widget();
+    final props = widget<UserCard>();
 
     // ❌ 錯誤：直接存取 this.name 或 name，這不是響應式的！
     // final greeting = computed(() => 'Hello, $name');
@@ -49,7 +49,7 @@ class UserCard extends CompositionWidget {
 }
 ```
 
-**重點**: 始終透過 `widget().value.yourProp` 來存取屬性，以確保您的 `computed` 和 `watch` 能夠正確地響應變化。
+**重點**: 始終透過 `widget<YourWidget>().value.yourProp` 來存取屬性，以確保您的 `computed` 和 `watch` 能夠正確地響應變化。
 
 ## 生命週期鉤子 (Lifecycle Hooks)
 
@@ -61,20 +61,26 @@ class UserCard extends CompositionWidget {
 ```dart
 @override
 Widget Function(BuildContext) setup() {
-  final myController = useController(AnimationController());
+  final (animationController, progress) = useAnimationController(
+    duration: const Duration(milliseconds: 300),
+  );
 
   onMounted(() {
     print('Widget is mounted!');
-    myController.value.forward();
+    animationController.forward();
   });
 
   onUnmounted(() {
     print('Widget is unmounted, cleaning up.');
-    // `useController` 會自動 dispose，但這裡是手動清理的示範
-    // myController.value.dispose();
+    // `useAnimationController` 會自動 dispose，
+    // 若您額外建立資源可在此清理
   });
 
-  return (context) => /* ... */;
+  return (context) => AnimatedOpacity(
+        opacity: progress.value,
+        duration: const Duration(milliseconds: 300),
+        child: const Placeholder(),
+      );
 }
 ```
 
@@ -82,10 +88,10 @@ Widget Function(BuildContext) setup() {
 
 當您需要在組件樹中向下傳遞數據時，除了透過一層層的建構子傳遞，您還可以使用 `provide` 和 `inject` 來實現類似 `Provider` 套件的依賴注入功能，但它更輕量且型別安全。
 
-- `provide(value)`: 將一個值提供給所有後代 `CompositionWidget`。
-- `inject<T>()`: 從祖先 `CompositionWidget` 中獲取對應型別 `T` 的值。
+- `provide(key, value)`: 使用 `InjectionKey` 將一個值提供給所有後代 `CompositionWidget`。
+- `inject(key)`: 使用相同的 `InjectionKey` 從祖先 `CompositionWidget` 中獲取值。
 
-這個機制是基於**型別**來查找的，所以建議使用自訂的類別作為 Key，以避免衝突。
+這個機制透過 `InjectionKey<T>` 作為查找用的 key，泛型會參與相等性比較，確保型別安全並避免不同類型的衝突。
 
 **範例：提供一個主題狀態**
 
@@ -96,12 +102,17 @@ class AppTheme {
   String mode;
 }
 
-// 2. 在父 Widget 中 provide 一個響應式狀態
+// 2. 定義一個 injection key 用於型別安全的依賴注入
+final themeKey = InjectionKey<Ref<AppTheme>>('app.theme');
+
+// 3. 在父 Widget 中 provide 一個響應式狀態
 class ThemeProvider extends CompositionWidget {
   @override
   Widget Function(BuildContext) setup() {
     final theme = ref(AppTheme('light'));
-    provide(theme); // 型別被自動推斷為 Ref<AppTheme>
+
+    // 使用 InjectionKey 進行 provide - 型別安全！
+    provide(themeKey, theme);
 
     return (context) => Column(
       children: [
@@ -112,12 +123,12 @@ class ThemeProvider extends CompositionWidget {
   }
 }
 
-// 3. 在子 Widget 中 inject
+// 4. 在子 Widget 中 inject
 class ThemeDisplay extends CompositionWidget {
   @override
   Widget Function(BuildContext) setup() {
-    // 透過型別注入，完全型別安全！
-    final theme = inject<Ref<AppTheme>>();
+    // 透過 key 注入，完全型別安全！
+    final theme = inject(themeKey);
 
     return (context) => Text('Current mode: ${theme.value.mode}');
   }

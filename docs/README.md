@@ -71,6 +71,33 @@ Custom lint rules to enforce best practices:
 - **[Lint Overview](./lints/README.md)** - Installation and configuration
 - **[Lint Rules](./lints/rules.md)** - Complete rules reference
 
+### 快速開始
+
+```yaml
+# pubspec.yaml
+dev_dependencies:
+  custom_lint: ^0.7.0
+  flutter_compositions_lints: ^0.1.0
+```
+
+```yaml
+# analysis_options.yaml
+analyzer:
+  plugins:
+    - custom_lint
+
+custom_lint:
+  enable_all_lint_rules: true
+```
+
+### 常用指令
+
+```bash
+dart run custom_lint          # 執行一次性分析
+dart run custom_lint --watch  # 監聽檔案變更
+dart run custom_lint --fix    # 套用可自動修復的規則
+```
+
 ### Quick Lint Reference
 
 | Rule | Description |
@@ -79,7 +106,6 @@ Custom lint rules to enforce best practices:
 | `no_async_setup` | Prevent async setup methods |
 | `controller_lifecycle` | Ensure controller disposal |
 | `no_mutable_fields` | Enforce immutable fields |
-| `provide_inject_type_match` | Warn on type conflicts |
 
 ## Internals
 
@@ -174,7 +200,7 @@ flutter run
 
 ## Contributing
 
-We welcome contributions! See our [contributing guidelines](../CONTRIBUTING.md) for details.
+We welcome contributions! See our [contributing guidelines](./CONTRIBUTING.md) for details.
 
 ## Acknowledgments
 
