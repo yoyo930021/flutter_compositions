@@ -19,13 +19,13 @@ Flutter Compositions brings Vue 3's Composition API patterns to Flutter, enablin
 
 ## Features
 
-✨ **Vue-inspired API** - Familiar `ref`, `computed`, `watch`, and `watchEffect` for reactive state
-🎯 **Fine-grained reactivity** - Powered by [`alien_signals`](https://pub.dev/packages/alien_signals) for minimal rebuilds
-🔧 **Composable logic** - Extract and reuse stateful logic with custom composables
-💉 **Type-safe DI** - `provide`/`inject` with `InjectionKey` for zero conflicts
-🎨 **Flutter integration** - Built-in composables for controllers, animations, async data, and more
-📦 **Zero boilerplate** - Single `setup()` function replaces `initState`, `dispose`, and `didUpdateWidget`
-🛡️ **Lint rules** - Custom lints enforce reactivity best practices
+- ✨ **Vue-inspired API** - Familiar `ref`, `computed`, `watch`, and `watchEffect` for reactive state
+- 🎯 **Fine-grained reactivity** - Powered by [`alien_signals`](https://pub.dev/packages/alien_signals) for minimal rebuilds
+- 🔧 **Composable logic** - Extract and reuse stateful logic with custom composables
+- 💉 **Type-safe DI** - `provide`/`inject` with `InjectionKey` for zero conflicts
+- 🎨 **Flutter integration** - Built-in composables for controllers, animations, async data, and more
+- 📦 **Zero boilerplate** - Single `setup()` function replaces `initState`, `dispose`, and `didUpdateWidget`
+- 🛡️ **Lint rules** - Custom lints enforce reactivity best practices
 
 ## Installation
 
