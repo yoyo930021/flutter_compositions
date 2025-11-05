@@ -1,10 +1,9 @@
 name: Test
 
 on:
-  push:
-    branches: [main, develop]
+  push:  # Run on push to any branch
   pull_request:
-    branches: [main, develop]
+    branches: [main, develop]  # Run on PRs targeting main or develop
   workflow_dispatch:
 
 jobs:
