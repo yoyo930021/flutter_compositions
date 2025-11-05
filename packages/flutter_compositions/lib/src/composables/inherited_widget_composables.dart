@@ -40,7 +40,8 @@ ReadonlyRef<T> useContextRef<T>(
       if (!isInitialized) {
         throw StateError(
           'useContextRef accessed before first build. '
-          'The value is only available after the widget has been built at least once.',
+          'The value is only available after the widget '
+          'has been built at least once.',
         );
       }
       return currentValue as T;
@@ -152,7 +153,8 @@ ReadonlyRef<Locale> useLocale() {
 /// Widget Function(BuildContext) setup() {
 ///   final (size, orientation) = useMediaQueryInfo();
 ///
-///   final isPortrait = computed(() => orientation.value == Orientation.portrait);
+///   final isPortrait =
+///     computed(() => orientation.value == Orientation.portrait);
 ///   final isSmallScreen = computed(() => size.value.width < 600);
 ///
 ///   return (context) => Text(

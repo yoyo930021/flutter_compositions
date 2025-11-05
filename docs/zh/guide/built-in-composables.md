@@ -224,3 +224,272 @@ Widget Function(BuildContext) setup() {
 - 返回的值是**唯讀的**。若要修改它，請存取原始的 listenable。
 - 如果您專門為此 Widget 建立新的 `ValueNotifier`，請使用 `ref()` 替代。
 - 如果您需要銷毀 `ChangeNotifier`，請使用 `manageChangeNotifier()` 替代。
+
+
+## InheritedWidget Composables
+
+`flutter_compositions` 提供了一組 composables 來以響應式方式存取 Flutter 的 InheritedWidget 資料（如 `MediaQuery`、`Theme` 等）。這些 composables 會自動追蹤變更並**只在值實際改變時**才觸發更新，大幅提升性能。
+
+### `useContextRef` - 核心函式
+
+`useContextRef` 是所有 InheritedWidget composables 的基礎。它可以將任何來自 `BuildContext` 的值轉換為響應式引用。
+
+**關鍵特性:**
+- ✅ **性能優化**: 使用相等性比較，只在值實際變更時才觸發更新
+- ✅ **自訂比較**: 支援自訂 `equals` 函式進行細粒度控制
+- ✅ **類型安全**: 完整的泛型類型支援
+
+```dart
+@override
+Widget Function(BuildContext) setup() {
+  // 使用預設的 identical 比較追蹤螢幕寬度
+  final width = useContextRef<double>(
+    (context) => MediaQuery.of(context).size.width,
+  );
+
+  // 使用自訂相等性比較追蹤主題亮度
+  final brightness = useContextRef<Brightness>(
+    (context) => Theme.of(context).brightness,
+    equals: (a, b) => a == b, // 值相等性，而非同一性
+  );
+
+  final message = computed(() =>
+    \"Width: \${width.value}, Mode: \${brightness.value == Brightness.dark ? \"Dark\" : \"Light\"}\"
+  );
+
+  return (context) => Text(message.value);
+}
+```
+
+**重要:** `useContextRef` 只在值比較結果為不相等時才會觸發響應式更新。這意味著即使 InheritedWidget 重建了，如果值保持不變，您的組件也不會重新計算。
+
+### `useMediaQuery`
+
+提供對完整 `MediaQueryData` 的響應式存取。當裝置方向、尺寸或其他屬性變更時自動更新。
+
+```dart
+@override
+Widget Function(BuildContext) setup() {
+  final mediaQuery = useMediaQuery();
+
+  final isPortrait = computed(() =>
+    mediaQuery.value.orientation == Orientation.portrait
+  );
+
+  final screenWidth = computed(() => mediaQuery.value.size.width);
+
+  final pixelRatio = computed(() => mediaQuery.value.devicePixelRatio);
+
+  return (context) => Column(
+    children: [
+      Text(\"寬度: \${screenWidth.value.toStringAsFixed(0)}\"),
+      Text(\"方向: \${isPortrait.value ? \"直向\" : \"橫向\"}\"),
+      Text(\"像素比: \${pixelRatio.value}\"),
+    ],
+  );
+}
+```
+
+### `useMediaQueryInfo`
+
+將 `size` 和 `orientation` 分離為獨立的響應式引用，實現更細粒度的響應式控制。
+
+**為什麼使用這個?** 當您只需要尺寸或方向其中之一時，這可以避免不必要的重新計算。
+
+```dart
+@override
+Widget Function(BuildContext) setup() {
+  final (size, orientation) = useMediaQueryInfo();
+
+  // 只有當尺寸變更時才會重新計算
+  final isSmallScreen = computed(() => size.value.width < 600);
+
+  // 只有當方向變更時才會重新計算
+  final isPortrait = computed(() => orientation.value == Orientation.portrait);
+
+  final columns = computed(() {
+    if (isSmallScreen.value) return 1;
+    return isPortrait.value ? 2 : 3;
+  });
+
+  return (context) => Text(\"欄數: \${columns.value}\");
+}
+```
+
+**性能優勢:** 如果只有螢幕尺寸改變（沒有旋轉），`orientation` 引用不會觸發更新，依賴它的計算屬性也不會重新執行。
+
+### `useTheme`
+
+響應式存取當前主題資料。當應用程式主題變更時自動更新。
+
+```dart
+@override
+Widget Function(BuildContext) setup() {
+  final theme = useTheme();
+
+  final primaryColor = computed(() => theme.value.primaryColor);
+
+  final isDark = computed(() => theme.value.brightness == Brightness.dark);
+
+  final textStyle = computed(() => TextStyle(
+    color: isDark.value ? Colors.white : Colors.black,
+    fontSize: 16,
+  ));
+
+  return (context) => Container(
+    color: primaryColor.value,
+    child: Text(
+      \"主題: \${isDark.value ? \"深色\" : \"淺色\"}\",
+      style: textStyle.value,
+    ),
+  );
+}
+```
+
+### `usePlatformBrightness`
+
+追蹤系統亮度設定（淺色/深色模式）。當使用者切換系統主題時自動更新。
+
+```dart
+@override
+Widget Function(BuildContext) setup() {
+  final brightness = usePlatformBrightness();
+
+  final isDark = computed(() => brightness.value == Brightness.dark);
+
+  final statusMessage = computed(() =>
+    \"系統主題: \${isDark.value ? \"深色模式\" : \"淺色模式\"}\"
+  );
+
+  return (context) => Text(statusMessage.value);
+}
+```
+
+### `useTextScale`
+
+追蹤系統文字縮放因子。當使用者在系統設定中變更文字大小時自動更新。
+
+```dart
+@override
+Widget Function(BuildContext) setup() {
+  final textScale = useTextScale();
+
+  final fontSize = computed(() => 16.0 * textScale.value.scale(1.0));
+
+  final scaleLabel = computed(() {
+    final scale = textScale.value.scale(1.0);
+    if (scale < 1.0) return \"小\";
+    if (scale > 1.5) return \"大\";
+    return \"標準\";
+  });
+
+  return (context) => Text(
+    \"字體大小: \${scaleLabel.value}\",
+    style: TextStyle(fontSize: fontSize.value),
+  );
+}
+```
+
+### `useLocale`
+
+追蹤當前地區設定。當系統語言變更時自動更新。
+
+```dart
+@override
+Widget Function(BuildContext) setup() {
+  final locale = useLocale();
+
+  final languageCode = computed(() => locale.value.languageCode);
+
+  final greeting = computed(() {
+    switch (languageCode.value) {
+      case \"zh\": return \"你好\";
+      case \"ja\": return \"こんにちは\";
+      case \"es\": return \"Hola\";
+      default: return \"Hello\";
+    }
+  });
+
+  return (context) => Text(\"\${greeting.value} (\${languageCode.value})\");
+}
+```
+
+### 響應式設計範例
+
+結合多個 InheritedWidget composables 來建立響應式佈局:
+
+```dart
+@override
+Widget Function(BuildContext) setup() {
+  final (size, orientation) = useMediaQueryInfo();
+  final theme = useTheme();
+
+  // 根據螢幕尺寸計算斷點
+  final breakpoint = computed(() {
+    final width = size.value.width;
+    if (width < 600) return \"small\";
+    if (width < 900) return \"medium\";
+    return \"large\";
+  });
+
+  // 根據斷點和方向計算欄數
+  final columns = computed(() {
+    if (breakpoint.value == \"small\") return 1;
+    if (breakpoint.value == \"medium\") {
+      return orientation.value == Orientation.portrait ? 2 : 3;
+    }
+    return 4;
+  });
+
+  // 根據斷點計算字體大小
+  final fontSize = computed(() {
+    switch (breakpoint.value) {
+      case \"small\": return 14.0;
+      case \"medium\": return 16.0;
+      default: return 18.0;
+    }
+  });
+
+  return (context) => Container(
+    color: theme.value.scaffoldBackgroundColor,
+    child: GridView.count(
+      crossAxisCount: columns.value,
+      children: List.generate(
+        12,
+        (i) => Card(
+          child: Center(
+            child: Text(
+              \"項目 \${i + 1}\",
+              style: TextStyle(fontSize: fontSize.value),
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+}
+```
+
+### 性能最佳實踐
+
+1. **使用特定的 composables**: 優先使用 `useMediaQueryInfo()` 而不是 `useMediaQuery()`，如果您只需要尺寸或方向。
+
+2. **自訂相等性**: 對於複雜物件，使用自訂 `equals` 函式來避免不必要的更新:
+
+```dart
+final customData = useContextRef<MyData>(
+  (context) => MyInheritedWidget.of(context).data,
+  equals: (a, b) => a.id == b.id, // 只在 ID 變更時更新
+);
+```
+
+3. **細粒度 computed**: 將計算屬性分解為較小的部分，以最小化重新計算:
+
+```dart
+// ✅ 良好 - 獨立的 computed
+final width = computed(() => size.value.width);
+final height = computed(() => size.value.height);
+
+// ❌ 較差 - 一個大的 computed
+final dimensions = computed(() => \"\${size.value.width}x\${size.value.height}\");
+```
