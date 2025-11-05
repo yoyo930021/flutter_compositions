@@ -160,7 +160,6 @@ expect(errors.length, expectedCount);
 2. **`no_async_setup`** - 防止在 `setup()` 方法上使用 `async`
 3. **`controller_lifecycle`** - 確保 controllers 使用 `use*` helpers 或手動釋放
 4. **`no_mutable_fields`** - 在 CompositionWidget 上強制使用 `final` 欄位
-5. **`provide_inject_type_match`** - 警告在 provide/inject 中使用常見類型
 6. **`no_conditional_composition`** - 防止條件式呼叫 composition APIs
 
 ## 常見模式
