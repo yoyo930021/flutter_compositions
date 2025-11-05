@@ -26,6 +26,15 @@ export 'src/composables/controller_composables.dart'
         useTextEditingController;
 export 'src/composables/framework_composables.dart'
     show useAppLifecycleState, useContext, useSearchController;
+export 'src/composables/inherited_widget_composables.dart'
+    show
+        useContextRef,
+        useLocale,
+        useMediaQuery,
+        useMediaQueryInfo,
+        usePlatformBrightness,
+        useTextScale,
+        useTheme;
 export 'src/composables/listenable_composables.dart'
     show manageChangeNotifier, manageListenable, manageValueListenable;
 export 'src/composition_builder.dart'

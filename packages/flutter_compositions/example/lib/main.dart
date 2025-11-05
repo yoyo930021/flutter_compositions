@@ -8,6 +8,7 @@ import 'demos/props_best_practices.dart';
 import 'demos/props_class_pattern.dart';
 import 'demos/use_text_field_example.dart';
 import 'demos/value_notifier_example.dart';
+import 'inherited_widget_example.dart';
 
 void main() {
   runApp(const MyApp());
@@ -86,6 +87,12 @@ class ExamplesHomePage extends StatelessWidget {
       title: 'Props class patterns',
       description: 'Reusable prop objects, validation, and sealed unions',
       builder: (context) => const PropsClassPatternsPage(),
+    ),
+    DemoDefinition(
+      title: 'InheritedWidget Composables',
+      description:
+          'useMediaQuery, useTheme, useContextRef for reactive context values',
+      builder: (context) => const InheritedWidgetExample(),
     ),
   ];
 
