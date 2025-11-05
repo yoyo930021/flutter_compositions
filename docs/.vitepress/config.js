@@ -68,8 +68,7 @@ export default defineConfig({
             {
               text: 'Lints',
               items: [
-                { text: 'Getting Started', link: '/lints/README' },
-                { text: 'Quick Reference', link: '/lints/index' },
+                { text: 'Getting Started', link: '/lints/index' },
                 { text: 'Rule Catalogue', link: '/lints/rules' },
               ]
             }
@@ -151,8 +150,7 @@ export default defineConfig({
             {
               text: 'Lint 規則',
               items: [
-                { text: '使用說明', link: '/zh/lints/README' },
-                { text: '快速索引', link: '/zh/lints/index' },
+                { text: '使用說明', link: '/zh/lints/index' },
                 { text: '規則一覽', link: '/zh/lints/rules' },
               ]
             }

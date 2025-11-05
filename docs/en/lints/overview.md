@@ -1,7 +1,5 @@
 # Custom Lint Guidance for Flutter Compositions
 
-## English
-
 Use custom lint rules to keep CompositionWidgets reactive and consistent:
 
 - **Prefer calling `widget()` / `this.widget()` inside `setup()`** – direct field access skips reactivity.
