@@ -926,6 +926,9 @@ class _CompositionWidgetState extends State<CompositionWidget>
   void didChangeDependencies() {
     super.didChangeDependencies();
     initializeRenderEffectIfNeeded(context);
+    // Trigger build callbacks to let composables (like useContextRef) update
+    // when InheritedWidget dependencies change
+    _setupContext?.triggerBuild(context);
   }
 
   @override
