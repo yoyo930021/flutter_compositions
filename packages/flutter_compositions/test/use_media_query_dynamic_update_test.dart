@@ -42,8 +42,9 @@ void main() {
       expect(find.text('Width: 400.0'), findsNothing);
     });
 
-    testWidgets('useMediaQueryInfo separate refs update independently',
-        (tester) async {
+    testWidgets('useMediaQueryInfo separate refs update independently', (
+      tester,
+    ) async {
       const testKey = Key('test-widget');
 
       await tester.pumpWidget(
@@ -139,10 +140,10 @@ class TestWidget extends CompositionWidget {
     });
 
     return (context) => Scaffold(
-          body: Center(
-            child: Text(widthText.value),
-          ),
-        );
+      body: Center(
+        child: Text(widthText.value),
+      ),
+    );
   }
 }
 
@@ -162,16 +163,16 @@ class MediaQueryInfoTestWidget extends CompositionWidget {
     });
 
     return (context) => Scaffold(
-          body: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(sizeText.value),
-                Text(orientationText.value),
-              ],
-            ),
-          ),
-        );
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(sizeText.value),
+            Text(orientationText.value),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -190,9 +191,9 @@ class ThemeTestWidget extends CompositionWidget {
     });
 
     return (context) => Scaffold(
-          body: Center(
-            child: Text('Primary: ${colorName.value}'),
-          ),
-        );
+      body: Center(
+        child: Text('Primary: ${colorName.value}'),
+      ),
+    );
   }
 }

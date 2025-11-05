@@ -4,8 +4,9 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('useMediaQuery reactivity optimization', () {
-    testWidgets('only triggers updates when MediaQuery actually changes',
-        (tester) async {
+    testWidgets('only triggers updates when MediaQuery actually changes', (
+      tester,
+    ) async {
       const testKey = Key('test-widget');
 
       await tester.pumpWidget(
@@ -113,8 +114,9 @@ void main() {
       expect(find.text('Width: 400.0'), findsNothing);
     });
 
-    testWidgets('useMediaQueryInfo separate refs only update when needed',
-        (tester) async {
+    testWidgets('useMediaQueryInfo separate refs only update when needed', (
+      tester,
+    ) async {
       const testKey = Key('test-widget');
 
       await tester.pumpWidget(
@@ -184,10 +186,10 @@ class TestWidget extends CompositionWidget {
     });
 
     return (context) => Scaffold(
-          body: Center(
-            child: Text(screenInfo.value),
-          ),
-        );
+      body: Center(
+        child: Text(screenInfo.value),
+      ),
+    );
   }
 }
 
@@ -208,10 +210,10 @@ class CustomEqualsTestWidget extends CompositionWidget {
     });
 
     return (context) => Scaffold(
-          body: Center(
-            child: Text(widthText.value),
-          ),
-        );
+      body: Center(
+        child: Text(widthText.value),
+      ),
+    );
   }
 }
 
@@ -232,15 +234,15 @@ class MediaQueryInfoTestWidget extends CompositionWidget {
     });
 
     return (context) => Scaffold(
-          body: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(sizeText.value),
-                Text(orientationText.value),
-              ],
-            ),
-          ),
-        );
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(sizeText.value),
+            Text(orientationText.value),
+          ],
+        ),
+      ),
+    );
   }
 }

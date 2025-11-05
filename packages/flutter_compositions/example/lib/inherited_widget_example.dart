@@ -31,14 +31,20 @@ class MediaQueryCard extends CompositionWidget {
   Widget Function(BuildContext) setup() {
     final mediaQuery = useMediaQuery();
 
-    final width = computed(() => mediaQuery.value.size.width.toStringAsFixed(0));
-    final height = computed(() => mediaQuery.value.size.height.toStringAsFixed(0));
-    final orientation = computed(() =>
-      mediaQuery.value.orientation == Orientation.portrait
-        ? 'Portrait'
-        : 'Landscape'
+    final width = computed(
+      () => mediaQuery.value.size.width.toStringAsFixed(0),
     );
-    final pixelRatio = computed(() => mediaQuery.value.devicePixelRatio.toStringAsFixed(2));
+    final height = computed(
+      () => mediaQuery.value.size.height.toStringAsFixed(0),
+    );
+    final orientation = computed(
+      () => mediaQuery.value.orientation == Orientation.portrait
+          ? 'Portrait'
+          : 'Landscape',
+    );
+    final pixelRatio = computed(
+      () => mediaQuery.value.devicePixelRatio.toStringAsFixed(2),
+    );
 
     return (context) => Card(
       child: Padding(
@@ -72,14 +78,20 @@ class ThemeCard extends CompositionWidget {
     final primaryColorHex = computed(() {
       final color = theme.value.primaryColor;
       // Convert Color to hex string using new component accessors
-      final r = ((color.r * 255.0).round() & 0xff).toRadixString(16).padLeft(2, '0');
-      final g = ((color.g * 255.0).round() & 0xff).toRadixString(16).padLeft(2, '0');
-      final b = ((color.b * 255.0).round() & 0xff).toRadixString(16).padLeft(2, '0');
+      final r = ((color.r * 255.0).round() & 0xff)
+          .toRadixString(16)
+          .padLeft(2, '0');
+      final g = ((color.g * 255.0).round() & 0xff)
+          .toRadixString(16)
+          .padLeft(2, '0');
+      final b = ((color.b * 255.0).round() & 0xff)
+          .toRadixString(16)
+          .padLeft(2, '0');
       return '#$r$g$b'.toUpperCase();
     });
 
-    final brightness = computed(() =>
-      theme.value.brightness == Brightness.light ? 'Light' : 'Dark'
+    final brightness = computed(
+      () => theme.value.brightness == Brightness.light ? 'Light' : 'Dark',
     );
 
     return (context) => Card(
@@ -112,10 +124,12 @@ class ResponsiveCard extends CompositionWidget {
 
     // Computed responsive breakpoints
     final isSmallScreen = computed(() => size.value.width < 600);
-    final isMediumScreen = computed(() =>
-      size.value.width >= 600 && size.value.width < 900
+    final isMediumScreen = computed(
+      () => size.value.width >= 600 && size.value.width < 900,
     );
-    final isPortrait = computed(() => orientation.value == Orientation.portrait);
+    final isPortrait = computed(
+      () => orientation.value == Orientation.portrait,
+    );
 
     // Derived UI values
     final screenSizeLabel = computed(() {
@@ -140,8 +154,8 @@ class ResponsiveCard extends CompositionWidget {
       color: isSmallScreen.value
           ? Colors.red[50]
           : isMediumScreen.value
-              ? Colors.blue[50]
-              : Colors.green[50],
+          ? Colors.blue[50]
+          : Colors.green[50],
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
