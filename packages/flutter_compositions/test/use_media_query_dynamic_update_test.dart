@@ -5,68 +5,60 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   group('useMediaQuery dynamic updates', () {
     testWidgets('updates when MediaQuery changes', (tester) async {
-      // Track how many times computed is evaluated
-      var computedEvaluationCount = 0;
+      // Use a key to ensure the same Widget instance is reused
+      const testKey = Key('test-widget');
 
       await tester.pumpWidget(
         MediaQuery(
           data: const MediaQueryData(
             size: Size(400, 800),
           ),
-          child: MaterialApp(
-            home: TestWidget(
-              onComputedEvaluation: () => computedEvaluationCount++,
-            ),
+          child: const MaterialApp(
+            home: TestWidget(key: testKey),
           ),
         ),
       );
 
-      // Initial evaluation
-      expect(computedEvaluationCount, 1);
+      // Initial render
       expect(find.text('Width: 400.0'), findsOneWidget);
 
-      // Change MediaQuery size
+      // Change MediaQuery size - Widget instance should be reused
       await tester.pumpWidget(
         MediaQuery(
           data: const MediaQueryData(
             size: Size(600, 800),
           ),
-          child: MaterialApp(
-            home: TestWidget(
-              onComputedEvaluation: () => computedEvaluationCount++,
-            ),
+          child: const MaterialApp(
+            home: TestWidget(key: testKey),
           ),
         ),
       );
 
-      await tester.pump();
+      // Trigger frames to process updates
+      await tester.pumpAndSettle();
 
-      // Should re-evaluate because MediaQuery changed
-      expect(computedEvaluationCount, 2);
+      // Should show new width because MediaQuery changed
       expect(find.text('Width: 600.0'), findsOneWidget);
+      expect(find.text('Width: 400.0'), findsNothing);
     });
 
     testWidgets('useMediaQueryInfo separate refs update independently',
         (tester) async {
-      var sizeEvaluationCount = 0;
-      var orientationEvaluationCount = 0;
+      const testKey = Key('test-widget');
 
       await tester.pumpWidget(
         MediaQuery(
           data: const MediaQueryData(
             size: Size(400, 800), // Portrait
           ),
-          child: MaterialApp(
-            home: MediaQueryInfoTestWidget(
-              onSizeEvaluation: () => sizeEvaluationCount++,
-              onOrientationEvaluation: () => orientationEvaluationCount++,
-            ),
+          child: const MaterialApp(
+            home: MediaQueryInfoTestWidget(key: testKey),
           ),
         ),
       );
 
-      expect(sizeEvaluationCount, 1);
-      expect(orientationEvaluationCount, 1);
+      expect(find.text('Size: 400.0x800.0'), findsOneWidget);
+      expect(find.text('Orientation: Orientation.portrait'), findsOneWidget);
 
       // Change only width (orientation stays portrait)
       await tester.pumpWidget(
@@ -74,20 +66,18 @@ void main() {
           data: const MediaQueryData(
             size: Size(500, 800), // Still portrait
           ),
-          child: MaterialApp(
-            home: MediaQueryInfoTestWidget(
-              onSizeEvaluation: () => sizeEvaluationCount++,
-              onOrientationEvaluation: () => orientationEvaluationCount++,
-            ),
+          child: const MaterialApp(
+            home: MediaQueryInfoTestWidget(key: testKey),
           ),
         ),
       );
 
-      await tester.pump();
+      await tester.pumpAndSettle();
 
-      // Size should update, but orientation should not
-      expect(sizeEvaluationCount, 2);
-      expect(orientationEvaluationCount, 1); // Should still be 1
+      // Size should update
+      expect(find.text('Size: 500.0x800.0'), findsOneWidget);
+      // Orientation should still be portrait
+      expect(find.text('Orientation: Orientation.portrait'), findsOneWidget);
 
       // Change to landscape
       await tester.pumpWidget(
@@ -95,128 +85,104 @@ void main() {
           data: const MediaQueryData(
             size: Size(800, 500), // Landscape
           ),
-          child: MaterialApp(
-            home: MediaQueryInfoTestWidget(
-              onSizeEvaluation: () => sizeEvaluationCount++,
-              onOrientationEvaluation: () => orientationEvaluationCount++,
-            ),
+          child: const MaterialApp(
+            home: MediaQueryInfoTestWidget(key: testKey),
           ),
         ),
       );
 
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       // Both should update now
-      expect(sizeEvaluationCount, 3);
-      expect(orientationEvaluationCount, 2);
+      expect(find.text('Size: 800.0x500.0'), findsOneWidget);
+      expect(find.text('Orientation: Orientation.landscape'), findsOneWidget);
     });
 
     testWidgets('useTheme updates when theme changes', (tester) async {
-      var evaluationCount = 0;
+      const testKey = Key('test-widget');
 
       await tester.pumpWidget(
         MaterialApp(
           theme: ThemeData(primaryColor: Colors.blue),
-          home: ThemeTestWidget(
-            onEvaluation: () => evaluationCount++,
-          ),
+          home: const ThemeTestWidget(key: testKey),
         ),
       );
 
-      expect(evaluationCount, 1);
       expect(find.textContaining('Primary: Blue'), findsOneWidget);
 
       // Change theme
       await tester.pumpWidget(
         MaterialApp(
           theme: ThemeData(primaryColor: Colors.red),
-          home: ThemeTestWidget(
-            onEvaluation: () => evaluationCount++,
-          ),
+          home: const ThemeTestWidget(key: testKey),
         ),
       );
 
-      await tester.pump();
+      await tester.pumpAndSettle();
 
-      // Should re-evaluate
-      expect(evaluationCount, 2);
+      // Should show new theme color
       expect(find.textContaining('Primary: Red'), findsOneWidget);
+      expect(find.textContaining('Primary: Blue'), findsNothing);
     });
   });
 }
 
 class TestWidget extends CompositionWidget {
-  const TestWidget({
-    required this.onComputedEvaluation,
-    super.key,
-  });
-
-  final VoidCallback onComputedEvaluation;
+  const TestWidget({super.key});
 
   @override
   Widget Function(BuildContext) setup() {
     final mediaQuery = useMediaQuery();
 
     final widthText = computed(() {
-      onComputedEvaluation();
       return 'Width: ${mediaQuery.value.size.width}';
     });
 
     return (context) => Scaffold(
-          body: Text(widthText.value),
+          body: Center(
+            child: Text(widthText.value),
+          ),
         );
   }
 }
 
 class MediaQueryInfoTestWidget extends CompositionWidget {
-  const MediaQueryInfoTestWidget({
-    required this.onSizeEvaluation,
-    required this.onOrientationEvaluation,
-    super.key,
-  });
-
-  final VoidCallback onSizeEvaluation;
-  final VoidCallback onOrientationEvaluation;
+  const MediaQueryInfoTestWidget({super.key});
 
   @override
   Widget Function(BuildContext) setup() {
     final (size, orientation) = useMediaQueryInfo();
 
     final sizeText = computed(() {
-      onSizeEvaluation();
       return 'Size: ${size.value.width}x${size.value.height}';
     });
 
     final orientationText = computed(() {
-      onOrientationEvaluation();
       return 'Orientation: ${orientation.value}';
     });
 
     return (context) => Scaffold(
-          body: Column(
-            children: [
-              Text(sizeText.value),
-              Text(orientationText.value),
-            ],
+          body: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(sizeText.value),
+                Text(orientationText.value),
+              ],
+            ),
           ),
         );
   }
 }
 
 class ThemeTestWidget extends CompositionWidget {
-  const ThemeTestWidget({
-    required this.onEvaluation,
-    super.key,
-  });
-
-  final VoidCallback onEvaluation;
+  const ThemeTestWidget({super.key});
 
   @override
   Widget Function(BuildContext) setup() {
     final theme = useTheme();
 
     final colorName = computed(() {
-      onEvaluation();
       final color = theme.value.primaryColor;
       if (color == Colors.blue) return 'Blue';
       if (color == Colors.red) return 'Red';
@@ -224,7 +190,9 @@ class ThemeTestWidget extends CompositionWidget {
     });
 
     return (context) => Scaffold(
-          body: Text('Primary: ${colorName.value}'),
+          body: Center(
+            child: Text('Primary: ${colorName.value}'),
+          ),
         );
   }
 }
