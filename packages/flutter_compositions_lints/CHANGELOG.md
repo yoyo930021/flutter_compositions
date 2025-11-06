@@ -1,9 +1,3 @@
-## 0.1.1
-
- - **REFACTOR**: remove type safety lint rule and related tests.
- - **FIX**: configure dart test to exclude fixture files from test runs.
- - **FEAT**: init project.
-
 # Changelog
 
 All notable changes to this project will be documented in this file.
@@ -11,7 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.1.0] - 2025-01-14
+
+## [0.1.1] - 2025-11-06
+
+ - **REFACTOR**: remove type safety lint rule and related tests.
+ - **FIX**: configure dart test to exclude fixture files from test runs.
+ - **FEAT**: init project.
+
+## [0.1.0] - 2025-10-27
 
 ### Added
 

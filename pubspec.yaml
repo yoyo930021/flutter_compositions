@@ -18,6 +18,11 @@ melos:
   name: flutter_compositions
   packages:
     - packages/**
+  command:
+    version:
+      branch: main
+      updateGitTagRefs: false
+      workspaceChangelog: false
   scripts:
     analyze:
       run: melos exec -- flutter analyze
