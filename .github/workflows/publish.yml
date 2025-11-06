@@ -19,6 +19,9 @@ on:
       # Matches version tags like v1.0.0, v0.1.0, v0.2.1-beta, etc.
       - 'v[0-9]+.[0-9]+.[0-9]+*'
 
+permissions:
+  contents: read
+
 jobs:
   # Publish all packages using Melos Action
   publish-packages:
