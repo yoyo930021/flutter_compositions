@@ -13,10 +13,10 @@ Flutter Compositions brings Vue 3's Composition API patterns to Flutter, enablin
 
 **📚 [Read the full documentation →](https://yoyo930021.github.io/flutter_compositions/)**
 
-- **[Getting Started](https://yoyo930021.github.io/flutter_compositions/en/guide/getting-started)** - Quick start guide and installation
-- **[Guide](https://yoyo930021.github.io/flutter_compositions/en/guide/what-is-a-composition)** - Learn core concepts and patterns
+- **[Getting Started](https://yoyo930021.github.io/flutter_compositions/guide/getting-started)** - Quick start guide and installation
+- **[Guide](https://yoyo930021.github.io/flutter_compositions/guide/what-is-a-composition)** - Learn core concepts and patterns
 - **[API Reference](https://pub.dev/documentation/flutter_compositions/latest/)** - Complete API documentation
-- **[Internals](https://yoyo930021.github.io/flutter_compositions/en/internals/architecture)** - Architecture and design decisions
+- **[Internals](https://yoyo930021.github.io/flutter_compositions/internals/architecture)** - Architecture and design decisions
 
 ## Packages
 
