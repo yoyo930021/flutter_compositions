@@ -1,3 +1,9 @@
+## 0.1.1
+
+ - **REFACTOR**: remove type safety lint rule and related tests.
+ - **FIX**: configure dart test to exclude fixture files from test runs.
+ - **FEAT**: init project.
+
 # Changelog
 
 All notable changes to this project will be documented in this file.

@@ -1,24 +1,19 @@
+## 0.1.1
+
+ - **FIX**: ensure InheritedWidget composables update correctly.
+ - **FIX**: add example package to workspace configuration.
+ - **FEAT**: add examples for InheritedWidget composables and their usage.
+ - **FEAT**: useContext and add tests for context behavior.
+ - **FEAT**: init project.
+ - **DOCS**: update feature list formatting in README.md.
+ - **DOCS**: enhance README with detailed documentation sections and examples.
+
 # Changelog
 
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
-## [0.1.1] - 2025-11-06
-
-### Features
-- Add `useContext` composable to access `BuildContext` directly.
-- Add `InheritedWidget` composables.
-
-### Fixes
-- Ensure `InheritedWidget` based composables update correctly when dependencies change.
-- Correctly configure test runner to exclude fixture files.
-
-### Documentation
-- Refactor and improve clarity of documentation and internal links.
-- Add a comprehensive testing guide.
-- Enhance README with more detailed examples and documentation sections.
 
 ## [0.1.0] - 2025-10-27
 

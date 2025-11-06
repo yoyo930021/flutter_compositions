@@ -18,5 +18,5 @@ dev_dependencies:
   custom_lint: ^0.8.0
   flutter:
     sdk: flutter
-  flutter_compositions: ^0.1.0
+  flutter_compositions: ^0.1.1
   test: ^1.26.2
