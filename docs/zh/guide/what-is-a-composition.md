@@ -31,7 +31,7 @@ class UserCard extends CompositionWidget {
   @override
   Widget Function(BuildContext) setup() {
     // ✅ 正確：使用 widget() 獲取響應式的屬性參考
-    final props = widget<UserCard>();
+    final props = widget();
 
     // ❌ 錯誤：直接存取 this.name 或 name，這不是響應式的！
     // final greeting = computed(() => 'Hello, $name');

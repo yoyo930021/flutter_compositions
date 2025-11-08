@@ -28,7 +28,7 @@ class ProfilePage extends CompositionWidget {
 
   @override
   Widget Function(BuildContext) setup() {
-    final props = widget<ProfilePage>();
+    final props = widget();
 
     final (status, refresh) = useAsyncData<User, String>(
       (id) => api.fetchUser(id),

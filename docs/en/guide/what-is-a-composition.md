@@ -31,7 +31,7 @@ class UserCard extends CompositionWidget {
   @override
   Widget Function(BuildContext) setup() {
     // ✅ CORRECT: Get a reactive reference to props using widget()
-    final props = widget<UserCard>();
+    final props = widget();
 
     // ❌ WRONG: Direct access to this.name or name is NOT reactive!
     // final greeting = computed(() => 'Hello, $name');
