@@ -25,7 +25,7 @@ export default defineConfig({
           { text: 'Guide', link: '/guide/getting-started' },
           { text: 'Internals', link: '/internals/architecture' },
           { text: 'Testing', link: '/testing/testing-guide' },
-          { text: 'Lints', link: '/lints/README' },
+          { text: 'Lints', link: '/lints/' },
           {
             text: 'API Reference',
             link: 'https://pub.dev/documentation/flutter_compositions/latest/'
@@ -107,7 +107,7 @@ export default defineConfig({
           { text: '指南', link: '/zh/guide/getting-started' },
           { text: '深入原理', link: '/zh/internals/architecture' },
           { text: '測試', link: '/zh/testing/testing-guide' },
-          { text: 'Lint 規則', link: '/zh/lints/README' },
+          { text: 'Lint 規則', link: '/zh/lints/' },
           {
             text: 'API 參考',
             link: 'https://pub.dev/documentation/flutter_compositions/latest/'
