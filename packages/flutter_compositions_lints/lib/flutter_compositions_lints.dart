@@ -5,7 +5,7 @@
 /// - Ensuring reactive props usage through `widget()`
 /// - Preventing async setup functions
 /// - Managing controller lifecycle properly
-/// - Avoiding mutable fields on widget classes
+/// - Warning about shallow reactivity limitations
 library;
 
 import 'package:custom_lint_builder/custom_lint_builder.dart';
@@ -13,7 +13,7 @@ import 'package:flutter_compositions_lints/src/lints/controller_lifecycle.dart';
 import 'package:flutter_compositions_lints/src/lints/ensure_reactive_props.dart';
 import 'package:flutter_compositions_lints/src/lints/no_async_setup.dart';
 import 'package:flutter_compositions_lints/src/lints/no_conditional_composition.dart';
-import 'package:flutter_compositions_lints/src/lints/no_mutable_fields.dart';
+import 'package:flutter_compositions_lints/src/lints/shallow_reactivity_warning.dart';
 
 /// Entry point for the custom lint plugin.
 PluginBase createPlugin() => _FlutterCompositionsLints();
@@ -23,8 +23,8 @@ class _FlutterCompositionsLints extends PluginBase {
   List<LintRule> getLintRules(CustomLintConfigs configs) => [
     const EnsureReactiveProps(),
     const NoAsyncSetup(),
-    const NoMutableFields(),
     const ControllerLifecycle(),
     const NoConditionalComposition(),
+    const ShallowReactivityWarning(),
   ];
 }

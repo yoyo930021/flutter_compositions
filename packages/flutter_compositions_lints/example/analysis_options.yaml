@@ -21,8 +21,8 @@ custom_lint:
     # Manages controller lifecycle (Warning)
     - flutter_compositions_controller_lifecycle: true
 
-    # Enforces final fields on widgets (Warning)
-    - flutter_compositions_no_mutable_fields: true
+    # Warns about shallow reactivity (Warning)
+    - flutter_compositions_shallow_reactivity: true
 
-    # Warns against common types in provide/inject (Info)
-    - flutter_compositions_provide_inject_type_match: true
+    # Prevents conditional composition API calls (Error)
+    - flutter_compositions_no_conditional_composition: true

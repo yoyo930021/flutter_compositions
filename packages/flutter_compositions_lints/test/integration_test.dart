@@ -25,7 +25,7 @@ void main() {
       expect(true, isTrue);
     });
 
-    test('no_mutable_fields fixture exists', () {
+    test('shallow_reactivity_warning fixture exists', () {
       expect(true, isTrue);
     });
 

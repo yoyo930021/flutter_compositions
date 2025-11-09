@@ -220,7 +220,7 @@ Widget Function(BuildContext) setup() {
 
 ## Best Practices Rules
 
-### `flutter_compositions_no_mutable_fields`
+### `flutter_compositions_shallow_reactivity`
 
 **Category:** Best Practices
 **Severity:** Warning
@@ -228,37 +228,89 @@ Widget Function(BuildContext) setup() {
 
 #### Description
 
-Ensures all fields in CompositionWidget classes are `final`. Mutable state should be managed through `ref()` or `computed()` in the `setup()` method.
+Warns about shallow reactivity limitations. Flutter Compositions uses shallow reactivity - only reassigning `.value` triggers updates. Directly mutating properties or array elements will NOT trigger reactive updates.
 
 #### Why it matters
 
-Mutable fields bypass the reactive system. Changes to them won't trigger rebuilds, and they violate the composition pattern's design.
+The reactivity system tracks changes to `ref.value` itself, not changes within the object or array. Direct mutations like `ref.value.property = x` or `ref.value[0] = x` won't notify subscribers, leading to stale UI.
 
 #### Examples
 
 ❌ **Bad:**
 ```dart
-class Counter extends CompositionWidget {
-  int count = 0; // Mutable field!
+@override
+Widget Function(BuildContext) setup() {
+  final user = ref({'name': 'John', 'age': 30});
+  final items = ref([1, 2, 3]);
 
-  @override
-  Widget Function(BuildContext) setup() {
-    return (context) => Text('$count');
+  void updateUser() {
+    user.value['name'] = 'Jane'; // Won't trigger update!
   }
+
+  void updateItems() {
+    items.value[0] = 10; // Won't trigger update!
+    items.value.add(4); // Won't trigger update!
+  }
+
+  return (context) => Column(
+    children: [
+      Text(user.value['name']),
+      Text('${items.value[0]}'),
+    ],
+  );
 }
 ```
 
 ✅ **Good:**
 ```dart
-class Counter extends CompositionWidget {
-  final int initialCount; // Immutable prop
+@override
+Widget Function(BuildContext) setup() {
+  final user = ref({'name': 'John', 'age': 30});
+  final items = ref([1, 2, 3]);
 
-  @override
-  Widget Function(BuildContext) setup() {
-    final count = ref(initialCount); // Mutable via ref
-    return (context) => Text('${count.value}');
+  void updateUser() {
+    // Create new object to trigger update
+    user.value = {...user.value, 'name': 'Jane'};
   }
+
+  void updateItems() {
+    // Create new array to trigger update
+    items.value = [10, ...items.value.sublist(1)];
+    items.value = [...items.value, 4];
+  }
+
+  return (context) => Column(
+    children: [
+      Text(user.value['name']),
+      Text('${items.value[0]}'),
+    ],
+  );
 }
+```
+
+#### Common mutation patterns to avoid
+
+**Direct property assignment:**
+```dart
+ref.value['key'] = newValue; // ❌
+ref.value.property = newValue; // ❌
+ref.value = {...ref.value, 'key': newValue}; // ✅
+```
+
+**Array element assignment:**
+```dart
+ref.value[index] = newValue; // ❌
+ref.value = [...ref.value.sublist(0, index), newValue, ...ref.value.sublist(index + 1)]; // ✅
+```
+
+**Mutating methods:**
+```dart
+ref.value.add(item); // ❌
+ref.value.remove(item); // ❌
+ref.value.clear(); // ❌
+ref.value = [...ref.value, item]; // ✅
+ref.value = ref.value.where((x) => x != item).toList(); // ✅
+ref.value = []; // ✅
 ```
 
 ---

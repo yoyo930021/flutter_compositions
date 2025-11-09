@@ -205,41 +205,97 @@ Widget Function(BuildContext) setup() {
 
 ## Best Practices 規則
 
-### `flutter_compositions_no_mutable_fields`
+### `flutter_compositions_shallow_reactivity`
 
-**類別：** Best Practices  
-**嚴重度：** Warning  
+**類別：** Best Practices
+**嚴重度：** Warning
 **是否可自動修正：** 否
 
 #### 規則說明
 
-要求 CompositionWidget 的欄位必須為 `final`，真正的可變狀態應交給 `ref()` 或 `computed()`。
+警告淺層響應式的限制。Flutter Compositions 採用淺層響應式 - 只有重新賦值 `.value` 才會觸發更新。直接修改屬性或陣列項目**不會**觸發響應式更新。
+
+#### 為什麼重要
+
+響應式系統只追蹤 `ref.value` 本身的變更，不追蹤物件或陣列內部的變更。像 `ref.value.property = x` 或 `ref.value[0] = x` 這樣的直接修改不會通知訂閱者，導致 UI 無法更新。
 
 #### 範例
 
 ❌ **不佳：**
 ```dart
-class Counter extends CompositionWidget {
-  int count = 0; // 可變欄位
+@override
+Widget Function(BuildContext) setup() {
+  final user = ref({'name': 'John', 'age': 30});
+  final items = ref([1, 2, 3]);
 
-  @override
-  Widget Function(BuildContext) setup() {
-    return (context) => Text('$count');
+  void updateUser() {
+    user.value['name'] = 'Jane'; // 不會觸發更新！
   }
+
+  void updateItems() {
+    items.value[0] = 10; // 不會觸發更新！
+    items.value.add(4); // 不會觸發更新！
+  }
+
+  return (context) => Column(
+    children: [
+      Text(user.value['name']),
+      Text('${items.value[0]}'),
+    ],
+  );
 }
 ```
 
 ✅ **較佳：**
 ```dart
-class Counter extends CompositionWidget {
-  final int initialCount;
+@override
+Widget Function(BuildContext) setup() {
+  final user = ref({'name': 'John', 'age': 30});
+  final items = ref([1, 2, 3]);
 
-  @override
-  Widget Function(BuildContext) setup() {
-    final count = ref(initialCount);
-    return (context) => Text('${count.value}');
+  void updateUser() {
+    // 建立新物件以觸發更新
+    user.value = {...user.value, 'name': 'Jane'};
   }
+
+  void updateItems() {
+    // 建立新陣列以觸發更新
+    items.value = [10, ...items.value.sublist(1)];
+    items.value = [...items.value, 4];
+  }
+
+  return (context) => Column(
+    children: [
+      Text(user.value['name']),
+      Text('${items.value[0]}'),
+    ],
+  );
 }
+```
+
+#### 常見的錯誤模式
+
+**直接賦值屬性：**
+```dart
+ref.value['key'] = newValue; // ❌
+ref.value.property = newValue; // ❌
+ref.value = {...ref.value, 'key': newValue}; // ✅
+```
+
+**陣列元素賦值：**
+```dart
+ref.value[index] = newValue; // ❌
+ref.value = [...ref.value.sublist(0, index), newValue, ...ref.value.sublist(index + 1)]; // ✅
+```
+
+**修改性方法：**
+```dart
+ref.value.add(item); // ❌
+ref.value.remove(item); // ❌
+ref.value.clear(); // ❌
+ref.value = [...ref.value, item]; // ✅
+ref.value = ref.value.where((x) => x != item).toList(); // ✅
+ref.value = []; // ✅
 ```
 
 ---
