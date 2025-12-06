@@ -84,13 +84,10 @@ class BadShallowReactivity extends CompositionWidget {
     }
 
     return (context) => Column(
-          children: [
-            Text('Items: ${items.value.length}'),
-            ElevatedButton(
-              onPressed: addItem,
-              child: const Text('Add Item'),
-            ),
-          ],
-        );
+      children: [
+        Text('Items: ${items.value.length}'),
+        ElevatedButton(onPressed: addItem, child: const Text('Add Item')),
+      ],
+    );
   }
 }

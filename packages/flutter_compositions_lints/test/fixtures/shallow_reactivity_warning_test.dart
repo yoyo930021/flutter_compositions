@@ -32,7 +32,7 @@ void testArrayElementAssignment() {
 /// Should trigger lint: nested property assignment
 void testNestedPropertyAssignment() {
   final config = ref({
-    'settings': {'theme': 'light', 'locale': 'en'}
+    'settings': {'theme': 'light', 'locale': 'en'},
   });
 
   // expect_lint: flutter_compositions_shallow_reactivity
@@ -88,11 +88,7 @@ void testCorrectReassignment() {
   items.value = [...items.value, 4];
 
   // ✅ Correct: create new array with modification
-  items.value = [
-    ...items.value.sublist(0, 0),
-    10,
-    ...items.value.sublist(1),
-  ];
+  items.value = [...items.value.sublist(0, 0), 10, ...items.value.sublist(1)];
 }
 
 /// Should NOT trigger lint: reading values (non-mutating)

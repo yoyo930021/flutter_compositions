@@ -157,8 +157,7 @@ class ShallowReactivityWarning extends DartLintRule {
   bool _hasRefValueInChain(AstNode node) {
     AstNode? current = node;
     while (current != null) {
-      if (current is PropertyAccess &&
-          current.propertyName.name == 'value') {
+      if (current is PropertyAccess && current.propertyName.name == 'value') {
         return true;
       }
       if (current is PrefixedIdentifier && current.identifier.name == 'value') {

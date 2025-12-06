@@ -10,7 +10,9 @@ void main() {
     final rule = const ShallowReactivityWarning();
 
     test('detects direct mutations of ref.value', () async {
-      final fixturePath = getFixturePath('shallow_reactivity_warning_test.dart');
+      final fixturePath = getFixturePath(
+        'shallow_reactivity_warning_test.dart',
+      );
       final file = File(fixturePath);
 
       expect(
