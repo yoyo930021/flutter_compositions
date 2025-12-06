@@ -34,10 +34,11 @@ class ShallowReactivityWarning extends DartLintRule {
   static const _code = LintCode(
     name: 'flutter_compositions_shallow_reactivity',
     problemMessage:
-        'Direct mutation won\'t trigger reactive updates. '
+        "Direct mutation won't trigger reactive updates. "
         'Reassign the entire value instead.',
     correctionMessage:
-        'Create a new object/array and assign it to .value to trigger updates. '
+        'Reassign the entire value to trigger updates. '
+        'Create a new object/array and assign it to .value. '
         'Example: ref.value = {...ref.value}; or ref.value = [...ref.value];',
   );
 
@@ -80,14 +81,11 @@ class ShallowReactivityWarning extends DartLintRule {
 
     // Check for patterns like: ref.value.nested.property = value
     if (leftHandSide is PrefixedIdentifier) {
-      final prefix = leftHandSide.prefix;
-      if (prefix is SimpleIdentifier) {
-        // This might be part of a chain, check the context
-        final parent = node.parent;
-        if (parent != null && _hasRefValueInChain(node)) {
-          reporter.atNode(node, _code);
-          return;
-        }
+      // This might be part of a chain, check the context
+      final parent = node.parent;
+      if (parent != null && _hasRefValueInChain(node)) {
+        reporter.atNode(node, _code);
+        return;
       }
     }
   }
@@ -127,7 +125,6 @@ class ShallowReactivityWarning extends DartLintRule {
       'update',
       'updateAll',
       'addEntries',
-      'removeWhere',
     };
 
     final methodName = node.methodName.name;
