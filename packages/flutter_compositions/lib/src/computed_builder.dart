@@ -209,8 +209,10 @@ class _ComputedBuilderElement extends StatelessElement {
 
   @override
   void mount(Element? parent, Object? newSlot) {
-    super.mount(parent, newSlot);
+    // Setup effect before calling super.mount() so that the first build
+    // can access the cached widget
     _setupEffect();
+    super.mount(parent, newSlot);
   }
 
   void _setupEffect() {
@@ -218,17 +220,11 @@ class _ComputedBuilderElement extends StatelessElement {
     _effect = signals.effect(() {
       final newWidget = widget.builder();
 
-      // First build: set cache directly
-      if (_cachedWidget == null) {
-        _cachedWidget = newWidget;
-        return;
-      }
-
-      // Subsequent updates: update cache and mark for rebuild
+      // Update cached widget
       _cachedWidget = newWidget;
 
-      // Direct markNeedsBuild - this is the key optimization!
-      // No setState(), no scheduleMicrotask(), just direct rebuild scheduling
+      // For subsequent updates (not first build), mark for rebuild
+      // The first build happens during mount, so we don't need to mark
       if (mounted) {
         markNeedsBuild();
       }
@@ -237,7 +233,7 @@ class _ComputedBuilderElement extends StatelessElement {
 
   @override
   Widget build() {
-    // Return cached widget - the builder has already been executed in the effect
+    // Return cached widget - builder already executed in the effect
     return _cachedWidget ?? const SizedBox.shrink();
   }
 
