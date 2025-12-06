@@ -312,7 +312,9 @@ void main() {
       print('Synchronous updates: 3');
       print('Actual rebuilds: $buildCount');
       print('Time elapsed: ${stopwatch.elapsedMicroseconds}μs');
-      print('Batching ratio: ${buildCount}/3 = ${(buildCount / 3 * 100).toStringAsFixed(1)}%');
+      print(
+        'Batching ratio: ${buildCount}/3 = ${(buildCount / 3 * 100).toStringAsFixed(1)}%',
+      );
       print('');
 
       // Current implementation uses microtask batching
