@@ -69,17 +69,25 @@ class BadControllerLifecycle extends CompositionWidget {
   }
 }
 
-/// ❌ BAD: Mutable field
-/// Should trigger: flutter_compositions_no_mutable_fields
-// ignore: must_be_immutable
-class BadMutableField extends CompositionWidget {
-  BadMutableField({super.key});
-
-  // Non-final field - should use ref() instead!
-  int count = 0;
+/// ❌ BAD: Direct mutation (shallow reactivity)
+/// Should trigger: flutter_compositions_shallow_reactivity
+class BadShallowReactivity extends CompositionWidget {
+  const BadShallowReactivity({super.key});
 
   @override
   Widget Function(BuildContext) setup() {
-    return (context) => Text('Count: $count');
+    final items = ref([1, 2, 3]);
+
+    void addItem() {
+      // Direct mutation - won't trigger reactive update!
+      items.value.add(4);
+    }
+
+    return (context) => Column(
+      children: [
+        Text('Items: ${items.value.length}'),
+        ElevatedButton(onPressed: addItem, child: const Text('Add Item')),
+      ],
+    );
   }
 }

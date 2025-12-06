@@ -37,7 +37,7 @@ flutter test test/composables_test.dart
 # Lints 套件使用 dart test（不是 flutter test）
 cd packages/flutter_compositions_lints
 dart test test/lints/
-dart test test/lints/no_mutable_fields_test.dart
+dart test test/lints/shallow_reactivity_warning_test.dart
 ```
 
 ### Linting 與分析
@@ -159,8 +159,8 @@ expect(errors.length, expectedCount);
 1. **`ensure_reactive_props`** - 強制在 `setup()` 中使用 `widget()` 存取 props
 2. **`no_async_setup`** - 防止在 `setup()` 方法上使用 `async`
 3. **`controller_lifecycle`** - 確保 controllers 使用 `use*` helpers 或手動釋放
-4. **`no_mutable_fields`** - 在 CompositionWidget 上強制使用 `final` 欄位
-6. **`no_conditional_composition`** - 防止條件式呼叫 composition APIs
+4. **`shallow_reactivity`** - 警告淺層響應式限制，直接修改屬性或陣列項目不會觸發更新
+5. **`no_conditional_composition`** - 防止條件式呼叫 composition APIs
 
 ## 常見模式
 

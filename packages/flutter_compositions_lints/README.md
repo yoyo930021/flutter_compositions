@@ -88,31 +88,45 @@ Widget Function(BuildContext) setup() {
 }
 ```
 
-### 4. `flutter_compositions_no_mutable_fields`
+### 4. `flutter_compositions_shallow_reactivity`
 
 **Severity:** Warning
 
-Ensures CompositionWidget fields are `final`. All mutable state should use `ref()`.
+Warns about shallow reactivity limitations. Direct mutations won't trigger reactive updates.
 
 ❌ **Bad:**
 ```dart
-class MyWidget extends CompositionWidget {
-  int count; // Mutable field!
+@override
+Widget Function(BuildContext) setup() {
+  final items = ref([1, 2, 3]);
+
+  void addItem() {
+    items.value.add(4); // Won't trigger update!
+  }
+
+  return (context) => Text('${items.value.length}');
 }
 ```
 
 ✅ **Good:**
 ```dart
-class MyWidget extends CompositionWidget {
-  final int initialCount; // Immutable prop
+@override
+Widget Function(BuildContext) setup() {
+  final items = ref([1, 2, 3]);
 
-  @override
-  Widget Function(BuildContext) setup() {
-    final count = ref(initialCount); // Mutable via ref
-    ...
+  void addItem() {
+    items.value = [...items.value, 4]; // Triggers update!
   }
+
+  return (context) => Text('${items.value.length}');
 }
 ```
+
+### 5. `flutter_compositions_no_conditional_composition`
+
+**Severity:** Error
+
+Prevents composition API calls inside conditionals or loops (similar to React Hooks rules).
 
 ## Installation
 
