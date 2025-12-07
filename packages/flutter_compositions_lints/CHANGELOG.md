@@ -6,6 +6,29 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [Unreleased]
+
+### Changed
+
+- **BREAKING**: Replaced `flutter_compositions_no_mutable_fields` rule with `flutter_compositions_shallow_reactivity`
+  - The new rule warns about shallow reactivity limitations instead of enforcing final fields
+  - Detects direct mutations that won't trigger reactive updates:
+    - Property assignments: `ref.value['key'] = x` or `ref.value.property = x`
+    - Array element assignments: `ref.value[0] = x`
+    - Mutating method calls: `ref.value.add()`, `.remove()`, `.clear()`, etc.
+  - Updated all documentation (English and Chinese) to reflect the new rule
+  - Updated example code and fixtures
+
+### Removed
+
+- `flutter_compositions_no_mutable_fields` lint rule and all associated tests
+
+### Added
+
+- `flutter_compositions_shallow_reactivity` lint rule with comprehensive test coverage
+- New test fixtures demonstrating shallow reactivity patterns
+- Detailed documentation explaining common mutation patterns to avoid
+
 ## [0.1.1] - 2025-11-06
 
  - **REFACTOR**: remove type safety lint rule and related tests.
