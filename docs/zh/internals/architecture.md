@@ -4,17 +4,17 @@
 
 | 元件 | 角色 |
 |------|------|
-| `CompositionWidget` | 對外公開的 widget，開發者在 `setup()` 中宣告狀態並回傳 builder。 |
-| `_CompositionWidgetState` | 實際的 `State` 物件，負責呼叫 `setup()`、管理 reactive builder 與生命週期。 |
-| `_SetupContext` | 儲存 `ref`、`computed`、生命週期掛勾與 provide/inject 內容的內部容器。 |
+| `CompositionWidget` | 對外公開的 widget (Stateless)，開發者在 `setup()` 中宣告狀態並回傳 builder。 |
+| `_CompositionElement` | 自定義 `Element` (`StatelessElement`)，取代 State 物件，負責呼叫 `setup()`、管理 reactive builder 與生命週期。 |
+| `SetupContextImpl` | 儲存 `ref`、`computed`、生命週期掛勾與 provide/inject 內容的內部容器。 |
 | `alien_signals` | 支援細粒度 reactivity 的訊號系統。 |
 
 ## 生命週期流程
 
-1. `initState`：建立 `SetupContext`，執行 `setup()`，取得 builder。
-2. `didChangeDependencies`：初始化 reactive builder，註冊成 effect。
-3. `build`：回傳快取的 widget，當依賴變化時自動刷新。
-4. `dispose`：呼叫 `onUnmounted`、釋放 effect 與控制器。
+1. `mount`：建立 `SetupContext`，執行 `setup()`，取得 builder。
+2. `didChangeDependencies`：觸發依賴更新通知。
+3. `build`：初始化或執行 effect，回傳快取的 widget，當依賴變化時直接標記 dirty。
+4. `unmount`：呼叫 `onUnmounted`、釋放 effect 與控制器。
 
 ## 為何需要這一層 Runtime？
 

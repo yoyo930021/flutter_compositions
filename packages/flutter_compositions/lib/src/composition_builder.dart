@@ -1,6 +1,6 @@
+import 'package:alien_signals/alien_signals.dart' as signals;
 import 'package:flutter/widgets.dart';
-import 'package:flutter_compositions/src/framework.dart'
-    show SetupContextImpl, SetupContextMixin;
+import 'package:flutter_compositions/src/framework.dart';
 
 /// Signature for the builder callback used by [CompositionBuilder].
 ///
@@ -151,7 +151,7 @@ typedef CompositionSetup = CompositionBuilderCallback Function();
 /// The key difference is that [CompositionBuilder]'s setup runs only once,
 /// preserving reactive state, while [StatefulBuilder]'s builder runs on
 /// every rebuild.
-class CompositionBuilder extends StatefulWidget {
+class CompositionBuilder extends StatelessWidget {
   /// Creates a [CompositionBuilder].
   ///
   /// The [setup] callback is called once when the widget is first created.
@@ -166,53 +166,145 @@ class CompositionBuilder extends StatefulWidget {
   final CompositionSetup setup;
 
   @override
-  State<CompositionBuilder> createState() => CompositionBuilderState();
+  Widget build(BuildContext context) {
+    throw StateError('CompositionBuilder.build() should never be called');
+  }
+
+  @override
+  StatelessElement createElement() => _CompositionBuilderElement(this);
 }
 
-/// The state for [CompositionBuilder] that manages the reactive effect
-/// and lifecycle.
-///
-/// This implementation uses [SetupContextMixin] to share logic with
-/// CompositionWidget, ensuring consistency and eliminating code duplication.
-class CompositionBuilderState extends State<CompositionBuilder>
-    with SetupContextMixin<CompositionBuilder> {
-  @override
-  void initState() {
-    super.initState();
+class _CompositionBuilderElement extends StatelessElement
+    implements SetupContextOwner {
+  _CompositionBuilderElement(CompositionBuilder super.widget);
 
-    // Initialize setup context using mixin
-    initializeSetupContext(
-      setupFunction: widget.setup,
-      parent: SetupContextMixin.findParentSetupContext(context),
+  late final SetupContextImpl _setupContext;
+  late Widget Function(BuildContext) _builder;
+  bool _initialized = false;
+
+  @override
+  CompositionBuilder get widget => super.widget as CompositionBuilder;
+
+  @override
+  SetupContextImpl get setupContext => _setupContext;
+
+  @override
+  void mount(Element? parent, Object? newSlot) {
+    super.mount(parent, newSlot);
+
+    // Trigger onMounted callback
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _setupContext.triggerMounted();
+      }
+    });
+  }
+
+  void _initialize() {
+    // 1. Initialize setup context
+    _setupContext = SetupContextImpl()
+      // CompositionBuilder does not have widget props signal
+      ..parent = findParentSetupContext(this);
+
+    // 2. Run setup (only once)
+    runWithSetupContext(_setupContext, () {
+      _setupContext.effectScope = signals.effectScope(() {
+        _builder = widget.setup();
+      });
+    });
+
+    // 3. Initialize render effect
+    _setupContext.initializeRenderEffect(
+      this,
+      _builder,
+      () {
+        if (mounted && !dirty) {
+          markNeedsBuild();
+        }
+      },
     );
+    _initialized = true;
+  }
+
+  @override
+  void update(CompositionBuilder newWidget) {
+    super.update(newWidget);
+    // CompositionBuilder setup function is final and runs once.
+    // If setup function reference changes, we don't re-run setup
+    // (StatefulWidget behavior).
+    // We rely on hot reload (reassemble) to re-run setup if needed.
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    initializeRenderEffectIfNeeded(context);
-    // Trigger build callbacks when InheritedWidget dependencies change.
-    // This allows composables like useContextRef to update correctly.
-    setupContext?.triggerBuild(context);
+    if (_initialized) {
+      _setupContext.triggerBuild(this);
+    }
   }
 
   @override
-  Widget build(BuildContext context) {
-    return cachedWidget ?? const SizedBox.shrink();
+  Widget build() {
+    if (!_initialized) {
+      _initialize();
+    }
+    return _setupContext.cachedWidget ?? const SizedBox.shrink();
   }
 
   @override
-  void dispose() {
-    disposeSetupContext();
-    super.dispose();
+  void unmount() {
+    if (_initialized) {
+      _setupContext
+        ..triggerUnmounted()
+        ..dispose();
+    }
+
+    super.unmount();
   }
 
   @override
   void reassemble() {
     super.reassemble();
-    reassembleSetupContext(
-      setupFunction: widget.setup,
-    );
+    if (_initialized) {
+      _reassembleSetupContext();
+    }
+  }
+
+  void _reassembleSetupContext() {
+    _setupContext
+      ..previousHotReloadableValues = _captureHotReloadableValues()
+      ..resetHotReload()
+      ..effectScope?.dispose()
+      ..clearCallbacks()
+      ..clearHotReloadables()
+      ..clearCache();
+
+    runWithSetupContext(_setupContext, () {
+      _setupContext.effectScope = signals.effectScope(() {
+        _builder = widget.setup();
+      });
+    });
+
+    _setupContext
+      ..previousHotReloadableValues = null
+      ..initializeRenderEffect(
+        this,
+        _builder,
+        () {
+          if (mounted && !dirty) {
+            markNeedsBuild();
+          }
+        },
+      );
+  }
+
+  Map<int, dynamic> _captureHotReloadableValues() {
+    final values = <int, dynamic>{};
+    for (var i = 0; i < _setupContext.hotReloadables.length; i++) {
+      final entry = _setupContext.hotReloadables[i];
+      values[i] = entry.raw;
+    }
+    return values;
   }
 }
 
@@ -223,9 +315,5 @@ class CompositionBuilderState extends State<CompositionBuilder>
 /// It's kept for backward compatibility but may be removed in the future.
 /// Use getCurrentSetupContext() from framework.dart instead.
 SetupContextImpl? getCurrentBuilderState() {
-  // Delegate to the unified registry
-  // This is imported from framework.dart via getCurrentSetupContext
-  // The registry is not accessible here, but getCurrentSetupContext()
-  // in framework.dart handles it
-  return null;
+  return getCurrentSetupContext() as SetupContextImpl?;
 }

@@ -4,12 +4,12 @@
 
 ## 架構概覽
 
-Flutter Compositions 在原生 `StatefulWidget` 之上建構一層極薄的執行期，提供類似 Vue Composition API 的開發體驗。
+Flutter Compositions 透過自定義 `Element` (`StatelessElement` 的擴展) 建構一層極薄的執行期，提供類似 Vue Composition API 的開發體驗，同時移除了 `StatefulWidget` 的 `State` 物件開銷。
 
 ### 生命週期流程
 
-1. **初始化階段** (`initState`)
-   - 建立 `_SetupContext`
+1. **初始化階段** (`mount`)
+   - 建立 `SetupContext`
    - 呼叫一次 `setup()`
    - 註冊生命週期掛勾、建立 reactive state
    - 取得負責繪製 UI 的 builder 函式
@@ -19,10 +19,10 @@ Flutter Compositions 在原生 `StatefulWidget` 之上建構一層極薄的執�
    - 當依賴的 `Ref` 或 `Computed` 變動時，自動重新執行 builder
 
 3. **Props 更新**
-   - 當父層傳入新 props 時，內部的 `_widgetSignal` 送出新的 widget 實例
+   - 當父層傳入新 props 時（觸發 `update`），內部的 `_widgetSignal` 送出新的 widget 實例
    - 透過 `widget()` 取得的 props 保持響應式
 
-4. **清理階段** (`dispose`)
+4. **清理階段** (`unmount`)
    - 自動清理 `setup()` 註冊的 effects、控制器與掛勾
    - 避免資源洩漏
 
@@ -85,25 +85,32 @@ Flutter Compositions 的核心驅動力是 `alien_signals` 套件。理解其原
 
 ### 與 Flutter 的整合
 
-`CompositionWidget` 將 builder 函式包裝在 effect 中：
+`CompositionWidget` 使用自定義 Element 將 builder 函式包裝在 effect 中：
 
 ```dart
-_renderEffect = effect(() {
+_renderEffect = signals.effect(() {
+  // 觸發 build callbacks
+  triggerBuild(context);
+
   // 執行 builder 函式
   final newWidget = builder(context);
 
-  // 產生的 Widget 不同時呼叫 setState
-  if (_cachedWidget != newWidget) {
-    setState(() {
-      _cachedWidget = newWidget;
-    });
+  // 更新緩存
+  _cachedWidget = newWidget;
+
+  // 若非首次執行，直接標記需要重建
+  // 相比 setState，這減少了閉包創建與斷言檢查的開銷
+  if (!isFirstRun) {
+    scheduleRebuild(); // 內部呼叫 markNeedsBuild()
   }
+  
+  isFirstRun = false;
 });
 ```
 
 這實現了：
 - 只有 builder 內部使用的響應式數據變化時才重新執行
-- 重新執行時呼叫 `setState` 觸發 Flutter 更新
+- 重新執行時直接呼叫 `markNeedsBuild` 觸發 Flutter 更新，效率高於 `setState`
 - Flutter 的 Element diff 確保只更新變化的部分
 
 ## 核心設計取捨
@@ -120,7 +127,7 @@ _renderEffect = effect(() {
 - 學習成本稍高
 
 **解決方案**：
-- `_widgetSignal` 在 `didUpdateWidget` 時更新
+- `_widgetSignal` 在 `Element.update` 時更新
 - `widget()` 返回對 signal 的訂閱
 - 換取完全的響應式能力和清晰的數據流
 
@@ -181,7 +188,7 @@ _renderEffect = effect(() {
 | 記憶體 | 父層參考 + Map | 整個 InheritedElement |
 | 更新行為 | Ref 手動控制 | 變更觸發所有依賴重建 |
 | 重建開銷 | 無（reactive 控制） | 所有依賴 widget 重建 |
-| 設置成本 | initState 一次性 | 每次 build |
+| 設置成本 | mount 一次性 | 每次 build |
 
 ### 優化建議
 
