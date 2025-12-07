@@ -6,17 +6,17 @@ This page outlines how Flutter Compositions layers a composition-oriented runtim
 
 | Piece | Responsibility |
 |-------|----------------|
-| `CompositionWidget` | Developer-facing widget that exposes `setup()` and returns a builder. |
-| `_CompositionWidgetState` | Manages lifecycle, runs `setup()` once, and registers reactive effects. |
-| `_SetupContext` | Internal container that stores refs, lifecycle hooks, and provided values. |
+| `CompositionWidget` | Developer-facing widget (Stateless) that exposes `setup()` and returns a builder. |
+| `_CompositionElement` | Custom `Element` (`StatelessElement`) replacing State object, manages lifecycle, runs `setup()`, and registers reactive effects. |
+| `SetupContextImpl` | Internal container that stores refs, lifecycle hooks, and provided values. |
 | `alien_signals` runtime | Provides the reactive core (`Ref`, `ComputedRef`, effects). |
 
 ## Lifecycle
 
-1. `initState` creates `_SetupContext` and calls `setup()`.
-2. The returned builder is wrapped in an effect so it re-runs when dependencies change.
-3. `build` delegates to the cached builder output.
-4. `dispose` invokes cleanup handlers, disposes controllers, and tears down effects.
+1. `mount` creates `SetupContext` and calls `setup()`.
+2. `didChangeDependencies` triggers dependency updates.
+3. `build` initializes or runs effect, delegates to the cached builder output, marking dirty directly on change.
+4. `unmount` invokes cleanup handlers, disposes controllers, and tears down effects.
 
 ## Why a Custom Runtime?
 

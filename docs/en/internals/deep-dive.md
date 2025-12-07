@@ -4,12 +4,12 @@ This article consolidates the core architecture, reactive system principles, des
 
 ## Architecture Overview
 
-Flutter Compositions builds an extremely thin runtime layer on top of native `StatefulWidget`, providing a development experience similar to Vue Composition API.
+Flutter Compositions builds an extremely thin runtime layer using a custom `Element` (extending `StatelessElement`), providing a development experience similar to Vue Composition API, while removing the overhead of `StatefulWidget`'s `State` object.
 
 ### Lifecycle Flow
 
-1. **Initialization Phase** (`initState`)
-   - Create `_SetupContext`
+1. **Initialization Phase** (`mount`)
+   - Create `SetupContext`
    - Call `setup()` once
    - Register lifecycle hooks, create reactive state
    - Obtain the builder function responsible for rendering UI
@@ -19,10 +19,10 @@ Flutter Compositions builds an extremely thin runtime layer on top of native `St
    - Automatically re-executes when dependent `Ref` or `Computed` changes
 
 3. **Props Updates**
-   - When parent passes new props, internal `_widgetSignal` emits new widget instance
+   - When parent passes new props (triggering `update`), internal `_widgetSignal` emits new widget instance
    - Props accessed via `widget()` remain reactive
 
-4. **Cleanup Phase** (`dispose`)
+4. **Cleanup Phase** (`unmount`)
    - Automatically cleanup effects, controllers, and hooks registered in `setup()`
    - Prevents resource leaks
 
@@ -85,25 +85,32 @@ When modifying `ref.value`:
 
 ### Integration with Flutter
 
-`CompositionWidget` wraps the builder function in an effect:
+`CompositionWidget` uses a custom Element to wrap the builder function in an effect:
 
 ```dart
-_renderEffect = effect(() {
+_renderEffect = signals.effect(() {
+  // Trigger build callbacks
+  triggerBuild(context);
+
   // Execute builder function
   final newWidget = builder(context);
 
-  // Call setState when produced Widget differs
-  if (_cachedWidget != newWidget) {
-    setState(() {
-      _cachedWidget = newWidget;
-    });
+  // Update cache
+  _cachedWidget = newWidget;
+
+  // If not first run, directly mark for rebuild
+  // Reduces overhead of closure creation and assertions compared to setState
+  if (!isFirstRun) {
+    scheduleRebuild(); // Internally calls markNeedsBuild()
   }
+  
+  isFirstRun = false;
 });
 ```
 
 This achieves:
 - Only re-executes when reactive data used inside builder changes
-- Calls `setState` to trigger Flutter update when re-executing
+- Calls `markNeedsBuild` directly to trigger Flutter update when re-executing, which is more efficient than `setState`
 - Flutter's Element diff ensures only changed parts are updated
 
 ## Core Design Trade-offs
@@ -120,7 +127,7 @@ This achieves:
 - Slightly higher learning curve
 
 **Solution**:
-- `_widgetSignal` updates in `didUpdateWidget`
+- `_widgetSignal` updates in `Element.update`
 - `widget()` returns subscription to signal
 - Trades for complete reactive capability and clear data flow
 
@@ -131,7 +138,7 @@ This achieves:
 | Lookup Time | O(n) | O(1) |
 | Update Mechanism | Manual (via Ref) | Auto-triggers rebuild |
 | Rebuild Scope | None, only dependent builder updates | All dependent descendants |
-| Setup Cost | One-time in initState | Every build |
+| Setup Cost | One-time in mount | Every build |
 
 **Why Choose O(n) Lookup?**
 
@@ -181,7 +188,7 @@ Strategic choice. Leveraging a focused lower-level library is wiser than buildin
 | Memory | Parent reference + Map | Entire InheritedElement |
 | Update Behavior | Manual control via Ref | Change triggers all dependent rebuilds |
 | Rebuild Overhead | None (reactive control) | All dependent widgets rebuild |
-| Setup Cost | One-time in initState | Every build |
+| Setup Cost | One-time in mount | Every build |
 
 ### Optimization Recommendations
 

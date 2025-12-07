@@ -27,10 +27,9 @@ void main() {
     print('Controller 1 text: "${controller1?.text}"');
     print('Controller 1 hashCode: ${controller1.hashCode}');
 
-    // Get state and call reassemble (simulates hot reload)
-    final state = tester.state<State>(find.byType(TestWidget));
-    // ignore: invalid_use_of_protected_member
-    state.reassemble();
+    // Get element and call reassemble (simulates hot reload)
+    final element = tester.element(find.byType(TestWidget));
+    element.reassemble();
     await tester.pump();
 
     // Get controller after reassemble
@@ -63,9 +62,8 @@ void main() {
     expect(find.text('text: Test'), findsOneWidget);
 
     // Reassemble
-    final state = tester.state<State>(find.byType(RefCheckWidget));
-    // ignore: invalid_use_of_protected_member
-    state.reassemble();
+    final element = tester.element(find.byType(RefCheckWidget));
+    element.reassemble();
     await tester.pump();
 
     print('=== After reassemble ===');
