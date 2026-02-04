@@ -371,6 +371,49 @@ final props = widget();
 final greeting = computed(() => 'Hello, ${props.value.name}');
 ```
 
+**提示:使用 Dart 解構模式存取 Props**
+
+當處理多個 props 時,你可以在 builder 函式中使用 Dart 的解構模式來乾淨地提取 props,並確保響應式存取:
+
+```dart
+class UserCard extends CompositionWidget {
+  final String userId;
+  final String displayName;
+  final bool isActive;
+
+  const UserCard({
+    super.key,
+    required this.userId,
+    required this.displayName,
+    required this.isActive,
+  });
+
+  @override
+  Widget Function(BuildContext) setup() {
+    final props = widget();
+
+    return (context) {
+      // 解構 props 以獲得更乾淨的存取方式
+      final UserCard(:userId, :displayName, :isActive) = props.value;
+
+      return ListTile(
+        title: Text(displayName),
+        subtitle: Text('ID: $userId'),
+        trailing: Icon(
+          isActive ? Icons.check_circle : Icons.cancel,
+          color: isActive ? Colors.green : Colors.grey,
+        ),
+      );
+    };
+  }
+}
+```
+
+這個模式確保:
+- 所有 prop 存取都透過 `props.value`,維持響應式
+- Props 在 builder 函式頂部清楚宣告
+- 使用多個 props 時程式碼更易讀
+
 ### 陷阱 3:變更集合
 
 ```dart

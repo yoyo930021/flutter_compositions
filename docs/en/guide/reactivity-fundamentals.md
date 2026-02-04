@@ -371,6 +371,49 @@ final props = widget();
 final greeting = computed(() => 'Hello, ${props.value.name}');
 ```
 
+**Tip: Use Dart's Destructuring Pattern for Props**
+
+When working with multiple props, you can use Dart's destructuring pattern in the builder function to extract props cleanly and ensure reactive access:
+
+```dart
+class UserCard extends CompositionWidget {
+  final String userId;
+  final String displayName;
+  final bool isActive;
+
+  const UserCard({
+    super.key,
+    required this.userId,
+    required this.displayName,
+    required this.isActive,
+  });
+
+  @override
+  Widget Function(BuildContext) setup() {
+    final props = widget();
+
+    return (context) {
+      // Destructure props for cleaner access
+      final UserCard(:userId, :displayName, :isActive) = props.value;
+
+      return ListTile(
+        title: Text(displayName),
+        subtitle: Text('ID: $userId'),
+        trailing: Icon(
+          isActive ? Icons.check_circle : Icons.cancel,
+          color: isActive ? Colors.green : Colors.grey,
+        ),
+      );
+    };
+  }
+}
+```
+
+This pattern ensures that:
+- All prop access goes through `props.value`, maintaining reactivity
+- Props are clearly declared at the top of the builder function
+- The code is more readable when using multiple props
+
 ### Pitfall 3: Mutating Collections
 
 ```dart
