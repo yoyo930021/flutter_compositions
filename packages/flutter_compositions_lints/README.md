@@ -79,7 +79,7 @@ Widget Function(BuildContext) setup() {
 Widget Function(BuildContext) setup() {
   // Option 1: Use helper (recommended)
   final controller = useScrollController();
-  return (context) => ListView(controller: controller.value);
+  return (context) => ListView(controller: controller.raw);
 
   // Option 2: Manual disposal
   final controller = ScrollController();
@@ -128,39 +128,57 @@ Widget Function(BuildContext) setup() {
 
 Prevents composition API calls inside conditionals or loops (similar to React Hooks rules).
 
+### 6. `flutter_compositions_no_logic_in_builder`
+
+**Severity:** Warning
+
+Prevents logic inside the builder function returned by `setup()`. The builder should only build the widget tree. The only exception is props destructuring.
+
+❌ **Bad:**
+```dart
+return (context) {
+  final filtered = items.value.where(...).toList(); // ❌ Logic in builder
+  return ListView(children: filtered.map(ItemTile.new).toList());
+};
+```
+
+✅ **Good:**
+```dart
+final filtered = computed(() => items.value.where(...).toList());
+return (context) => ListView(children: filtered.value.map(ItemTile.new).toList());
+```
+
+### 7. `flutter_compositions_prefer_raw_controller`
+
+**Severity:** Warning
+
+Suggests using `.raw` instead of `.value` when passing controller refs to widget parameters like `controller:` or `focusNode:` in the builder. Using `.raw` avoids unnecessary reactive tracking.
+
+❌ **Bad:**
+```dart
+return (context) => ListView(controller: scrollController.value);
+```
+
+✅ **Good:**
+```dart
+return (context) => ListView(controller: scrollController.raw);
+```
+
 ## Installation
 
 Add to your `pubspec.yaml`:
 
 ```yaml
 dev_dependencies:
-  custom_lint: ^0.7.0
-  flutter_compositions_lints:
-    path: packages/flutter_compositions_lints
+  flutter_compositions_lints: ^0.1.0
 ```
 
-Create `analysis_options.yaml` in your project root:
+Configure in `analysis_options.yaml`:
 
 ```yaml
-analyzer:
-  plugins:
-    - custom_lint
-
-custom_lint:
-  enable_all_lint_rules: true
-```
-
-## Running the lints
-
-```bash
-# Analyze your code
-dart run custom_lint
-
-# Watch for changes
-dart run custom_lint --watch
-
-# Fix auto-fixable issues
-dart run custom_lint --fix
+plugins:
+  flutter_compositions_lints:
+    path: .
 ```
 
 ## Contributing

@@ -35,7 +35,6 @@ dependencies:
 
 dev_dependencies:
   flutter_compositions_lints: ^0.1.0
-  custom_lint: ^0.7.0
 ```
 
 ## Quick Start
@@ -289,20 +288,19 @@ Enable custom lints to enforce best practices:
 
 ```yaml
 # analysis_options.yaml
-analyzer:
-  plugins:
-    - custom_lint
-
-custom_lint:
-  enable_all_lint_rules: true
+plugins:
+  flutter_compositions_lints:
+    path: .
 ```
 
 Available rules:
 - `flutter_compositions_ensure_reactive_props` - Ensure reactive prop access via `widget()`
 - `flutter_compositions_no_async_setup` - Prevent async setup methods
 - `flutter_compositions_controller_lifecycle` - Ensure proper controller disposal
-- `flutter_compositions_no_mutable_fields` - Enforce immutable widget fields
-- `flutter_compositions_provide_inject_type_match` - Warn against common type conflicts
+- `flutter_compositions_no_conditional_composition` - Prevent conditional composition APIs
+- `flutter_compositions_shallow_reactivity` - Warn about shallow reactivity limitations
+- `flutter_compositions_no_logic_in_builder` - No logic in builder except props destructuring
+- `flutter_compositions_prefer_raw_controller` - Use `.raw` for controllers in builders
 
 [See all lint rules →](https://yoyo930021.github.io/flutter_compositions/lints/rules)
 
@@ -314,6 +312,13 @@ Check out the example app for more patterns:
 cd packages/flutter_compositions/example
 flutter run
 ```
+
+## For AI / LLM Users
+
+This project provides [llms.txt](https://yoyo930021.github.io/flutter_compositions/llms.txt) and [llms-full.txt](https://yoyo930021.github.io/flutter_compositions/llms-full.txt) following the [llms.txt standard](https://llmstxt.org/) to help AI assistants understand and use this library effectively.
+
+- **`llms.txt`** — A concise guide with core concepts, API patterns, and best practices
+- **`llms-full.txt`** — Complete documentation content for in-depth reference
 
 ## Contributing
 

@@ -103,6 +103,13 @@ cd packages/flutter_compositions/example
 flutter run
 ```
 
+## For AI / LLM Users
+
+This project provides [llms.txt](https://yoyo930021.github.io/flutter_compositions/llms.txt) and [llms-full.txt](https://yoyo930021.github.io/flutter_compositions/llms-full.txt) following the [llms.txt standard](https://llmstxt.org/) to help AI assistants understand and use this library effectively.
+
+- **`llms.txt`** — A concise guide with core concepts, API patterns, and best practices
+- **`llms-full.txt`** — Complete documentation content for in-depth reference
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.

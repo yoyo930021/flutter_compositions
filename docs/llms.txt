@@ -1,0 +1,304 @@
+# Flutter Compositions
+
+> A reactive framework for Flutter inspired by Vue 3's Composition API. Replaces StatefulWidget boilerplate with a declarative, signal-based programming model built on `alien_signals`.
+
+## Installation
+
+```yaml
+dependencies:
+  flutter_compositions: ^0.1.0
+```
+
+## Core Concept
+
+Extend `CompositionWidget` and implement `setup()`. It runs **once** (like `initState`), declares reactive state, and returns a builder function that re-runs automatically when dependencies change.
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:flutter_compositions/flutter_compositions.dart';
+
+class Counter extends CompositionWidget {
+  const Counter({super.key});
+
+  @override
+  Widget Function(BuildContext) setup() {
+    final count = ref(0);
+    final doubled = computed(() => count.value * 2);
+
+    return (context) => Column(
+      children: [
+        Text('Count: ${count.value}'),
+        Text('Doubled: ${doubled.value}'),
+        ElevatedButton(
+          onPressed: () => count.value++,
+          child: const Text('Increment'),
+        ),
+      ],
+    );
+  }
+}
+```
+
+## Reactive Primitives
+
+### ref(initialValue)
+Creates mutable reactive state. Access/modify via `.value`.
+
+```dart
+final count = ref(0);
+count.value++;        // triggers reactive update
+print(count.value);   // 1
+```
+
+### computed(() => ...)
+Creates cached derived state. Re-evaluates only when dependencies change.
+
+```dart
+final items = ref(<Todo>[]);
+final activeCount = computed(() => items.value.where((t) => !t.done).length);
+```
+
+### watch(() => source, (newVal, oldVal) { ... })
+Runs a side-effect callback when the watched value changes. **Prefer `computed` over `watch` for deriving values.** Reserve `watch`/`watchEffect` for side effects only (logging, navigation, API calls).
+
+```dart
+// ❌ Don't use watch to derive values
+final fullName = ref('');
+watch(() => (first.value, last.value), (names, _) => fullName.value = '${names.$1} ${names.$2}');
+
+// ✅ Use computed instead
+final fullName = computed(() => '${first.value} ${last.value}');
+
+// ✅ Use watch for side effects
+watch(() => userId.value, (id, _) => analytics.track('user_changed', id));
+```
+
+### watchEffect(() { ... })
+Like `watch` but automatically tracks all refs read inside the callback.
+
+```dart
+watchEffect(() {
+  print('Count is now: ${count.value}');
+});
+```
+
+## Widget Types
+
+| Widget | Use case |
+|--------|----------|
+| `CompositionWidget` | Reusable component with props |
+| `CompositionBuilder` | Inline/one-off reactive UI (tests, dialogs) |
+| `ComputedBuilder` | Isolate a subtree for performance |
+
+### CompositionBuilder
+```dart
+CompositionBuilder(
+  setup: () {
+    final count = ref(0);
+    return (context) => Text('${count.value}');
+  },
+)
+```
+
+### ComputedBuilder
+```dart
+// Only rebuilds when count changes, not when name changes
+ComputedBuilder(
+  builder: (context) => Text('Count: ${count.value}'),
+)
+```
+
+## Reactive Props
+
+Since `setup()` runs once, access props via `widget()` to maintain reactivity:
+
+```dart
+class UserCard extends CompositionWidget {
+  final String name;
+  const UserCard({super.key, required this.name});
+
+  @override
+  Widget Function(BuildContext) setup() {
+    final props = widget();
+    final greeting = computed(() => 'Hello, ${props.value.name}!');
+    return (context) => Text(greeting.value);
+  }
+}
+```
+
+**Props destructuring pattern** — the only logic allowed in the builder function:
+
+```dart
+return (context) {
+  final UserCard(:name, :isActive) = props.value;
+  return Text('$name: $isActive');
+};
+```
+
+## Lifecycle Hooks
+
+```dart
+onMounted(() async {
+  // Runs after first frame. Use for async init.
+  data.value = await fetchData();
+});
+
+onUnmounted(() {
+  // Cleanup external resources (timers, streams, etc.)
+  timer.cancel();
+});
+
+onBuild((context) {
+  // Runs every build. Used internally by composables.
+});
+```
+
+## Dependency Injection
+
+Type-safe `provide`/`inject` via `InjectionKey<T>`:
+
+```dart
+const authKey = InjectionKey<AuthService>('auth');
+
+// Provider widget
+class App extends CompositionWidget {
+  @override
+  Widget Function(BuildContext) setup() {
+    provide(authKey, AuthService());
+    return (context) => const MaterialApp(home: HomePage());
+  }
+}
+
+// Consumer widget
+class ProfilePage extends CompositionWidget {
+  @override
+  Widget Function(BuildContext) setup() {
+    final auth = inject(authKey);
+    return (context) => Text(auth.currentUser.value?.name ?? 'Guest');
+  }
+}
+```
+
+## Built-in Composables
+
+### Controllers (auto-disposed)
+```dart
+final scrollController = useScrollController();
+final pageController = usePageController(initialPage: 0);
+final focusNode = useFocusNode();
+final (textController, text, selection) = useTextEditingController(text: 'initial');
+final (animController, animValue) = useAnimationController(duration: Duration(seconds: 1));
+```
+
+### Async
+```dart
+// Simple future
+final userData = useFuture(() => api.fetchUser());
+
+// Auto-refetch when watch value changes
+final (status, refresh) = useAsyncData<User, int>(
+  (id) => api.fetchUser(id),
+  watch: () => userId.value,
+);
+
+// Pattern match on AsyncValue
+return (context) => switch (status.value) {
+  AsyncLoading() => CircularProgressIndicator(),
+  AsyncData(:final value) => Text(value.name),
+  AsyncError(:final errorValue) => Text('Error: $errorValue'),
+  AsyncIdle() => SizedBox.shrink(),
+};
+
+// Streams
+final latestEvent = useStream(eventBus.events, initialData: null);
+```
+
+### InheritedWidget access
+```dart
+final theme = useTheme();
+final mediaQuery = useMediaQuery();
+final (size, orientation) = useMediaQueryInfo();
+final brightness = usePlatformBrightness();
+final locale = useLocale();
+final customValue = useContextRef((context) => MyInherited.of(context).data);
+```
+
+### Integrating existing objects
+```dart
+final (notifier, value) = manageValueListenable(existingNotifier);
+final reactiveController = manageChangeNotifier(existingController);
+```
+
+## Reactive Collections
+
+Collections use shallow reactivity — you must replace the whole value:
+
+```dart
+final items = ref(<String>[]);
+
+// ❌ Won't trigger update
+items.value.add('new');
+
+// ✅ Replace with new list
+items.value = [...items.value, 'new'];
+```
+
+## Best Practices
+
+1. **Keep the builder function pure** — no logic except props destructuring. Move computations/conditionals to `setup()` using `computed`.
+2. **Prefer `computed` over `watch`** for deriving values.
+3. **Always use `widget()` for props** — direct prop access is not reactive.
+4. **Use `use*` composables for controllers** — they auto-dispose.
+5. **Extract reusable logic into composables** — functions prefixed with `use`.
+6. **`setup()` must be synchronous** — use `onMounted` for async.
+7. **Never call composition APIs conditionally** — always call `ref`, `computed`, `watch`, etc. in a consistent order.
+8. **Use `.raw` for controllers in builders** — when passing controller refs to widget parameters like `controller:` or `focusNode:`, use `.raw` instead of `.value` to avoid unnecessary reactive tracking and rebuilds.
+
+## Creating Custom Composables
+
+```dart
+(Ref<int>, void Function()) useCounter({int initialValue = 0}) {
+  final count = ref(initialValue);
+  void increment() => count.value++;
+  onUnmounted(() { /* cleanup if needed */ });
+  return (count, increment);
+}
+
+// Usage in setup()
+final (count, increment) = useCounter(initialValue: 10);
+```
+
+## Rules for setup()
+
+1. Must be **synchronous** — return a builder function directly
+2. Runs **once** — state persists via signals across rebuilds
+3. No **conditional** composition API calls — always call in consistent order
+4. No **BuildContext** access — only in the returned builder function
+5. **Builder function must be pure** — no logic inside the returned `(context) { ... }` except props destructuring. Move all computations, conditionals, and side effects into `setup()` using `computed`, `watch`, or composables
+
+## Lint Rules
+
+Add `flutter_compositions_lints` for enforcement:
+
+| Rule | Severity | Description |
+|------|----------|-------------|
+| `ensure_reactive_props` | Warning | Access props via `widget()` |
+| `no_async_setup` | Error | Prevent async setup methods |
+| `controller_lifecycle` | Warning | Ensure controller disposal |
+| `shallow_reactivity` | Warning | Warn about shallow reactivity |
+| `no_conditional_composition` | Error | Prevent conditional composition APIs |
+| `no_logic_in_builder` | Warning | No logic in builder except props destructuring |
+| `prefer_raw_controller` | Warning | Use `.raw` instead of `.value` for controllers in builders |
+
+Configuration in `analysis_options.yaml`:
+
+```yaml
+plugins:
+  flutter_compositions_lints:
+    path: .
+```
+
+## Full Documentation
+
+- [Full docs](https://yoyo930021.github.io/flutter_compositions/)
+- [llms-full.txt](https://yoyo930021.github.io/flutter_compositions/llms-full.txt) — complete documentation for in-depth reference
