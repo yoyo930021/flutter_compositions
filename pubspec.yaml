@@ -3,11 +3,10 @@ description: Workspace configuration for the flutter_compositions monorepo.
 publish_to: none
 
 environment:
-  sdk: ^3.9.0
+  sdk: ^3.10.0
 
 workspace:
   - packages/flutter_compositions
-  - packages/flutter_compositions_lints
   - packages/flutter_compositions/example
 
 dev_dependencies:
