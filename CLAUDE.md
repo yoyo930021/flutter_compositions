@@ -43,14 +43,8 @@ dart test test/lints/shallow_reactivity_warning_test.dart
 ### Linting 與分析
 
 ```bash
-# 分析所有套件
+# 分析所有套件（包含 analysis_server_plugin lints）
 melos run analyze
-
-# 執行自定義 lints（在 monorepo 根目錄）
-dart run custom_lint
-
-# 以 watch 模式執行自定義 lints
-dart run custom_lint --watch
 ```
 
 ### 執行示範應用
@@ -142,15 +136,32 @@ didUpdateWidget(oldWidget)
 
 ### 測試方法
 
-Lints 使用 **`testAnalyzeAndRun()`** 方法（不是 `AnalysisContextCollection`）：
+Lints 使用 **`analysis_server_plugin`** 搭配 **`analyzer_testing`** 測試框架：
 
 ```dart
-// ✅ 正確的測試 custom_lint 規則的方法
-final errors = await rule.testAnalyzeAndRun(file);
-expect(errors.length, expectedCount);
+@reflectiveTest
+class MyRuleTest extends AnalysisRuleTest {
+  @override
+  void setUp() {
+    rule = MyRule();
+    super.setUp();
+  }
+
+  void test_bad_case() async {
+    await assertDiagnostics(r'''
+// inline Dart source
+''', [lint(offset, length)]);
+  }
+
+  void test_good_case() async {
+    await assertNoDiagnostics(r'''
+// valid Dart source
+''');
+  }
+}
 ```
 
-**重要：** Custom lint 規則無法使用標準 analyzer APIs 測試。它們必須透過 `custom_lint_builder` 框架執行。
+**重要：** 測試使用 `@reflectiveTest` + `AnalysisRuleTest`，以 inline source strings 測試，不需要 fixture 檔案。
 
 ### Lint 規則
 
@@ -161,6 +172,8 @@ expect(errors.length, expectedCount);
 3. **`controller_lifecycle`** - 確保 controllers 使用 `use*` helpers 或手動釋放
 4. **`shallow_reactivity`** - 警告淺層響應式限制，直接修改屬性或陣列項目不會觸發更新
 5. **`no_conditional_composition`** - 防止條件式呼叫 composition APIs
+6. **`no_logic_in_builder`** - 防止在 builder 函數中放置邏輯（除了 props 解構）
+7. **`prefer_raw_controller`** - 建議在 builder 中使用 `.raw` 而非 `.value` 存取 controllers
 
 ## 常見模式
 
@@ -248,12 +261,12 @@ class UserCard extends CompositionWidget {
 
 `docs/` 目錄中的完整文件：
 
-- **`docs/en/guide/`** - 入門指南、響應式基礎、從 StatefulWidget 遷移
-- **`docs/api/`** - API 參考（響應式、composables、類型）
+- **`docs/guide/`** - 入門指南、響應式基礎、最佳實踐
 - **`docs/lints/`** - Lint 規則文件
-- **`docs/en/internals/`** - 技術深入探討、架構、效能
+- **`docs/internals/`** - 架構、效能
+- **`docs/testing/`** - 測試指南
 
-**文件為雙語**（英文/中文），英文在 `docs/en/`，中文在 `docs/guide/`。
+**文件為英文**，位於 docs/ 子目錄。
 
 ## 重要限制
 
@@ -289,9 +302,16 @@ class UserCard extends CompositionWidget {
 ### Lints 套件測試
 
 - 使用 `dart test`（不是 `flutter test`）
-- 測試使用 `custom_lint_builder` 的 `testAnalyzeAndRun()`
-- Fixture 檔案在 `test/fixtures/`，帶有 `// expect_lint:` 註釋用於文件
-- 所有 6 個 lint 規則都有自動化單元測試
+- 測試使用 `analyzer_testing` 的 `AnalysisRuleTest` 搭配 `@reflectiveTest`
+- 使用 inline source strings 測試，不需要 fixture 檔案
+- 使用 `newPackage()` mock flutter_compositions 類型
+- 所有 7 個 lint 規則都有自動化單元測試
+
+### 開發方法論
+
+- AI 開發應使用 **TDD（測試驅動開發）** — 先寫測試，再實作
+- Lint 規則：先寫測試，再實作規則
+- 核心框架：先寫 widget/單元測試，再寫實作
 
 ## 檔案結構重點
 
@@ -309,12 +329,10 @@ packages/flutter_compositions/
 
 packages/flutter_compositions_lints/
 ├── lib/
-│   ├── flutter_compositions_lints.dart   # Plugin 入口點
+│   ├── main.dart                         # analysis_server_plugin 入口點
 │   └── src/lints/                        # 個別 lint 規則實作
 └── test/
-    ├── fixtures/                         # 測試 fixture 檔案與範例
-    ├── lints/                            # 使用 testAnalyzeAndRun() 的單元測試
-    └── integration_test.dart             # 基礎設施測試
+    └── lints/                            # 使用 AnalysisRuleTest 的單元測試
 ```
 
 ## 常見陷阱
