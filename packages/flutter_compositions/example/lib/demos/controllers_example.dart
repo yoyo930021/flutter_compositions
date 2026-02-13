@@ -95,27 +95,27 @@ class ControllersDemo extends CompositionWidget {
         title: const Text('Controllers Integration'),
       ),
       body: PageView(
-        controller: pageControllerRef.value,
+        controller: pageControllerRef.raw, // .raw avoids unnecessary rebuilds
         children: [
           // Page 1: Form Example
           _buildFormPage(
             context,
             searchController,
             searchText,
-            searchFocusRef.value,
+            searchFocusRef.raw, // .raw avoids unnecessary rebuilds
             usernameControllerRef,
             usernameText,
-            usernameFocusRef.value,
+            usernameFocusRef.raw, // .raw avoids unnecessary rebuilds
             passwordControllerRef,
             passwordText,
-            passwordFocusRef.value,
+            passwordFocusRef.raw, // .raw avoids unnecessary rebuilds
             isValid,
             statusMessage,
             focusedField,
           ),
 
           // Page 2: Scroll Example
-          _buildScrollPage(context, scrollControllerRef.value, scrollOffset),
+          _buildScrollPage(context, scrollControllerRef.raw, scrollOffset), // .raw avoids unnecessary rebuilds
 
           // Page 3: Basic Example
           _buildBasicPage(context, basicController),
