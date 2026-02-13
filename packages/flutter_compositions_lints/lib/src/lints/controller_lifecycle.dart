@@ -1,44 +1,26 @@
+import 'package:analyzer/analysis_rule/analysis_rule.dart';
+import 'package:analyzer/analysis_rule/rule_context.dart';
+import 'package:analyzer/analysis_rule/rule_visitor_registry.dart';
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/ast/visitor.dart';
-import 'package:analyzer/error/listener.dart';
-import 'package:custom_lint_builder/custom_lint_builder.dart';
+import 'package:analyzer/src/dart/error/lint_codes.dart';
 
 /// Ensures Flutter controllers are managed with proper lifecycle hooks.
 ///
 /// Controllers should use `useController` or explicitly call dispose in
 /// `onUnmounted()` to avoid memory leaks.
-///
-/// **Bad:**
-/// ```dart
-/// @override
-/// Widget Function(BuildContext) setup() {
-///   final controller = ScrollController(); // ❌ No disposal
-///   return (context) => ListView(controller: controller);
-/// }
-/// ```
-///
-/// **Good:**
-/// ```dart
-/// @override
-/// Widget Function(BuildContext) setup() {
-///   // Option 1: Use helper (recommended)
-///   final controller = useScrollController();
-///   return (context) => ListView(controller: controller.value);
-///
-///   // Option 2: Manual disposal
-///   final controller = ScrollController();
-///   onUnmounted(() => controller.dispose());
-///   return (context) => ListView(controller: controller);
-/// }
-/// ```
-class ControllerLifecycle extends DartLintRule {
-  /// Creates a new instance of [ControllerLifecycle].
-  const ControllerLifecycle() : super(code: _code);
+class ControllerLifecycle extends AnalysisRule {
+  ControllerLifecycle()
+    : super(
+        name: 'flutter_compositions_controller_lifecycle',
+        description:
+            'Flutter controllers must be disposed. Use '
+            'use*Controller() helpers or call dispose() in onUnmounted().',
+      );
 
-  static const _code = LintCode(
-    name: 'flutter_compositions_controller_lifecycle',
-    problemMessage:
-        'Flutter controllers must be disposed. Use '
+  static const LintCode code = LintCode(
+    'flutter_compositions_controller_lifecycle',
+    'Flutter controllers must be disposed. Use '
         'use*Controller() helpers or call dispose() in onUnmounted().',
     correctionMessage:
         'Use useScrollController(), usePageController(), '
@@ -46,8 +28,11 @@ class ControllerLifecycle extends DartLintRule {
         'dispose the controller in onUnmounted().',
   );
 
+  @override
+  LintCode get diagnosticCode => code;
+
   // Common Flutter controller types
-  static const _controllerTypes = {
+  static const controllerTypes = {
     'ScrollController',
     'PageController',
     'TextEditingController',
@@ -58,46 +43,54 @@ class ControllerLifecycle extends DartLintRule {
   };
 
   @override
-  void run(
-    CustomLintResolver resolver,
-    ErrorReporter reporter,
-    CustomLintContext context,
+  void registerNodeProcessors(
+    RuleVisitorRegistry registry,
+    RuleContext context,
   ) {
-    context.registry.addMethodDeclaration((node) {
-      // Only check setup() methods
-      if (node.name.lexeme != 'setup') return;
+    var visitor = _Visitor(this);
+    registry.addMethodDeclaration(this, visitor);
+  }
+}
 
-      // Check if this is inside a CompositionWidget
-      final classNode = node.thisOrAncestorOfType<ClassDeclaration>();
-      if (classNode == null) return;
+class _Visitor extends SimpleAstVisitor<void> {
+  _Visitor(this.rule);
 
-      final extendsClause = classNode.extendsClause;
-      if (extendsClause == null) return;
+  final ControllerLifecycle rule;
 
-      final superclass = extendsClause.superclass.name2.lexeme;
-      if (superclass != 'CompositionWidget') return;
+  @override
+  void visitMethodDeclaration(MethodDeclaration node) {
+    // Only check setup() methods
+    if (node.name.lexeme != 'setup') return;
 
-      // Track controller creations and disposals
-      final visitor = _ControllerVisitor(reporter);
-      node.visitChildren(visitor);
+    // Check if this is inside a CompositionWidget
+    final classNode = node.thisOrAncestorOfType<ClassDeclaration>();
+    if (classNode == null) return;
 
-      // Report controllers without disposal
-      for (final controller in visitor.controllers) {
-        final variableName = (controller as VariableDeclaration).name.lexeme;
-        if (!visitor.disposedControllers.contains(variableName) &&
-            !visitor.useHelperControllers.contains(variableName)) {
-          reporter.atNode(controller, _code);
-        }
+    final extendsClause = classNode.extendsClause;
+    if (extendsClause == null) return;
+
+    final superclass = extendsClause.superclass.name.lexeme;
+    if (superclass != 'CompositionWidget') return;
+
+    // Track controller creations and disposals
+    final bodyVisitor = _ControllerVisitor(rule);
+    node.visitChildren(bodyVisitor);
+
+    // Report controllers without disposal
+    for (final controller in bodyVisitor.controllers) {
+      final variableName = (controller as VariableDeclaration).name.lexeme;
+      if (!bodyVisitor.disposedControllers.contains(variableName) &&
+          !bodyVisitor.useHelperControllers.contains(variableName)) {
+        rule.reportAtNode(controller);
       }
-    });
+    }
   }
 }
 
 class _ControllerVisitor extends RecursiveAstVisitor<void> {
-  /// Creates a new instance of [_ControllerVisitor].
-  _ControllerVisitor(this.reporter);
+  _ControllerVisitor(this.rule);
 
-  final ErrorReporter reporter;
+  final ControllerLifecycle rule;
   final List<AstNode> controllers = [];
   final Set<String> disposedControllers = {};
   final Set<String> useHelperControllers = {};
@@ -110,7 +103,7 @@ class _ControllerVisitor extends RecursiveAstVisitor<void> {
     if (initializer is InstanceCreationExpression) {
       final type = initializer.staticType;
       if (type != null &&
-          ControllerLifecycle._controllerTypes.any(
+          ControllerLifecycle.controllerTypes.any(
             (ct) => type.toString().startsWith(ct),
           )) {
         controllers.add(node);
@@ -155,7 +148,6 @@ class _ControllerVisitor extends RecursiveAstVisitor<void> {
 }
 
 class _DisposeCallVisitor extends RecursiveAstVisitor<void> {
-  /// Creates a new instance of [_DisposeCallVisitor].
   _DisposeCallVisitor(this.disposed);
 
   final Set<String> disposed;

@@ -1,77 +1,72 @@
+import 'package:analyzer/analysis_rule/analysis_rule.dart';
+import 'package:analyzer/analysis_rule/rule_context.dart';
+import 'package:analyzer/analysis_rule/rule_visitor_registry.dart';
 import 'package:analyzer/dart/ast/ast.dart';
-import 'package:analyzer/error/listener.dart';
-import 'package:custom_lint_builder/custom_lint_builder.dart';
+import 'package:analyzer/dart/ast/visitor.dart';
+import 'package:analyzer/src/dart/error/lint_codes.dart';
 
 /// Ensures that setup() methods are not async.
 ///
 /// The setup() method must synchronously return a builder function.
 /// Async operations should be performed inside lifecycle hooks like
 /// onMounted().
-///
-/// **Bad:**
-/// ```dart
-/// @override
-/// Future<Widget Function(BuildContext)> setup() async { // ❌ Async setup
-///   await loadData();
-///   return (context) => Text('Data loaded');
-/// }
-/// ```
-///
-/// **Good:**
-/// ```dart
-/// @override
-/// Widget Function(BuildContext) setup() {
-///   final data = ref<String?>(null);
-///
-///   onMounted(() async {
-///     data.value = await loadData(); // ✅ Async in lifecycle hook
-///   });
-///
-///   return (context) => Text(data.value ?? 'Loading...');
-/// }
-/// ```
-class NoAsyncSetup extends DartLintRule {
-  /// Creates a new instance of [NoAsyncSetup].
-  const NoAsyncSetup() : super(code: _code);
+class NoAsyncSetup extends AnalysisRule {
+  NoAsyncSetup()
+    : super(
+        name: 'flutter_compositions_no_async_setup',
+        description: 'The setup() method must not be async.',
+      );
 
-  static const _code = LintCode(
-    name: 'flutter_compositions_no_async_setup',
-    problemMessage: 'The setup() method must not be async.',
+  static const LintCode code = LintCode(
+    'flutter_compositions_no_async_setup',
+    'The setup() method must not be async.',
     correctionMessage:
         'Remove async keyword. Use onMounted() or '
         'onUnmounted() for async operations.',
   );
 
   @override
-  void run(
-    CustomLintResolver resolver,
-    ErrorReporter reporter,
-    CustomLintContext context,
+  LintCode get diagnosticCode => code;
+
+  @override
+  void registerNodeProcessors(
+    RuleVisitorRegistry registry,
+    RuleContext context,
   ) {
-    context.registry.addMethodDeclaration((node) {
-      // Only check setup() methods
-      if (node.name.lexeme != 'setup') return;
+    var visitor = _Visitor(this);
+    registry.addMethodDeclaration(this, visitor);
+  }
+}
 
-      // Check if this is inside a CompositionWidget
-      final classNode = node.thisOrAncestorOfType<ClassDeclaration>();
-      if (classNode == null) return;
+class _Visitor extends SimpleAstVisitor<void> {
+  _Visitor(this.rule);
 
-      final extendsClause = classNode.extendsClause;
-      if (extendsClause == null) return;
+  final NoAsyncSetup rule;
 
-      final superclass = extendsClause.superclass.name2.lexeme;
-      if (superclass != 'CompositionWidget') return;
+  @override
+  void visitMethodDeclaration(MethodDeclaration node) {
+    // Only check setup() methods
+    if (node.name.lexeme != 'setup') return;
 
-      // Check if the method body is async
-      final body = node.body;
-      if (body is BlockFunctionBody && body.isAsynchronous) {
-        reporter.atNode(node, _code);
-        return;
-      }
+    // Check if this is inside a CompositionWidget
+    final classNode = node.thisOrAncestorOfType<ClassDeclaration>();
+    if (classNode == null) return;
 
-      if (body is ExpressionFunctionBody && body.isAsynchronous) {
-        reporter.atNode(node, _code);
-      }
-    });
+    final extendsClause = classNode.extendsClause;
+    if (extendsClause == null) return;
+
+    final superclass = extendsClause.superclass.name.lexeme;
+    if (superclass != 'CompositionWidget') return;
+
+    // Check if the method body is async
+    final body = node.body;
+    if (body is BlockFunctionBody && body.isAsynchronous) {
+      rule.reportAtNode(node);
+      return;
+    }
+
+    if (body is ExpressionFunctionBody && body.isAsynchronous) {
+      rule.reportAtNode(node);
+    }
   }
 }

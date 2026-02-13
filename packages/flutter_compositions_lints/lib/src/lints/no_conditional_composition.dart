@@ -1,67 +1,37 @@
+import 'package:analyzer/analysis_rule/analysis_rule.dart';
+import 'package:analyzer/analysis_rule/rule_context.dart';
+import 'package:analyzer/analysis_rule/rule_visitor_registry.dart';
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/ast/visitor.dart';
-import 'package:analyzer/error/listener.dart';
-import 'package:custom_lint_builder/custom_lint_builder.dart';
+import 'package:analyzer/src/dart/error/lint_codes.dart';
 
 /// Ensures composition APIs are not called conditionally in setup().
 ///
 /// Composition APIs like `ref()`, `computed()`, `watch()`, `useController()`,
 /// etc. should be called unconditionally at the top level of setup(), similar
 /// to React Hooks rules.
-///
-/// This ensures:
-/// - Consistent ordering of composition calls across renders
-/// - Predictable reactivity behavior
-/// - Easier to reason about component lifecycle
-///
-/// **Bad:**
-/// ```dart
-/// @override
-/// Widget Function(BuildContext) setup() {
-///   if (someCondition) {
-///     final count = ref(0); // ❌ Conditional composition API call
-///   }
-///
-///   for (var i = 0; i < 10; i++) {
-///     final item = ref(i); // ❌ Inside loop
-///   }
-///
-///   return (context) => Text('Hello');
-/// }
-/// ```
-///
-/// **Good:**
-/// ```dart
-/// @override
-/// Widget Function(BuildContext) setup() {
-///   // ✅ Composition APIs at top level
-///   final count = ref(0);
-///   final items = ref(<int>[]);
-///
-///   // Conditional logic is fine for non-composition code
-///   if (someCondition) {
-///     count.value = 10; // ✅ OK to modify values conditionally
-///   }
-///
-///   return (context) => Text('Count: ${count.value}');
-/// }
-/// ```
-class NoConditionalComposition extends DartLintRule {
-  /// Creates a new instance of [NoConditionalComposition].
-  const NoConditionalComposition() : super(code: _code);
+class NoConditionalComposition extends AnalysisRule {
+  NoConditionalComposition()
+    : super(
+        name: 'flutter_compositions_no_conditional_composition',
+        description:
+            'Composition API calls must not be inside conditionals or loops.',
+      );
 
-  static const _code = LintCode(
-    name: 'flutter_compositions_no_conditional_composition',
-    problemMessage:
-        'Composition API calls must not be inside conditionals or loops. '
+  static const LintCode code = LintCode(
+    'flutter_compositions_no_conditional_composition',
+    'Composition API calls must not be inside conditionals or loops. '
         'Call composition APIs unconditionally at the top level of setup().',
     correctionMessage:
         'Move the composition API call to the top level of '
         'setup(). You can still use conditional logic to set values.',
   );
 
+  @override
+  LintCode get diagnosticCode => code;
+
   // Composition API function names to check
-  static const _compositionApis = {
+  static const compositionApis = {
     // Core reactivity
     'ref',
     'computed',
@@ -84,6 +54,7 @@ class NoConditionalComposition extends DartLintRule {
     'manageValueListenable',
 
     // Controller helpers
+    'useController',
     'useScrollController',
     'usePageController',
     'useFocusNode',
@@ -101,44 +72,53 @@ class NoConditionalComposition extends DartLintRule {
 
     // Framework helpers
     'useContext',
+    'useContextRef',
     'useSearchController',
     'useAppLifecycleState',
   };
 
   @override
-  void run(
-    CustomLintResolver resolver,
-    ErrorReporter reporter,
-    CustomLintContext context,
+  void registerNodeProcessors(
+    RuleVisitorRegistry registry,
+    RuleContext context,
   ) {
-    context.registry.addMethodDeclaration((node) {
-      // Only check setup() methods
-      if (node.name.lexeme != 'setup') return;
+    var visitor = _Visitor(this);
+    registry.addMethodDeclaration(this, visitor);
+  }
+}
 
-      // Check if this is inside a CompositionWidget or CompositionBuilder
-      final classNode = node.thisOrAncestorOfType<ClassDeclaration>();
-      if (classNode != null) {
-        final extendsClause = classNode.extendsClause;
-        if (extendsClause != null) {
-          final superclass = extendsClause.superclass.name2.lexeme;
-          if (superclass != 'CompositionWidget') return;
-        } else {
-          return;
-        }
+class _Visitor extends SimpleAstVisitor<void> {
+  _Visitor(this.rule);
+
+  final NoConditionalComposition rule;
+
+  @override
+  void visitMethodDeclaration(MethodDeclaration node) {
+    // Only check setup() methods
+    if (node.name.lexeme != 'setup') return;
+
+    // Check if this is inside a CompositionWidget
+    final classNode = node.thisOrAncestorOfType<ClassDeclaration>();
+    if (classNode != null) {
+      final extendsClause = classNode.extendsClause;
+      if (extendsClause != null) {
+        final superclass = extendsClause.superclass.name.lexeme;
+        if (superclass != 'CompositionWidget') return;
+      } else {
+        return;
       }
+    }
 
-      // Visit the setup method body to find composition API calls
-      final visitor = _ConditionalCompositionVisitor(reporter);
-      node.body.visitChildren(visitor);
-    });
+    // Visit the setup method body to find composition API calls
+    final bodyVisitor = _ConditionalCompositionVisitor(rule);
+    node.body.visitChildren(bodyVisitor);
   }
 }
 
 class _ConditionalCompositionVisitor extends RecursiveAstVisitor<void> {
-  /// Creates a new instance of [_ConditionalCompositionVisitor].
-  _ConditionalCompositionVisitor(this.reporter);
+  _ConditionalCompositionVisitor(this.rule);
 
-  final ErrorReporter reporter;
+  final NoConditionalComposition rule;
 
   // Track nesting depth of conditional/loop structures
   int _conditionalDepth = 0;
@@ -202,8 +182,8 @@ class _ConditionalCompositionVisitor extends RecursiveAstVisitor<void> {
       final methodName = node.methodName.name;
 
       // Check if this is a composition API call
-      if (NoConditionalComposition._compositionApis.contains(methodName)) {
-        reporter.atNode(node, NoConditionalComposition._code);
+      if (NoConditionalComposition.compositionApis.contains(methodName)) {
+        rule.reportAtNode(node);
       }
     }
 
@@ -213,13 +193,8 @@ class _ConditionalCompositionVisitor extends RecursiveAstVisitor<void> {
   @override
   void visitFunctionExpression(FunctionExpression node) {
     // Don't traverse into nested functions (like the returned builder)
-    // Composition APIs are allowed inside the returned builder function
-    // We only check the direct body of setup()
-
-    // Check if this is the returned builder function
     final parent = node.parent;
     if (parent is ReturnStatement || parent is ExpressionStatement) {
-      // This is likely the returned builder - don't check inside it
       return;
     }
 

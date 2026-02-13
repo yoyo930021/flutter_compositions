@@ -1,51 +1,72 @@
-import 'dart:io';
-
+import 'package:analyzer_testing/analysis_rule/analysis_rule.dart';
 import 'package:flutter_compositions_lints/src/lints/ensure_reactive_props.dart';
-import 'package:test/test.dart';
-
-import '../test_utils.dart';
+import 'package:test_reflective_loader/test_reflective_loader.dart';
 
 void main() {
-  group('EnsureReactiveProps', () {
-    final rule = const EnsureReactiveProps();
-
-    test('detects direct property access in setup', () async {
-      final fixturePath = getFixturePath('ensure_reactive_props_test.dart');
-      final file = File(fixturePath);
-
-      expect(
-        file.existsSync(),
-        isTrue,
-        reason: 'Fixture file should exist at $fixturePath',
-      );
-
-      // Use testAnalyzeAndRun to run the lint rule
-      final errors = await rule.testAnalyzeAndRun(file);
-
-      // Should detect at least 1 violation
-      expect(
-        errors.length,
-        greaterThan(0),
-        reason: 'Should detect direct property access violations',
-      );
-
-      // Print errors for debugging
-      print('Found ${errors.length} errors:');
-      for (final error in errors) {
-        print('  Error at offset ${error.offset}: ${error.message}');
-      }
-
-      // Verify error code
-      for (final error in errors) {
-        expect(error.errorCode.name, rule.code.name);
-        expect(error.errorCode.problemMessage, contains('widget()'));
-      }
-    });
-
-    test('rule has correct metadata', () {
-      expect(rule.code.name, 'flutter_compositions_ensure_reactive_props');
-      expect(rule.code.problemMessage, contains('widget()'));
-      expect(rule.code.correctionMessage, contains('reactive reference'));
-    });
+  defineReflectiveSuite(() {
+    defineReflectiveTests(EnsureReactivePropsTest);
   });
+}
+
+@reflectiveTest
+class EnsureReactivePropsTest extends AnalysisRuleTest {
+  @override
+  void setUp() {
+    newPackage('flutter_compositions')
+      ..addFile('lib/flutter_compositions.dart', r'''
+class CompositionWidget {
+  Widget Function(BuildContext) setup() => throw '';
+}
+class Widget {}
+class BuildContext {}
+class Ref<T> {
+  T get value => throw '';
+  set value(T v) {}
+}
+Ref<T> ref<T>(T v) => throw '';
+''');
+    rule = EnsureReactiveProps();
+    super.setUp();
+  }
+
+  void test_directThisAccess() async {
+    await assertDiagnostics(r'''
+import 'package:flutter_compositions/flutter_compositions.dart';
+
+class MyWidget extends CompositionWidget {
+  final String title = 'hello';
+
+  @override
+  Widget Function(BuildContext) setup() {
+    final name = this.title;
+    return (context) => Widget();
+  }
+}
+''', [lint(213, 10)]);
+  }
+
+  void test_widgetCall_noDiagnostic() async {
+    await assertNoDiagnostics(r'''
+import 'package:flutter_compositions/flutter_compositions.dart';
+
+class MyWidget extends CompositionWidget {
+  @override
+  Widget Function(BuildContext) setup() {
+    final count = ref(0);
+    return (context) => Widget();
+  }
+}
+''');
+  }
+
+  void test_nonCompositionWidget_noDiagnostic() async {
+    await assertNoDiagnostics(r'''
+class OtherWidget {
+  final String title = 'hello';
+  void setup() {
+    final name = this.title;
+  }
+}
+''');
+  }
 }

@@ -1,40 +1,27 @@
+import 'package:analyzer/analysis_rule/analysis_rule.dart';
+import 'package:analyzer/analysis_rule/rule_context.dart';
+import 'package:analyzer/analysis_rule/rule_visitor_registry.dart';
 import 'package:analyzer/dart/ast/ast.dart';
-import 'package:analyzer/error/listener.dart';
-import 'package:custom_lint_builder/custom_lint_builder.dart';
+import 'package:analyzer/dart/ast/visitor.dart';
+import 'package:analyzer/src/dart/error/lint_codes.dart';
 
 /// Warns about shallow reactivity limitations.
 ///
 /// Flutter Compositions uses shallow reactivity - only reassigning `.value`
 /// triggers updates. Directly mutating properties or array elements will NOT
 /// trigger reactive updates.
-///
-/// **Bad:**
-/// ```dart
-/// final user = ref({'name': 'John', 'age': 30});
-/// user.value['name'] = 'Jane'; // ❌ Won't trigger update
-///
-/// final items = ref([1, 2, 3]);
-/// items.value[0] = 10; // ❌ Won't trigger update
-/// items.value.add(4); // ❌ Won't trigger update
-/// ```
-///
-/// **Good:**
-/// ```dart
-/// final user = ref({'name': 'John', 'age': 30});
-/// user.value = {...user.value, 'name': 'Jane'}; // ✅ Triggers update
-///
-/// final items = ref([1, 2, 3]);
-/// items.value = [...items.value.sublist(0, 0), 10, ...items.value.sublist(1)]; // ✅ Triggers update
-/// items.value = [...items.value, 4]; // ✅ Triggers update
-/// ```
-class ShallowReactivityWarning extends DartLintRule {
-  /// Creates a new instance of [ShallowReactivityWarning].
-  const ShallowReactivityWarning() : super(code: _code);
+class ShallowReactivityWarning extends AnalysisRule {
+  ShallowReactivityWarning()
+    : super(
+        name: 'flutter_compositions_shallow_reactivity',
+        description:
+            "Direct mutation won't trigger reactive updates. "
+            'Reassign the entire value instead.',
+      );
 
-  static const _code = LintCode(
-    name: 'flutter_compositions_shallow_reactivity',
-    problemMessage:
-        "Direct mutation won't trigger reactive updates. "
+  static const LintCode code = LintCode(
+    'flutter_compositions_shallow_reactivity',
+    "Direct mutation won't trigger reactive updates. "
         'Reassign the entire value instead.',
     correctionMessage:
         'Reassign the entire value to trigger updates. '
@@ -43,21 +30,27 @@ class ShallowReactivityWarning extends DartLintRule {
   );
 
   @override
-  void run(
-    CustomLintResolver resolver,
-    ErrorReporter reporter,
-    CustomLintContext context,
+  LintCode get diagnosticCode => code;
+
+  @override
+  void registerNodeProcessors(
+    RuleVisitorRegistry registry,
+    RuleContext context,
   ) {
-    context.registry.addAssignmentExpression((node) {
-      _checkAssignment(node, reporter);
-    });
-
-    context.registry.addMethodInvocation((node) {
-      _checkMethodInvocation(node, reporter);
-    });
+    var assignmentVisitor = _AssignmentVisitor(this);
+    var methodVisitor = _MethodVisitor(this);
+    registry.addAssignmentExpression(this, assignmentVisitor);
+    registry.addMethodInvocation(this, methodVisitor);
   }
+}
 
-  void _checkAssignment(AssignmentExpression node, ErrorReporter reporter) {
+class _AssignmentVisitor extends SimpleAstVisitor<void> {
+  _AssignmentVisitor(this.rule);
+
+  final ShallowReactivityWarning rule;
+
+  @override
+  void visitAssignmentExpression(AssignmentExpression node) {
     final leftHandSide = node.leftHandSide;
 
     // Check for patterns like: ref.value['key'] = value
@@ -65,7 +58,7 @@ class ShallowReactivityWarning extends DartLintRule {
     if (leftHandSide is IndexExpression) {
       final target = leftHandSide.target;
       if (_isRefValueAccess(target)) {
-        reporter.atNode(node, _code);
+        rule.reportAtNode(node);
         return;
       }
     }
@@ -74,26 +67,28 @@ class ShallowReactivityWarning extends DartLintRule {
     if (leftHandSide is PropertyAccess) {
       final target = leftHandSide.target;
       if (_isRefValueAccess(target)) {
-        reporter.atNode(node, _code);
+        rule.reportAtNode(node);
         return;
       }
     }
 
     // Check for patterns like: ref.value.nested.property = value
     if (leftHandSide is PrefixedIdentifier) {
-      // This might be part of a chain, check the context
-      final parent = node.parent;
-      if (parent != null && _hasRefValueInChain(node)) {
-        reporter.atNode(node, _code);
+      if (_hasRefValueInChain(node)) {
+        rule.reportAtNode(node);
         return;
       }
     }
   }
+}
 
-  void _checkMethodInvocation(
-    MethodInvocation node,
-    ErrorReporter reporter,
-  ) {
+class _MethodVisitor extends SimpleAstVisitor<void> {
+  _MethodVisitor(this.rule);
+
+  final ShallowReactivityWarning rule;
+
+  @override
+  void visitMethodInvocation(MethodInvocation node) {
     // Check for mutating methods on ref.value (for Lists, Sets, Maps, etc.)
     final target = node.target;
     if (target == null) return;
@@ -101,7 +96,7 @@ class ShallowReactivityWarning extends DartLintRule {
     if (!_isRefValueAccess(target)) return;
 
     // List of common mutating methods
-    final mutatingMethods = {
+    const mutatingMethods = {
       // List methods
       'add',
       'addAll',
@@ -119,7 +114,6 @@ class ShallowReactivityWarning extends DartLintRule {
       'fillRange',
       'setRange',
       'setAll',
-      // Set methods
       // Map methods
       'putIfAbsent',
       'update',
@@ -129,39 +123,39 @@ class ShallowReactivityWarning extends DartLintRule {
 
     final methodName = node.methodName.name;
     if (mutatingMethods.contains(methodName)) {
-      reporter.atNode(node, _code);
+      rule.reportAtNode(node);
     }
   }
+}
 
-  /// Checks if the expression is accessing .value on a ref-like object
-  bool _isRefValueAccess(Expression? expr) {
-    if (expr == null) return false;
+/// Checks if the expression is accessing .value on a ref-like object
+bool _isRefValueAccess(Expression? expr) {
+  if (expr == null) return false;
 
-    // Check for direct .value access
-    if (expr is PropertyAccess) {
-      return expr.propertyName.name == 'value';
-    }
-
-    // Check for identifier.value pattern
-    if (expr is PrefixedIdentifier) {
-      return expr.identifier.name == 'value';
-    }
-
-    return false;
+  // Check for direct .value access
+  if (expr is PropertyAccess) {
+    return expr.propertyName.name == 'value';
   }
 
-  /// Checks if there's a ref.value access somewhere in the assignment chain
-  bool _hasRefValueInChain(AstNode node) {
-    AstNode? current = node;
-    while (current != null) {
-      if (current is PropertyAccess && current.propertyName.name == 'value') {
-        return true;
-      }
-      if (current is PrefixedIdentifier && current.identifier.name == 'value') {
-        return true;
-      }
-      current = current.parent;
-    }
-    return false;
+  // Check for identifier.value pattern
+  if (expr is PrefixedIdentifier) {
+    return expr.identifier.name == 'value';
   }
+
+  return false;
+}
+
+/// Checks if there's a ref.value access somewhere in the assignment chain
+bool _hasRefValueInChain(AstNode node) {
+  AstNode? current = node;
+  while (current != null) {
+    if (current is PropertyAccess && current.propertyName.name == 'value') {
+      return true;
+    }
+    if (current is PrefixedIdentifier && current.identifier.name == 'value') {
+      return true;
+    }
+    current = current.parent;
+  }
+  return false;
 }

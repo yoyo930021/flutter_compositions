@@ -1,47 +1,60 @@
-import 'dart:io';
-
+import 'package:analyzer_testing/analysis_rule/analysis_rule.dart';
 import 'package:flutter_compositions_lints/src/lints/no_async_setup.dart';
-import 'package:test/test.dart';
-
-import '../test_utils.dart';
+import 'package:test_reflective_loader/test_reflective_loader.dart';
 
 void main() {
-  group('NoAsyncSetup', () {
-    final rule = const NoAsyncSetup();
-
-    test('detects async setup methods', () async {
-      final fixturePath = getFixturePath('no_async_setup_test.dart');
-      final file = File(fixturePath);
-
-      expect(
-        file.existsSync(),
-        isTrue,
-        reason: 'Fixture file should exist at $fixturePath',
-      );
-
-      // Use testAnalyzeAndRun to run the lint rule
-      final errors = await rule.testAnalyzeAndRun(file);
-
-      // Should detect 2 violations:
-      // 1. AsyncSetupWithKeyword (line 34)
-      // 2. AsyncSetupArrowFunction (line 46)
-      expect(
-        errors.length,
-        2,
-        reason: 'Should detect 2 async setup violations',
-      );
-
-      // Verify error code
-      for (final error in errors) {
-        expect(error.errorCode.name, rule.code.name);
-        expect(error.errorCode.problemMessage, contains('async'));
-      }
-    });
-
-    test('rule has correct metadata', () {
-      expect(rule.code.name, 'flutter_compositions_no_async_setup');
-      expect(rule.code.problemMessage, contains('async'));
-      expect(rule.code.correctionMessage, contains('onMounted'));
-    });
+  defineReflectiveSuite(() {
+    defineReflectiveTests(NoAsyncSetupTest);
   });
+}
+
+@reflectiveTest
+class NoAsyncSetupTest extends AnalysisRuleTest {
+  @override
+  void setUp() {
+    newPackage('flutter_compositions')
+      ..addFile('lib/flutter_compositions.dart', r'''
+class CompositionWidget {
+  dynamic setup() => throw '';
+}
+class Widget {}
+class BuildContext {}
+''');
+    rule = NoAsyncSetup();
+    super.setUp();
+  }
+
+  void test_asyncSetup_blockBody() async {
+    await assertDiagnostics(r'''
+import 'package:flutter_compositions/flutter_compositions.dart';
+
+class MyWidget extends CompositionWidget {
+  @override
+  dynamic setup() async {
+    return (context) => Widget();
+  }
+}
+''', [lint(111, 73)]);
+  }
+
+  void test_syncSetup_noDiagnostic() async {
+    await assertNoDiagnostics(r'''
+import 'package:flutter_compositions/flutter_compositions.dart';
+
+class MyWidget extends CompositionWidget {
+  @override
+  Widget Function(BuildContext) setup() {
+    return (context) => Widget();
+  }
+}
+''');
+  }
+
+  void test_nonCompositionWidget_noDiagnostic() async {
+    await assertNoDiagnostics(r'''
+class OtherWidget {
+  Future<void> setup() async {}
+}
+''');
+  }
 }

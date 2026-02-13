@@ -4,19 +4,14 @@ version: 0.1.1
 repository: https://github.com/yoyo930021/flutter_compositions
 homepage: https://github.com/yoyo930021/flutter_compositions
 documentation: https://yoyo930021.github.io/flutter_compositions
-resolution: workspace
-
 environment:
-  sdk: ^3.9.0
-  flutter: ">=3.35.0"
+  sdk: ^3.10.0
 
 dependencies:
-  analyzer: ^7.6.0
-  custom_lint_builder: ^0.8.0
+  analysis_server_plugin: ^0.3.8
+  analyzer: ^10.0.0
 
 dev_dependencies:
-  custom_lint: ^0.8.0
-  flutter:
-    sdk: flutter
-  flutter_compositions: ^0.1.1
+  analyzer_testing: ^0.1.10
   test: ^1.26.2
+  test_reflective_loader: ^0.2.0
