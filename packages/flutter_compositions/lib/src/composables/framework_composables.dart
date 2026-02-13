@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_compositions/src/custom_ref.dart';
+import 'package:flutter_compositions/src/composables/listenable_composables.dart';
 import 'package:flutter_compositions/src/framework.dart';
 
-/// Creates a reactive reference to the BuildContext.
+/// Creates a reactive reference to the [BuildContext].
 ///
 /// **Important**: The context is only available after the first build,
 /// not during setup(). Use this when you need to access context in
 /// lifecycle hooks or pass it to async operations.
 ///
-/// **In most cases, you should access context directly in the builder
-/// function instead of using this composable.**
+/// **Prefer [useContextRef] for reactive InheritedWidget access.**
+/// `useContextRef` provides fine-grained reactivity with equality checks,
+/// so it only triggers updates when values actually change. Use `useContext`
+/// only when you need the raw `BuildContext` for imperative operations
+/// (e.g., `showDialog`, `Navigator.of`, `ScaffoldMessenger.of`).
 ///
 /// Example - Perform side effect with context in onMounted:
 /// ```dart
@@ -61,17 +64,12 @@ import 'package:flutter_compositions/src/framework.dart';
 /// final context = useContext();
 /// final theme = computed(() => Theme.of(context.value!));
 ///
-/// // ✅ CORRECT: Access directly in builder
-/// return (context) {
-///   final theme = Theme.of(context);
-///   return Text('Primary: ${theme.primaryColor}');
-/// };
+/// // ✅ CORRECT: Use useContextRef for reactive InheritedWidget access
+/// final theme = useContextRef(Theme.of);
 /// ```
 Ref<BuildContext?> useContext() {
   final contextRef = ref<BuildContext?>(null);
 
-  // Set the context on the first build only
-  // BuildContext doesn't change during the widget's lifetime
   var isFirstBuild = true;
   onBuild((context) {
     if (isFirstBuild) {
@@ -126,28 +124,7 @@ Ref<BuildContext?> useContext() {
 /// }
 /// ```
 ReadonlyRef<SearchController> useSearchController() {
-  final controller = SearchController();
-
-  final reactiveController = ReadonlyCustomRef<SearchController>(
-    getter: (track) {
-      track();
-      return controller;
-    },
-  );
-
-  void listener() {
-    reactiveController.trigger();
-  }
-
-  controller.addListener(listener);
-
-  onUnmounted(() {
-    controller
-      ..removeListener(listener)
-      ..dispose();
-  });
-
-  return reactiveController;
+  return useController(SearchController.new);
 }
 
 /// Creates a reactive reference that tracks the app lifecycle state.

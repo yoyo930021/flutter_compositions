@@ -428,6 +428,13 @@ class SetupContextImpl implements SetupContext {
     }
   }
 
+  /// Disposes the render effect early to prevent it from re-running
+  /// during unmount when onUnmounted callbacks modify reactive state.
+  void disposeRenderEffect() {
+    _renderEffect?.dispose();
+    _renderEffect = null;
+  }
+
   @override
   void dispose() {
     // Dispose render effect first
@@ -1077,6 +1084,7 @@ class _CompositionElement extends StatelessElement
   void unmount() {
     if (_initialized) {
       _setupContext
+        ..disposeRenderEffect()
         ..triggerUnmounted()
         ..dispose();
     }

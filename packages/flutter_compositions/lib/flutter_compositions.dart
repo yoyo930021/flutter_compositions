@@ -36,7 +36,11 @@ export 'src/composables/inherited_widget_composables.dart'
         useTextScale,
         useTheme;
 export 'src/composables/listenable_composables.dart'
-    show manageChangeNotifier, manageListenable, manageValueListenable;
+    show
+        manageChangeNotifier,
+        manageListenable,
+        manageValueListenable,
+        useController;
 export 'src/composition_builder.dart'
     show CompositionBuilder, CompositionBuilderCallback, CompositionSetup;
 export 'src/computed_builder.dart' show ComputedBuilder;
@@ -51,6 +55,7 @@ export 'src/framework.dart'
         WritableComputedRef,
         WritableRef,
         computed,
+        hotReloadableContainer,
         inject,
         onBuild,
         onMounted,

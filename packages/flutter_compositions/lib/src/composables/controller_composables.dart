@@ -23,7 +23,7 @@ import 'package:flutter_compositions/src/framework.dart';
 ///   });
 ///
 ///   return (context) => ListView(
-///     controller: scrollController.value,
+///     controller: scrollController.raw, // Use .raw to avoid unnecessary rebuilds
 ///     children: [...],
 ///   );
 /// }
@@ -33,13 +33,11 @@ ReadonlyRef<ScrollController> useScrollController({
   bool keepScrollOffset = true,
   String? debugLabel,
 }) {
-  return manageChangeNotifier(
-    hotReloadableContainer(
-      () => ScrollController(
-        initialScrollOffset: initialScrollOffset,
-        keepScrollOffset: keepScrollOffset,
-        debugLabel: debugLabel,
-      ),
+  return useController(
+    () => ScrollController(
+      initialScrollOffset: initialScrollOffset,
+      keepScrollOffset: keepScrollOffset,
+      debugLabel: debugLabel,
     ),
   );
 }
@@ -64,7 +62,7 @@ ReadonlyRef<ScrollController> useScrollController({
 ///   });
 ///
 ///   return (context) => PageView(
-///     controller: pageController.value,
+///     controller: pageController.raw, // Use .raw to avoid unnecessary rebuilds
 ///     children: [...],
 ///   );
 /// }
@@ -74,13 +72,11 @@ ReadonlyRef<PageController> usePageController({
   bool keepPage = true,
   double viewportFraction = 1.0,
 }) {
-  return manageChangeNotifier(
-    hotReloadableContainer(
-      () => PageController(
-        initialPage: initialPage,
-        keepPage: keepPage,
-        viewportFraction: viewportFraction,
-      ),
+  return useController(
+    () => PageController(
+      initialPage: initialPage,
+      keepPage: keepPage,
+      viewportFraction: viewportFraction,
     ),
   );
 }
@@ -105,7 +101,7 @@ ReadonlyRef<PageController> usePageController({
 ///   });
 ///
 ///   return (context) => TextField(
-///     focusNode: focusNode.value,
+///     focusNode: focusNode.raw, // Use .raw to avoid unnecessary rebuilds
 ///     decoration: InputDecoration(
 ///       border: OutlineInputBorder(
 ///         borderSide: BorderSide(
@@ -124,16 +120,14 @@ ReadonlyRef<FocusNode> useFocusNode({
   bool descendantsAreFocusable = true,
   bool descendantsAreTraversable = true,
 }) {
-  return manageChangeNotifier(
-    hotReloadableContainer(
-      () => FocusNode(
-        debugLabel: debugLabel,
-        onKeyEvent: onKeyEvent,
-        skipTraversal: skipTraversal,
-        canRequestFocus: canRequestFocus,
-        descendantsAreFocusable: descendantsAreFocusable,
-        descendantsAreTraversable: descendantsAreTraversable,
-      ),
+  return useController(
+    () => FocusNode(
+      debugLabel: debugLabel,
+      onKeyEvent: onKeyEvent,
+      skipTraversal: skipTraversal,
+      canRequestFocus: canRequestFocus,
+      descendantsAreFocusable: descendantsAreFocusable,
+      descendantsAreTraversable: descendantsAreTraversable,
     ),
   );
 }

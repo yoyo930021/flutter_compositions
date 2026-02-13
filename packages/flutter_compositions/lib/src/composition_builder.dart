@@ -255,6 +255,7 @@ class _CompositionBuilderElement extends StatelessElement
   void unmount() {
     if (_initialized) {
       _setupContext
+        ..disposeRenderEffect()
         ..triggerUnmounted()
         ..dispose();
     }

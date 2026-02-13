@@ -339,8 +339,8 @@ void Function() watchEffect(void Function() callback) {
 ///   final scrollController = useScrollController();
 ///
 ///   return (context) => ListView(
-///     // Reading without tracking - won't rebuild on scroll
-///     controller: untracked(() => scrollController.value),
+///     // Use .raw to read without tracking - won't cause unnecessary rebuilds
+///     controller: scrollController.raw,
 ///     children: [...],
 ///   );
 /// }

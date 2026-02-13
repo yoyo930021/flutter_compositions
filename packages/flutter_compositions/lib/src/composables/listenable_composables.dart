@@ -102,6 +102,35 @@ ReadonlyRef<T> manageChangeNotifier<T extends ChangeNotifier>(T notifier) {
   return custom;
 }
 
+/// Creates and manages a [ChangeNotifier] with hot-reload support and
+/// automatic lifecycle management.
+///
+/// Combines [hotReloadableContainer] for hot-reload state preservation
+/// with [manageChangeNotifier] for reactive tracking and automatic disposal.
+///
+/// Returns a [ReadonlyRef] that tracks changes to the notifier.
+///
+/// Example:
+/// ```dart
+/// @override
+/// Widget Function(BuildContext) setup() {
+///   final controller = useController(() => ScrollController());
+///
+///   return (context) => ListView(
+///     controller: controller.raw, // Use .raw to avoid unnecessary rebuilds
+///     children: [...],
+///   );
+/// }
+/// ```
+ReadonlyRef<T> useController<T extends ChangeNotifier>(
+  T Function() create, {
+  String? debugLabel,
+}) {
+  return manageChangeNotifier(
+    hotReloadableContainer(create, debugLabel: debugLabel),
+  );
+}
+
 /// Manages a [ValueListenable] and creates a reactive reference to its value.
 ///
 /// This helper extracts and tracks the value from any [ValueListenable]
