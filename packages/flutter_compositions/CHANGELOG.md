@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-02-15
+
 ### Changed
 
 - Upgrade Flutter SDK to 3.41.1 (Dart 3.11.0)
