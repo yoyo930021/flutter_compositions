@@ -1,17 +1,16 @@
 name: Publish to pub.dev
 
-# Melos-based automated publishing approach
-# Docs: https://github.com/marketplace/actions/melos-action
+# Publishes all packages to pub.dev when a vX.Y.Z tag is pushed.
+# Both packages share the same version number.
 #
 # Prerequisites:
-#   1. Enable "publishing from workflow_dispatch events" in pub.dev settings
+#   1. Enable automated publishing on pub.dev for both packages
+#      (pub.dev → Admin → Automated publishing → Enable GitHub Actions)
 #   2. First package publication must be done manually
 #
 # Usage:
-#   1. Update version in pubspec.yaml files
-#   2. Update CHANGELOG.md files
-#   3. Create and push a git tag: git tag v1.0.0 && git push origin v1.0.0
-#   4. GitHub Actions will automatically publish to pub.dev
+#   1. Run: ./scripts/release.sh <version>
+#   2. Push: git push origin main --tags
 
 on:
   push:
@@ -20,30 +19,40 @@ on:
       - 'v[0-9]+.[0-9]+.[0-9]+*'
 
 jobs:
-  # Publish all packages using Melos Action
+  # Run tests before publishing
+  test:
+    name: Test
+    uses: ./.github/workflows/test.yml
+
+  # Publish all packages to pub.dev
   publish-packages:
     name: Publish packages
+    needs: test
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
       id-token: write  # Required for OIDC pub.dev publishing
-      contents: write
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup Flutter
-        uses: subosito/flutter-action@v2
+        uses: flutter-actions/setup-flutter@v4
         with:
           channel: stable
-          cache: true
+          version: latest
 
-      - name: Publish with Melos
-        uses: bluefireteam/melos-action@v3
-        with:
-          publish: true
-          publish-dry-run: false
+      - name: Setup pub.dev credentials (OIDC)
+        uses: flutter-actions/setup-pubdev-credentials@v1
+
+      - name: Publish flutter_compositions
+        working-directory: packages/flutter_compositions
+        run: dart pub publish --force
+
+      - name: Publish flutter_compositions_lints
+        working-directory: packages/flutter_compositions_lints
+        run: dart pub publish --force
 
   # Create a GitHub release with CHANGELOG content
   create-release:
@@ -52,6 +61,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     if: success()
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout repository
@@ -113,7 +124,7 @@ jobs:
 
       - name: Create summary
         run: |
-          echo "## 📦 Publish Summary" >> $GITHUB_STEP_SUMMARY
+          echo "## Publish Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Version**: ${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
           echo "**Tag**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
@@ -124,19 +135,19 @@ jobs:
 
           # Publish packages status
           if [ "${{ needs.publish-packages.result }}" == "success" ]; then
-            echo "✅ **Packages**: Published successfully via Melos" >> $GITHUB_STEP_SUMMARY
-            echo "   - 🔗 [flutter_compositions on pub.dev](https://pub.dev/packages/flutter_compositions)" >> $GITHUB_STEP_SUMMARY
-            echo "   - 🔗 [flutter_compositions_lints on pub.dev](https://pub.dev/packages/flutter_compositions_lints)" >> $GITHUB_STEP_SUMMARY
+            echo "- **Packages**: Published successfully" >> $GITHUB_STEP_SUMMARY
+            echo "  - [flutter_compositions on pub.dev](https://pub.dev/packages/flutter_compositions)" >> $GITHUB_STEP_SUMMARY
+            echo "  - [flutter_compositions_lints on pub.dev](https://pub.dev/packages/flutter_compositions_lints)" >> $GITHUB_STEP_SUMMARY
           else
-            echo "❌ **Packages**: Failed to publish" >> $GITHUB_STEP_SUMMARY
+            echo "- **Packages**: Failed to publish" >> $GITHUB_STEP_SUMMARY
           fi
 
           echo "" >> $GITHUB_STEP_SUMMARY
 
           # GitHub Release status
           if [ "${{ needs.create-release.result }}" == "success" ]; then
-            echo "🎉 **GitHub Release**: Created successfully" >> $GITHUB_STEP_SUMMARY
-            echo "   - 🔗 [View Release](https://github.com/${{ github.repository }}/releases/tag/${{ github.ref_name }})" >> $GITHUB_STEP_SUMMARY
+            echo "- **GitHub Release**: Created successfully" >> $GITHUB_STEP_SUMMARY
+            echo "  - [View Release](https://github.com/${{ github.repository }}/releases/tag/${{ github.ref_name }})" >> $GITHUB_STEP_SUMMARY
           else
-            echo "⚠️ **GitHub Release**: Not created" >> $GITHUB_STEP_SUMMARY
+            echo "- **GitHub Release**: Not created" >> $GITHUB_STEP_SUMMARY
           fi

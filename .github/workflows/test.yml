@@ -5,6 +5,7 @@ on:
   pull_request:
     branches: [main, develop]  # Run on PRs targeting main or develop
   workflow_dispatch:
+  workflow_call:  # Allow publish workflow to call this
 
 jobs:
   analyze:
@@ -17,10 +18,10 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Flutter
-        uses: subosito/flutter-action@v2
+        uses: flutter-actions/setup-flutter@v4
         with:
           channel: stable
-          cache: true
+          version: latest
 
       - name: Install Melos
         run: dart pub global activate melos
@@ -34,33 +35,20 @@ jobs:
       - name: Analyze packages
         run: melos run analyze
 
-      - name: Run custom_lint
-        run: |
-          cd packages/flutter_compositions_lints
-          dart run custom_lint
-
   test:
-    name: Test (Flutter ${{ matrix.flutter-version }})
+    name: Test
     runs-on: ubuntu-latest
     timeout-minutes: 15
-
-    strategy:
-      fail-fast: false
-      matrix:
-        # Test against the latest 3 stable Flutter versions
-        flutter-version:
-          - 3.35.x  # Latest stable
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Flutter ${{ matrix.flutter-version }}
-        uses: subosito/flutter-action@v2
+      - name: Setup Flutter
+        uses: flutter-actions/setup-flutter@v4
         with:
-          flutter-version: ${{ matrix.flutter-version }}
           channel: stable
-          cache: true
+          version: latest
 
       - name: Install Melos
         run: dart pub global activate melos
@@ -70,13 +58,6 @@ jobs:
 
       - name: Run tests
         run: melos run test
-
-      - name: Upload coverage (Flutter latest only)
-        if: matrix.flutter-version == '3.35.x'
-        uses: codecov/codecov-action@v4
-        with:
-          files: ./coverage/lcov.info
-          fail_ci_if_error: false
 
   test-lints:
     name: Test Custom Lints
@@ -88,10 +69,10 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Flutter
-        uses: subosito/flutter-action@v2
+        uses: flutter-actions/setup-flutter@v4
         with:
           channel: stable
-          cache: true
+          version: latest
 
       - name: Get dependencies
         working-directory: packages/flutter_compositions_lints
