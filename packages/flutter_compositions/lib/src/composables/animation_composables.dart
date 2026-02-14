@@ -64,7 +64,7 @@ SingleTickerProvider useSingleTickerProvider() {
 /// [useSingleTickerProvider] composable via [onBuild] callback.
 class SingleTickerProvider implements TickerProvider {
   Ticker? _ticker;
-  ValueListenable<bool>? _tickerModeNotifier;
+  ValueListenable<TickerModeData>? _tickerModeNotifier;
 
   @override
   Ticker createTicker(TickerCallback onTick) {
@@ -83,7 +83,7 @@ class SingleTickerProvider implements TickerProvider {
 
     // Set initial mute state if TickerMode is already set up
     if (_tickerModeNotifier != null) {
-      _ticker!.muted = !_tickerModeNotifier!.value;
+      _ticker!.muted = !_tickerModeNotifier!.value.enabled;
     }
 
     return _ticker!;
@@ -91,7 +91,7 @@ class SingleTickerProvider implements TickerProvider {
 
   void _updateTicker() {
     if (_ticker != null && _tickerModeNotifier != null) {
-      _ticker!.muted = !_tickerModeNotifier!.value;
+      _ticker!.muted = !_tickerModeNotifier!.value.enabled;
     }
   }
 
@@ -105,7 +105,7 @@ class SingleTickerProvider implements TickerProvider {
   /// errors if the BuildContext is no longer active.
   void updateTickerMode(BuildContext context) {
     try {
-      final newNotifier = TickerMode.getNotifier(context);
+      final newNotifier = TickerMode.getValuesNotifier(context);
       if (newNotifier == _tickerModeNotifier) {
         return;
       }

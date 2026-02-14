@@ -16,8 +16,9 @@ class ShallowReactivityWarningTest extends AnalysisRuleTest {
     super.setUp();
   }
 
-  void test_indexAssignmentOnValue() async {
-    await assertDiagnostics(r'''
+  Future<void> test_indexAssignmentOnValue() async {
+    await assertDiagnostics(
+      '''
 class Ref<T> {
   Ref(this._v);
   T _v;
@@ -29,11 +30,14 @@ void f() {
   final items = Ref<List<int>>([1, 2, 3]);
   items.value[0] = 10;
 }
-''', [lint(148, 19)]);
+''',
+      [lint(148, 19)],
+    );
   }
 
-  void test_propertyAssignmentOnValue() async {
-    await assertDiagnostics(r'''
+  Future<void> test_propertyAssignmentOnValue() async {
+    await assertDiagnostics(
+      '''
 class Ref<T> {
   Ref(this._v);
   T _v;
@@ -49,11 +53,14 @@ void f() {
   final user = Ref<User>(User());
   user.value.name = 'Jane';
 }
-''', [lint(175, 24)]);
+''',
+      [lint(175, 24)],
+    );
   }
 
-  void test_mutatingMethodOnValue() async {
-    await assertDiagnostics(r'''
+  Future<void> test_mutatingMethodOnValue() async {
+    await assertDiagnostics(
+      '''
 class Ref<T> {
   Ref(this._v);
   T _v;
@@ -65,11 +72,13 @@ void f() {
   final items = Ref<List<int>>([1, 2, 3]);
   items.value.add(4);
 }
-''', [lint(148, 18)]);
+''',
+      [lint(148, 18)],
+    );
   }
 
-  void test_reassigningValue_noDiagnostic() async {
-    await assertNoDiagnostics(r'''
+  Future<void> test_reassigningValue_noDiagnostic() async {
+    await assertNoDiagnostics('''
 class Ref<T> {
   Ref(this._v);
   T _v;

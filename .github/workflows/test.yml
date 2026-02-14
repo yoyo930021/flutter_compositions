@@ -75,8 +75,7 @@ jobs:
           version: latest
 
       - name: Get dependencies
-        working-directory: packages/flutter_compositions_lints
-        run: dart pub get
+        run: flutter pub get
 
       - name: Run lint tests
         working-directory: packages/flutter_compositions_lints

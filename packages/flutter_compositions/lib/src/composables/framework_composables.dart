@@ -8,7 +8,7 @@ import 'package:flutter_compositions/src/framework.dart';
 /// not during setup(). Use this when you need to access context in
 /// lifecycle hooks or pass it to async operations.
 ///
-/// **Prefer [useContextRef] for reactive InheritedWidget access.**
+/// **Prefer `useContextRef` for reactive InheritedWidget access.**
 /// `useContextRef` provides fine-grained reactivity with equality checks,
 /// so it only triggers updates when values actually change. Use `useContext`
 /// only when you need the raw `BuildContext` for imperative operations

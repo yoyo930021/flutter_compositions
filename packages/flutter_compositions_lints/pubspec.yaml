@@ -1,17 +1,18 @@
 name: flutter_compositions_lints
 description: Custom lint rules for Flutter Compositions to ensure reactive props usage and best practices.
-version: 0.1.1
+version: 0.2.0
 repository: https://github.com/yoyo930021/flutter_compositions
 homepage: https://github.com/yoyo930021/flutter_compositions
 documentation: https://yoyo930021.github.io/flutter_compositions
+resolution: workspace
 environment:
   sdk: ^3.10.0
 
 dependencies:
-  analysis_server_plugin: ^0.3.8
-  analyzer: ^10.0.0
+  analysis_server_plugin: ^0.3.0
+  analyzer: ^9.0.0
 
 dev_dependencies:
-  analyzer_testing: ^0.1.10
-  test: ^1.26.2
+  analyzer_testing: 0.1.7
+  test: ^1.21.1
   test_reflective_loader: ^0.2.0

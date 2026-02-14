@@ -12,20 +12,23 @@ void main() {
 class NoAsyncSetupTest extends AnalysisRuleTest {
   @override
   void setUp() {
-    newPackage('flutter_compositions')
-      ..addFile('lib/flutter_compositions.dart', r'''
+    newPackage('flutter_compositions').addFile(
+      'lib/flutter_compositions.dart',
+      '''
 class CompositionWidget {
   dynamic setup() => throw '';
 }
 class Widget {}
 class BuildContext {}
-''');
+''',
+    );
     rule = NoAsyncSetup();
     super.setUp();
   }
 
-  void test_asyncSetup_blockBody() async {
-    await assertDiagnostics(r'''
+  Future<void> test_asyncSetup_blockBody() async {
+    await assertDiagnostics(
+      '''
 import 'package:flutter_compositions/flutter_compositions.dart';
 
 class MyWidget extends CompositionWidget {
@@ -34,11 +37,13 @@ class MyWidget extends CompositionWidget {
     return (context) => Widget();
   }
 }
-''', [lint(111, 73)]);
+''',
+      [lint(111, 73)],
+    );
   }
 
-  void test_syncSetup_noDiagnostic() async {
-    await assertNoDiagnostics(r'''
+  Future<void> test_syncSetup_noDiagnostic() async {
+    await assertNoDiagnostics('''
 import 'package:flutter_compositions/flutter_compositions.dart';
 
 class MyWidget extends CompositionWidget {
@@ -50,8 +55,8 @@ class MyWidget extends CompositionWidget {
 ''');
   }
 
-  void test_nonCompositionWidget_noDiagnostic() async {
-    await assertNoDiagnostics(r'''
+  Future<void> test_nonCompositionWidget_noDiagnostic() async {
+    await assertNoDiagnostics('''
 class OtherWidget {
   Future<void> setup() async {}
 }

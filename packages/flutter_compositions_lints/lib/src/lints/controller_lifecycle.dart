@@ -5,33 +5,39 @@ import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/ast/visitor.dart';
 import 'package:analyzer/src/dart/error/lint_codes.dart';
 
-/// Ensures Flutter controllers are managed with proper lifecycle hooks.
+/// Ensures Flutter controllers are managed with proper lifecycle
+/// hooks.
 ///
-/// Controllers should use `useController` or explicitly call dispose in
-/// `onUnmounted()` to avoid memory leaks.
+/// Controllers should use `useController` or explicitly call
+/// dispose in `onUnmounted()` to avoid memory leaks.
 class ControllerLifecycle extends AnalysisRule {
+  /// Creates a new [ControllerLifecycle] rule instance.
   ControllerLifecycle()
     : super(
         name: 'flutter_compositions_controller_lifecycle',
         description:
             'Flutter controllers must be disposed. Use '
-            'use*Controller() helpers or call dispose() in onUnmounted().',
+            'use*Controller() helpers or call dispose() '
+            'in onUnmounted().',
       );
 
+  /// The lint code reported by this rule.
   static const LintCode code = LintCode(
     'flutter_compositions_controller_lifecycle',
     'Flutter controllers must be disposed. Use '
-        'use*Controller() helpers or call dispose() in onUnmounted().',
+        'use*Controller() helpers or call dispose() '
+        'in onUnmounted().',
     correctionMessage:
         'Use useScrollController(), usePageController(), '
-        'useFocusNode(), or useTextEditingController() helpers, or manually '
-        'dispose the controller in onUnmounted().',
+        'useFocusNode(), or useTextEditingController() '
+        'helpers, or manually dispose the controller '
+        'in onUnmounted().',
   );
 
   @override
   LintCode get diagnosticCode => code;
 
-  // Common Flutter controller types
+  /// Common Flutter controller types that require disposal.
   static const controllerTypes = {
     'ScrollController',
     'PageController',
@@ -47,7 +53,7 @@ class ControllerLifecycle extends AnalysisRule {
     RuleVisitorRegistry registry,
     RuleContext context,
   ) {
-    var visitor = _Visitor(this);
+    final visitor = _Visitor(this);
     registry.addMethodDeclaration(this, visitor);
   }
 }
@@ -134,7 +140,10 @@ class _ControllerVisitor extends RecursiveAstVisitor<void> {
         final callback = args.first;
         if (callback is FunctionExpression) {
           // Look for dispose() calls in the callback
-          _findDisposeCallsIn(callback.body, disposedControllers);
+          _findDisposeCallsIn(
+            callback.body,
+            disposedControllers,
+          );
         }
       }
     }
@@ -142,7 +151,10 @@ class _ControllerVisitor extends RecursiveAstVisitor<void> {
     super.visitMethodInvocation(node);
   }
 
-  void _findDisposeCallsIn(FunctionBody body, Set<String> disposed) {
+  void _findDisposeCallsIn(
+    FunctionBody body,
+    Set<String> disposed,
+  ) {
     body.visitChildren(_DisposeCallVisitor(disposed));
   }
 }

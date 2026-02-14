@@ -46,12 +46,17 @@ jobs:
       - name: Setup pub.dev credentials (OIDC)
         uses: flutter-actions/setup-pubdev-credentials@v1
 
+      - name: Get dependencies
+        run: flutter pub get
+
       - name: Publish flutter_compositions
         working-directory: packages/flutter_compositions
+        continue-on-error: true  # Skip if version already exists on pub.dev
         run: dart pub publish --force
 
       - name: Publish flutter_compositions_lints
         working-directory: packages/flutter_compositions_lints
+        continue-on-error: true  # Skip if version already exists on pub.dev
         run: dart pub publish --force
 
   # Create a GitHub release with CHANGELOG content

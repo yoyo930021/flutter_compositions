@@ -12,8 +12,9 @@ void main() {
 class EnsureReactivePropsTest extends AnalysisRuleTest {
   @override
   void setUp() {
-    newPackage('flutter_compositions')
-      ..addFile('lib/flutter_compositions.dart', r'''
+    newPackage('flutter_compositions').addFile(
+      'lib/flutter_compositions.dart',
+      '''
 class CompositionWidget {
   Widget Function(BuildContext) setup() => throw '';
 }
@@ -24,13 +25,15 @@ class Ref<T> {
   set value(T v) {}
 }
 Ref<T> ref<T>(T v) => throw '';
-''');
+''',
+    );
     rule = EnsureReactiveProps();
     super.setUp();
   }
 
-  void test_directThisAccess() async {
-    await assertDiagnostics(r'''
+  Future<void> test_directThisAccess() async {
+    await assertDiagnostics(
+      '''
 import 'package:flutter_compositions/flutter_compositions.dart';
 
 class MyWidget extends CompositionWidget {
@@ -42,11 +45,13 @@ class MyWidget extends CompositionWidget {
     return (context) => Widget();
   }
 }
-''', [lint(213, 10)]);
+''',
+      [lint(213, 10)],
+    );
   }
 
-  void test_widgetCall_noDiagnostic() async {
-    await assertNoDiagnostics(r'''
+  Future<void> test_widgetCall_noDiagnostic() async {
+    await assertNoDiagnostics('''
 import 'package:flutter_compositions/flutter_compositions.dart';
 
 class MyWidget extends CompositionWidget {
@@ -59,8 +64,8 @@ class MyWidget extends CompositionWidget {
 ''');
   }
 
-  void test_nonCompositionWidget_noDiagnostic() async {
-    await assertNoDiagnostics(r'''
+  Future<void> test_nonCompositionWidget_noDiagnostic() async {
+    await assertNoDiagnostics('''
 class OtherWidget {
   final String title = 'hello';
   void setup() {

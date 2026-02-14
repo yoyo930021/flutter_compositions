@@ -7,16 +7,18 @@ import 'package:analyzer/src/dart/error/lint_codes.dart';
 
 /// Ensures that setup() methods are not async.
 ///
-/// The setup() method must synchronously return a builder function.
-/// Async operations should be performed inside lifecycle hooks like
-/// onMounted().
+/// The setup() method must synchronously return a builder
+/// function. Async operations should be performed inside
+/// lifecycle hooks like onMounted().
 class NoAsyncSetup extends AnalysisRule {
+  /// Creates a new [NoAsyncSetup] rule instance.
   NoAsyncSetup()
     : super(
         name: 'flutter_compositions_no_async_setup',
         description: 'The setup() method must not be async.',
       );
 
+  /// The lint code reported by this rule.
   static const LintCode code = LintCode(
     'flutter_compositions_no_async_setup',
     'The setup() method must not be async.',
@@ -33,7 +35,7 @@ class NoAsyncSetup extends AnalysisRule {
     RuleVisitorRegistry registry,
     RuleContext context,
   ) {
-    var visitor = _Visitor(this);
+    final visitor = _Visitor(this);
     registry.addMethodDeclaration(this, visitor);
   }
 }

@@ -115,8 +115,11 @@ class ControllersDemo extends CompositionWidget {
           ),
 
           // Page 2: Scroll Example
-          _buildScrollPage(context, scrollControllerRef.raw, scrollOffset), // .raw avoids unnecessary rebuilds
-
+          _buildScrollPage(
+            context,
+            scrollControllerRef.raw,
+            scrollOffset,
+          ), // .raw avoids unnecessary rebuilds
           // Page 3: Basic Example
           _buildBasicPage(context, basicController),
         ],

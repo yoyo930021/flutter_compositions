@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-02-15
+
 ### Changed
 
 - **BREAKING**: Replaced `flutter_compositions_no_mutable_fields` rule with `flutter_compositions_shallow_reactivity`

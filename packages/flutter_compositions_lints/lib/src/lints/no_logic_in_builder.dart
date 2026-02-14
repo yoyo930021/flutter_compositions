@@ -5,29 +5,35 @@ import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/ast/visitor.dart';
 import 'package:analyzer/src/dart/error/lint_codes.dart';
 
-/// Prevents logic inside the builder function returned by setup().
+/// Prevents logic inside the builder function returned
+/// by setup().
 ///
-/// The builder function should only build the widget tree. All logic
-/// (conditionals, computations, side effects) should be in setup() using
-/// `computed`, `watch`, or composables. The only exception is props
-/// destructuring via pattern variable declarations.
+/// The builder function should only build the widget tree.
+/// All logic (conditionals, computations, side effects)
+/// should be in setup() using `computed`, `watch`, or
+/// composables. The only exception is props destructuring
+/// via pattern variable declarations.
 class NoLogicInBuilder extends AnalysisRule {
+  /// Creates a new [NoLogicInBuilder] rule instance.
   NoLogicInBuilder()
     : super(
         name: 'flutter_compositions_no_logic_in_builder',
         description:
-            'Do not place logic inside the builder function. '
-            'Move computations and conditionals to setup().',
+            'Do not place logic inside the builder '
+            'function. Move computations and '
+            'conditionals to setup().',
       );
 
+  /// The lint code reported by this rule.
   static const LintCode code = LintCode(
     'flutter_compositions_no_logic_in_builder',
     'Do not place logic inside the builder function. '
         'Move computations and conditionals to setup().',
     correctionMessage:
-        'Move this logic into setup() using computed(), watch(), '
-        'or composables. The builder should only build the widget tree. '
-        'Props destructuring (e.g., final MyWidget(:prop) = props.value;) '
+        'Move this logic into setup() using computed(),'
+        ' watch(), or composables. The builder should '
+        'only build the widget tree. Props destructuring'
+        ' (e.g., final MyWidget(:prop) = props.value;) '
         'is the only exception.',
   );
 
@@ -39,7 +45,7 @@ class NoLogicInBuilder extends AnalysisRule {
     RuleVisitorRegistry registry,
     RuleContext context,
   ) {
-    var visitor = _Visitor(this);
+    final visitor = _Visitor(this);
     registry.addMethodDeclaration(this, visitor);
   }
 }
@@ -78,7 +84,9 @@ class _Visitor extends SimpleAstVisitor<void> {
     }
   }
 
-  void _checkBuilderFunction(FunctionExpression builder) {
+  void _checkBuilderFunction(
+    FunctionExpression builder,
+  ) {
     final body = builder.body;
 
     // Arrow function builders are always OK
@@ -94,18 +102,24 @@ class _Visitor extends SimpleAstVisitor<void> {
     }
   }
 
-  /// Checks if a statement is allowed inside the builder function.
+  /// Checks if a statement is allowed inside the builder
+  /// function.
   ///
   /// Allowed:
   /// - ReturnStatement (returning the widget tree)
-  /// - PatternVariableDeclarationStatement (props destructuring)
-  /// - VariableDeclarationStatement with a pattern destructure on .value
+  /// - PatternVariableDeclarationStatement
+  ///   (props destructuring)
+  /// - VariableDeclarationStatement with a pattern
+  ///   destructure on .value
   bool _isAllowedInBuilder(Statement statement) {
     // Return statements are always OK
     if (statement is ReturnStatement) return true;
 
-    // Pattern variable declaration (e.g., final MyWidget(:prop) = props.value;)
-    if (statement is PatternVariableDeclarationStatement) return true;
+    // Pattern variable declaration
+    // (e.g., final MyWidget(:prop) = props.value;)
+    if (statement is PatternVariableDeclarationStatement) {
+      return true;
+    }
 
     return false;
   }

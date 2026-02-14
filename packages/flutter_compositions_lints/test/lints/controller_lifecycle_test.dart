@@ -12,8 +12,9 @@ void main() {
 class ControllerLifecycleTest extends AnalysisRuleTest {
   @override
   void setUp() {
-    newPackage('flutter_compositions')
-      ..addFile('lib/flutter_compositions.dart', r'''
+    newPackage('flutter_compositions').addFile(
+      'lib/flutter_compositions.dart',
+      '''
 class CompositionWidget {
   Widget Function(BuildContext) setup() => throw '';
 }
@@ -26,9 +27,9 @@ class Ref<T> {
 }
 Ref<T> useScrollController() => throw '';
 void onUnmounted(void Function() cb) {}
-''');
-    newPackage('flutter')
-      ..addFile('lib/widgets.dart', r'''
+''',
+    );
+    newPackage('flutter').addFile('lib/widgets.dart', '''
 class ScrollController {
   void dispose() {}
 }
@@ -37,8 +38,9 @@ class ScrollController {
     super.setUp();
   }
 
-  void test_controllerWithoutDisposal() async {
-    await assertDiagnostics(r'''
+  Future<void> test_controllerWithoutDisposal() async {
+    await assertDiagnostics(
+      '''
 import 'package:flutter_compositions/flutter_compositions.dart';
 import 'package:flutter/widgets.dart';
 
@@ -49,11 +51,13 @@ class MyWidget extends CompositionWidget {
     return (context) => Widget();
   }
 }
-''', [lint(212, 31)]);
+''',
+      [lint(212, 31)],
+    );
   }
 
-  void test_controllerWithOnUnmounted_noDiagnostic() async {
-    await assertNoDiagnostics(r'''
+  Future<void> test_controllerWithOnUnmounted_noDiagnostic() async {
+    await assertNoDiagnostics('''
 import 'package:flutter_compositions/flutter_compositions.dart';
 import 'package:flutter/widgets.dart';
 
@@ -68,8 +72,8 @@ class MyWidget extends CompositionWidget {
 ''');
   }
 
-  void test_useHelper_noDiagnostic() async {
-    await assertNoDiagnostics(r'''
+  Future<void> test_useHelper_noDiagnostic() async {
+    await assertNoDiagnostics('''
 import 'package:flutter_compositions/flutter_compositions.dart';
 
 class MyWidget extends CompositionWidget {

@@ -7,26 +7,32 @@ import 'package:analyzer/src/dart/error/lint_codes.dart';
 
 /// Warns about shallow reactivity limitations.
 ///
-/// Flutter Compositions uses shallow reactivity - only reassigning `.value`
-/// triggers updates. Directly mutating properties or array elements will NOT
-/// trigger reactive updates.
+/// Flutter Compositions uses shallow reactivity - only
+/// reassigning `.value` triggers updates. Directly
+/// mutating properties or array elements will NOT trigger
+/// reactive updates.
 class ShallowReactivityWarning extends AnalysisRule {
+  /// Creates a new [ShallowReactivityWarning] rule
+  /// instance.
   ShallowReactivityWarning()
     : super(
         name: 'flutter_compositions_shallow_reactivity',
         description:
-            "Direct mutation won't trigger reactive updates. "
-            'Reassign the entire value instead.',
+            "Direct mutation won't trigger reactive "
+            'updates. Reassign the entire value '
+            'instead.',
       );
 
+  /// The lint code reported by this rule.
   static const LintCode code = LintCode(
     'flutter_compositions_shallow_reactivity',
     "Direct mutation won't trigger reactive updates. "
         'Reassign the entire value instead.',
     correctionMessage:
-        'Reassign the entire value to trigger updates. '
-        'Create a new object/array and assign it to .value. '
-        'Example: ref.value = {...ref.value}; or ref.value = [...ref.value];',
+        'Reassign the entire value to trigger updates.'
+        ' Create a new object/array and assign it to '
+        '.value. Example: ref.value = {...ref.value}; '
+        'or ref.value = [...ref.value];',
   );
 
   @override
@@ -37,10 +43,14 @@ class ShallowReactivityWarning extends AnalysisRule {
     RuleVisitorRegistry registry,
     RuleContext context,
   ) {
-    var assignmentVisitor = _AssignmentVisitor(this);
-    var methodVisitor = _MethodVisitor(this);
-    registry.addAssignmentExpression(this, assignmentVisitor);
-    registry.addMethodInvocation(this, methodVisitor);
+    final assignmentVisitor = _AssignmentVisitor(this);
+    final methodVisitor = _MethodVisitor(this);
+    registry
+      ..addAssignmentExpression(
+        this,
+        assignmentVisitor,
+      )
+      ..addMethodInvocation(this, methodVisitor);
   }
 }
 
@@ -50,7 +60,9 @@ class _AssignmentVisitor extends SimpleAstVisitor<void> {
   final ShallowReactivityWarning rule;
 
   @override
-  void visitAssignmentExpression(AssignmentExpression node) {
+  void visitAssignmentExpression(
+    AssignmentExpression node,
+  ) {
     final leftHandSide = node.leftHandSide;
 
     // Check for patterns like: ref.value['key'] = value
@@ -63,7 +75,8 @@ class _AssignmentVisitor extends SimpleAstVisitor<void> {
       }
     }
 
-    // Check for patterns like: ref.value.property = value
+    // Check for patterns like:
+    // ref.value.property = value
     if (leftHandSide is PropertyAccess) {
       final target = leftHandSide.target;
       if (_isRefValueAccess(target)) {
@@ -72,7 +85,8 @@ class _AssignmentVisitor extends SimpleAstVisitor<void> {
       }
     }
 
-    // Check for patterns like: ref.value.nested.property = value
+    // Check for patterns like:
+    // ref.value.nested.property = value
     if (leftHandSide is PrefixedIdentifier) {
       if (_hasRefValueInChain(node)) {
         rule.reportAtNode(node);
@@ -89,7 +103,8 @@ class _MethodVisitor extends SimpleAstVisitor<void> {
 
   @override
   void visitMethodInvocation(MethodInvocation node) {
-    // Check for mutating methods on ref.value (for Lists, Sets, Maps, etc.)
+    // Check for mutating methods on ref.value
+    // (for Lists, Sets, Maps, etc.)
     final target = node.target;
     if (target == null) return;
 
@@ -128,7 +143,8 @@ class _MethodVisitor extends SimpleAstVisitor<void> {
   }
 }
 
-/// Checks if the expression is accessing .value on a ref-like object
+/// Checks if the expression is accessing `.value` on a
+/// ref-like object.
 bool _isRefValueAccess(Expression? expr) {
   if (expr == null) return false;
 
@@ -145,7 +161,8 @@ bool _isRefValueAccess(Expression? expr) {
   return false;
 }
 
-/// Checks if there's a ref.value access somewhere in the assignment chain
+/// Checks if there's a ref.value access somewhere in the
+/// assignment chain.
 bool _hasRefValueInChain(AstNode node) {
   AstNode? current = node;
   while (current != null) {

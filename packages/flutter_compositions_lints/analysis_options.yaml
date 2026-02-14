@@ -1,0 +1,13 @@
+include: ../../analysis_options.yaml
+
+analyzer:
+  exclude:
+    - build/**
+    - .dart_tool/**
+
+linter:
+  rules:
+    # @reflectiveTest requires snake_case method names (test_methodName)
+    non_constant_identifier_names: false
+    # Analyzer plugin must import from analyzer/src/ internals
+    implementation_imports: false

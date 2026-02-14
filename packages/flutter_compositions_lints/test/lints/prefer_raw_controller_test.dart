@@ -12,8 +12,9 @@ void main() {
 class PreferRawControllerTest extends AnalysisRuleTest {
   @override
   void setUp() {
-    newPackage('flutter_compositions')
-      ..addFile('lib/flutter_compositions.dart', r'''
+    newPackage('flutter_compositions').addFile(
+      'lib/flutter_compositions.dart',
+      '''
 class CompositionWidget {
   Widget Function(BuildContext) setup() => throw '';
 }
@@ -25,13 +26,15 @@ class Ref<T> {
   set value(T v) {}
 }
 Ref<T> ref<T>(T v) => throw '';
-''');
+''',
+    );
     rule = PreferRawController();
     super.setUp();
   }
 
-  void test_controllerWithDotValue() async {
-    await assertDiagnostics(r'''
+  Future<void> test_controllerWithDotValue() async {
+    await assertDiagnostics(
+      '''
 import 'package:flutter_compositions/flutter_compositions.dart';
 
 class MyListView extends Widget {
@@ -47,11 +50,13 @@ class MyWidget extends CompositionWidget {
     };
   }
 }
-''', [lint(330, 8)]);
+''',
+      [lint(330, 8)],
+    );
   }
 
-  void test_controllerWithDotRaw_noDiagnostic() async {
-    await assertNoDiagnostics(r'''
+  Future<void> test_controllerWithDotRaw_noDiagnostic() async {
+    await assertNoDiagnostics('''
 import 'package:flutter_compositions/flutter_compositions.dart';
 
 class MyListView extends Widget {
@@ -70,8 +75,9 @@ class MyWidget extends CompositionWidget {
 ''');
   }
 
-  void test_focusNodeWithDotValue() async {
-    await assertDiagnostics(r'''
+  Future<void> test_focusNodeWithDotValue() async {
+    await assertDiagnostics(
+      '''
 import 'package:flutter_compositions/flutter_compositions.dart';
 
 class MyTextField extends Widget {
@@ -87,11 +93,13 @@ class MyWidget extends CompositionWidget {
     };
   }
 }
-''', [lint(331, 8)]);
+''',
+      [lint(331, 8)],
+    );
   }
 
-  void test_nonControllerDotValue_noDiagnostic() async {
-    await assertNoDiagnostics(r'''
+  Future<void> test_nonControllerDotValue_noDiagnostic() async {
+    await assertNoDiagnostics('''
 import 'package:flutter_compositions/flutter_compositions.dart';
 
 class MyText extends Widget {
@@ -110,8 +118,8 @@ class MyWidget extends CompositionWidget {
 ''');
   }
 
-  void test_arrowBuilder_controllerWithDotRaw_noDiagnostic() async {
-    await assertNoDiagnostics(r'''
+  Future<void> test_arrowBuilder_controllerWithDotRaw_noDiagnostic() async {
+    await assertNoDiagnostics('''
 import 'package:flutter_compositions/flutter_compositions.dart';
 
 class MyListView extends Widget {
@@ -128,8 +136,8 @@ class MyWidget extends CompositionWidget {
 ''');
   }
 
-  void test_nonCompositionWidget_noDiagnostic() async {
-    await assertNoDiagnostics(r'''
+  Future<void> test_nonCompositionWidget_noDiagnostic() async {
+    await assertNoDiagnostics('''
 class OtherWidget {
   void setup() {}
 }
