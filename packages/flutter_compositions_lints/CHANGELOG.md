@@ -18,6 +18,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Mutating method calls: `ref.value.add()`, `.remove()`, `.clear()`, etc.
   - Updated all documentation (English and Chinese) to reflect the new rule
   - Updated example code and fixtures
+- **BREAKING**: Migrate from `custom_lint` to `analysis_server_plugin`
+  - New entry point: `lib/main.dart` with `analysis_server_plugin` format
+  - Rules now extend `AnalysisRule` instead of `DartLintRule`
+  - Tests migrated to `AnalysisRuleTest` with `@reflectiveTest`
+  - Removed fixture files and old test utilities
+- Upgrade Dart SDK constraint to `^3.10.0`
 
 ### Removed
 
@@ -28,6 +34,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `flutter_compositions_shallow_reactivity` lint rule with comprehensive test coverage
 - New test fixtures demonstrating shallow reactivity patterns
 - Detailed documentation explaining common mutation patterns to avoid
+- `flutter_compositions_no_logic_in_builder` lint rule — prevents logic in builder functions
+- `flutter_compositions_prefer_raw_controller` lint rule — suggests `.raw` over `.value` for controllers in builders
 
 ## [0.1.1] - 2025-11-06
 

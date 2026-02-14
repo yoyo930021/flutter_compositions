@@ -34,6 +34,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Cleanup: `unmount()` replaces `dispose()`
   - **Provide/Inject**: Uses duck typing to find parent `SetupContext` across both old and new architectures
   - Inspired by [solidart PR #143](https://github.com/nank1ro/solidart/pull/143) and [flutter_hooks](https://github.com/rrousselGit/flutter_hooks)
+- Upgrade Dart SDK constraint to `^3.10.0`
+- Add `useController` generic helper and improve core composables
+- Use `.raw` for controllers in builder widget parameters
+
+### Fixed
+
+- Correct `ComputedBuilder` mount timing and first build
 
 ## [0.1.1] - 2025-11-06
 
