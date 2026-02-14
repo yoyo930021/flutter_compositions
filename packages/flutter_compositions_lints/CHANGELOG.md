@@ -8,7 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.2.0] - 2026-02-15
+### Changed
+
+- Downgrade analyzer to `^9.0.0` and analysis_server_plugin to `^0.3.0` for workspace compatibility
+- Pin `analyzer_testing` to `0.1.7` for Flutter SDK compatibility
+- Add `analysis_options.yaml` inheriting from `very_good_analysis`
+- Fix all lint issues: add doc comments, use cascades, use `final` locals, fix formatting
 
 ## [0.2.0] - 2026-02-15
 

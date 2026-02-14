@@ -8,7 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.2.0] - 2026-02-15
+### Changed
+
+- Upgrade Flutter SDK to 3.41.1 (Dart 3.11.0)
+- Replace deprecated `TickerMode.getNotifier` with `TickerMode.getValuesNotifier`
+- Add lints package to Dart workspace for unified dependency resolution
+
+### Fixed
+
+- Fix `comment_references` warning in `useContext` documentation
 
 ## [0.2.0] - 2026-02-15
 
