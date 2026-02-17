@@ -66,6 +66,39 @@ if git rev-parse "$TAG" >/dev/null 2>&1; then
   die "Tag '$TAG' already exists."
 fi
 
+#--- Validate changelogs have content under [Unreleased] ----------------------
+
+echo "Validating changelogs..."
+for changelog in "${CHANGELOGS[@]}"; do
+  # Extract content between ## [Unreleased] and the next ## heading (or EOF).
+  # Strip blank lines and check whether anything remains.
+  content=$(awk '
+    /^## \[Unreleased\]/ { found=1; next }
+    found && /^## / { exit }
+    found { print }
+  ' "$changelog" | sed '/^[[:space:]]*$/d')
+
+  if [[ -z "$content" ]]; then
+    die "Changelog has no content under [Unreleased]: $changelog
+  Add release notes before running the release script."
+  fi
+done
+
+#--- Run CI checks (format, analyze, test) ------------------------------------
+
+echo "Checking formatting..."
+melos exec -- dart format --set-exit-if-changed . || die "Formatting issues found. Run 'dart format .' to fix."
+
+echo "Analyzing packages..."
+melos run analyze || die "Analysis errors found. Fix them before releasing."
+
+echo "Running core package tests..."
+melos run test || die "Tests failed. Fix them before releasing."
+
+echo "Running lints package tests..."
+(cd "$REPO_ROOT/packages/flutter_compositions_lints" && dart test) \
+  || die "Lint tests failed. Fix them before releasing."
+
 #--- Update pubspec versions ---------------------------------------------------
 
 echo "Updating pubspec versions to $VERSION..."
