@@ -1,6 +1,6 @@
 name: flutter_compositions
 description: Reactive composition primitives for Flutter inspired by the Vue 3 Composition API.
-version: 0.2.1
+version: 0.2.2
 repository: https://github.com/yoyo930021/flutter_compositions
 homepage: https://github.com/yoyo930021/flutter_compositions
 documentation: https://yoyo930021.github.io/flutter_compositions

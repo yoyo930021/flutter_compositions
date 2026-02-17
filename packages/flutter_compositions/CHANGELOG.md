@@ -8,6 +8,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.2] - 2026-02-17
+
+### Changed
+
+- **BREAKING**: Upgrade `alien_signals` from 1.x to 2.x
+  - Signal write: `.call(value, true)` → `.set(value)`
+  - Effect/EffectScope disposal: `.dispose()` → `.call()` (callable syntax)
+  - `getActiveSub`/`setActiveSub` now imported from `package:alien_signals/preset.dart`
+- Upgrade `melos` to ^7.4.0
+- Upgrade `very_good_analysis` to ^10.2.0
+- Fix lint issues from `very_good_analysis` 10.2.0 in example app
+
 ## [0.2.1] - 2026-02-15
 
 ### Changed
