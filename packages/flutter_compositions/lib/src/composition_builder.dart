@@ -275,7 +275,7 @@ class _CompositionBuilderElement extends StatelessElement
     _setupContext
       ..previousHotReloadableValues = _captureHotReloadableValues()
       ..resetHotReload()
-      ..effectScope?.dispose()
+      ..effectScope?.call()
       ..clearCallbacks()
       ..clearHotReloadables()
       ..clearCache();

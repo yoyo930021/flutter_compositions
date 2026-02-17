@@ -199,14 +199,14 @@ useTextEditingController({String? text}) {
   // Create writable refs that sync with the controller
   final editingValue = writableComputed<TextEditingValue>(
     get: () => editingValueRef.value,
-    set: (TextEditingValue newValue) {
+    set: (newValue) {
       controller.value = newValue;
     },
   );
 
   final textRef = writableComputed<String>(
     get: () => editingValueRef.value.text,
-    set: (String newText) {
+    set: (newText) {
       controller.text = newText;
     },
   );

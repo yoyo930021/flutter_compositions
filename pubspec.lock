@@ -13,10 +13,10 @@ packages:
     dependency: transitive
     description:
       name: alien_signals
-      sha256: "4e69390450cf316f7725618884b39ff0d772a29074e042f6c4ad4cce3fa1a5e1"
+      sha256: "7fa6365d943fc58b02cfab1f21dbb057a288160bd8d78fd3664b1b87b5ec2f50"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.3"
+    version: "2.1.2"
   analysis_server_plugin:
     dependency: transitive
     description:
@@ -351,10 +351,10 @@ packages:
     dependency: "direct dev"
     description:
       name: melos
-      sha256: "485fcfd86916cff975d3309b96efccc43e2581150f6498ea957b4b8889f51939"
+      sha256: "7dcc4444d79b538ab8353bb38308f97e90b032984f75e8fd516fedfe8160b35e"
       url: "https://pub.dev"
     source: hosted
-    version: "7.2.0"
+    version: "7.4.0"
   meta:
     dependency: transitive
     description:
@@ -612,10 +612,10 @@ packages:
     dependency: "direct dev"
     description:
       name: very_good_analysis
-      sha256: "96245839dbcc45dfab1af5fa551603b5c7a282028a64746c19c547d21a7f1e3a"
+      sha256: d1cb1d66a5aae2c702d68caca6c8347306d35e728fd94555fa21fa0448a972e0
       url: "https://pub.dev"
     source: hosted
-    version: "10.0.0"
+    version: "10.2.0"
   vm_service:
     dependency: transitive
     description:
@@ -689,5 +689,5 @@ packages:
     source: hosted
     version: "2.2.2"
 sdks:
-  dart: ">=3.10.0 <4.0.0"
+  dart: ">=3.11.0 <4.0.0"
   flutter: ">=3.35.0"

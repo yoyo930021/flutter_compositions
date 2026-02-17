@@ -210,7 +210,7 @@ class DataWidget extends CompositionWidget {
     final displayWidget = computed(() {
       return switch (state.value) {
         Loading() => const CircularProgressIndicator(),
-        Success(data: final data) => Text('Success: $data'),
+        Success(:final data) => Text('Success: $data'),
         Error(message: final msg) => Text(
           'Error: $msg',
           style: const TextStyle(color: Colors.red),

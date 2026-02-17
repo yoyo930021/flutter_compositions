@@ -61,7 +61,7 @@ class Ref<T> implements WritableRef<T> {
   T get value => _signal.call();
 
   @override
-  set value(T newValue) => _signal.call(newValue, true);
+  set value(T newValue) => _signal.set(newValue);
 
   @override
   T get raw => untracked(_signal.call);
@@ -280,8 +280,8 @@ void Function() watch<T>(
   // Effect is automatically tracked by the active effectScope (if any)
   // No need to manually register
 
-  // Return dispose function
-  return effect.dispose;
+  // Return dispose function (in alien_signals 2.x, calling the effect stops it)
+  return effect.call;
 }
 
 /// Runs a function and automatically re-runs it when reactive dependencies
@@ -318,8 +318,8 @@ void Function() watchEffect(void Function() callback) {
   // Effect is automatically tracked by the active effectScope (if any)
   // No need to manually register
 
-  // Return dispose function
-  return effect.dispose;
+  // Return dispose function (in alien_signals 2.x, calling the effect stops it)
+  return effect.call;
 }
 
 /// Executes a function without tracking reactive dependencies.
@@ -359,11 +359,11 @@ void Function() watchEffect(void Function() callback) {
 /// // Result only re-computes when count changes, not when multiplier changes
 /// ```
 T untracked<T>(T Function() callback) {
-  final prevSub = signals.getActiveSub();
-  signals.setActiveSub(null);
+  final prevSub = signals_preset.getActiveSub();
+  signals_preset.setActiveSub();
   try {
     return callback();
   } finally {
-    signals.setActiveSub(prevSub);
+    signals_preset.setActiveSub(prevSub);
   }
 }

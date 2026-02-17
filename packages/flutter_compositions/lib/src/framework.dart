@@ -1,4 +1,7 @@
 import 'package:alien_signals/alien_signals.dart' as signals;
+import 'package:alien_signals/preset.dart'
+    as signals_preset
+    show getActiveSub, setActiveSub;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_compositions/src/composables/animation_composables.dart'
     show useSingleTickerProvider;
@@ -431,7 +434,7 @@ class SetupContextImpl implements SetupContext {
   /// Disposes the render effect early to prevent it from re-running
   /// during unmount when onUnmounted callbacks modify reactive state.
   void disposeRenderEffect() {
-    _renderEffect?.dispose();
+    _renderEffect?.call();
     _renderEffect = null;
   }
 
@@ -439,13 +442,13 @@ class SetupContextImpl implements SetupContext {
   void dispose() {
     // Dispose render effect first
 
-    _renderEffect?.dispose();
+    _renderEffect?.call();
 
     _renderEffect = null;
 
     // Dispose the effect scope, which will dispose all effects created within
 
-    effectScope?.dispose();
+    effectScope?.call();
 
     effectScope = null;
 
@@ -1054,7 +1057,7 @@ class _CompositionElement extends StatelessElement
     // Update the widget signal to trigger reactive updates for props
 
     if (_initialized) {
-      _widgetSignal.call(newWidget, true);
+      _widgetSignal.set(newWidget);
     }
   }
 
@@ -1109,7 +1112,7 @@ class _CompositionElement extends StatelessElement
     _setupContext
       ..previousHotReloadableValues = _captureHotReloadableValues()
       ..resetHotReload()
-      ..effectScope?.dispose()
+      ..effectScope?.call()
       ..clearCallbacks()
       ..clearHotReloadables()
       ..clearCache();

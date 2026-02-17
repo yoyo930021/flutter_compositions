@@ -11,8 +11,8 @@ workspace:
   - packages/flutter_compositions_lints
 
 dev_dependencies:
-  melos: ^7.2.0
-  very_good_analysis: ^10.0.0
+  melos: ^7.4.0
+  very_good_analysis: ^10.2.0
 
 melos:
   name: flutter_compositions

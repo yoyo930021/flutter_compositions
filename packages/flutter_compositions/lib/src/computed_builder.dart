@@ -245,7 +245,7 @@ class _ComputedBuilderElement extends StatelessElement {
     // This is rare in practice since builders are usually closures created
     // in the parent's build method with stable references
     if (widget.builder != newWidget.builder) {
-      _effect?.dispose();
+      _effect?.call();
       _setupEffect();
       markNeedsBuild();
     }
@@ -253,7 +253,7 @@ class _ComputedBuilderElement extends StatelessElement {
 
   @override
   void unmount() {
-    _effect?.dispose();
+    _effect?.call();
     _effect = null;
     _cachedWidget = null;
     super.unmount();

@@ -221,7 +221,7 @@ class ThemeProvider extends CompositionWidget {
                     ButtonSegment(value: 'dark', label: Text('Dark')),
                   ],
                   selected: {theme.value.mode},
-                  onSelectionChanged: (Set<String> newSelection) {
+                  onSelectionChanged: (newSelection) {
                     // Replace the entire object to trigger reactivity
                     theme.value = AppTheme(newSelection.first);
                   },
@@ -312,7 +312,7 @@ class UserGreeting extends CompositionWidget {
                 ButtonSegment(value: 'Welcome', label: Text('Welcome')),
               ],
               selected: {prefix.value},
-              onSelectionChanged: (Set<String> newSelection) {
+              onSelectionChanged: (newSelection) {
                 prefix.value = newSelection.first;
               },
             ),
