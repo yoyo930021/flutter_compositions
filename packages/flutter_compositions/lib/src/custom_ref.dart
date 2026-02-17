@@ -48,7 +48,13 @@ class ReadonlyCustomRef<T> implements ReadonlyRef<T> {
   /// the reactive system wouldn't normally detect (e.g., mutation of
   /// an object's internal state, or notification from an external system).
   void trigger() {
-    _version.value++;
+    // Use .raw (untracked read) to avoid subscribing the currently running
+    // effect to _version. In alien_signals 2.x, signal writes trigger
+    // synchronous flush. If we used _version.value++ (tracked read + write),
+    // the read would subscribe the current render effect, then the write
+    // would propagate to that subscriber and flush synchronously, causing
+    // re-entrance of the render effect during its first run.
+    _version.value = _version.raw + 1;
   }
 }
 
@@ -155,7 +161,7 @@ class CustomRef<T> implements WritableRef<T> {
   @override
   set value(T newValue) {
     _setter(newValue, () {
-      _version.value++; // trigger() callback
+      _version.value = _version.raw + 1; // trigger() callback
     });
   }
 
@@ -178,7 +184,9 @@ class CustomRef<T> implements WritableRef<T> {
   /// custom.trigger();
   /// ```
   void trigger() {
-    _version.value++;
+    // Use .raw (untracked read) to prevent self-subscription and
+    // synchronous flush re-entrance in alien_signals 2.x.
+    _version.value = _version.raw + 1;
   }
 }
 

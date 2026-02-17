@@ -102,6 +102,50 @@ void main() {
       expect(find.text('Data: Hello World'), findsOneWidget);
     });
 
+    // Regression test for: setState() or markNeedsBuild() called during build
+    // when useContextRef is used in a CompositionBuilder nested inside a
+    // parent CompositionWidget that also uses useContextRef.
+    // See: https://github.com/yoyo930021/flutter_compositions/issues/XXX
+    testWidgets(
+      'does not throw when CompositionBuilder with useContextRef is nested '
+      'inside a CompositionWidget with useContextRef',
+      (tester) async {
+        await tester.pumpWidget(
+          const MaterialApp(
+            home: CustomInheritedWidget(
+              data: 'parent-data',
+              child: NestedUseContextRefParent(),
+            ),
+          ),
+        );
+
+        // Parent should render its useContextRef value
+        expect(find.text('Parent: parent-data'), findsOneWidget);
+        // Child CompositionBuilder should render its useContextRef value
+        expect(find.text('Child: parent-data'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'does not throw when multiple CompositionBuilders with useContextRef '
+      'are nested inside a CompositionWidget',
+      (tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: ThemeData(primaryColor: Colors.blue),
+            home: const CustomInheritedWidget(
+              data: 'test-data',
+              child: MultiNestedUseContextRefParent(),
+            ),
+          ),
+        );
+
+        expect(find.text('Parent theme: true'), findsOneWidget);
+        expect(find.text('Child1: test-data'), findsOneWidget);
+        expect(find.text('Child2: test-data'), findsOneWidget);
+      },
+    );
+
     // Note: Testing InheritedWidget updates requires careful setup
     // The main test above verifies the basic integration
   });
@@ -246,6 +290,67 @@ class UseCustomInheritedHarness extends CompositionWidget {
 // ---------------------------------------------------------------------------
 // Custom InheritedWidget for testing
 // ---------------------------------------------------------------------------
+
+// Regression test harness: parent CompositionWidget + child CompositionBuilder
+// both using useContextRef on the same InheritedWidget.
+class NestedUseContextRefParent extends CompositionWidget {
+  const NestedUseContextRefParent({super.key});
+
+  @override
+  Widget Function(BuildContext) setup() {
+    final parentData = useContextRef<String>(
+      (context) => CustomInheritedWidget.of(context).data,
+    );
+
+    return (context) => Column(
+      children: [
+        Text('Parent: ${parentData.value}'),
+        CompositionBuilder(
+          setup: () {
+            final childData = useContextRef<String>(
+              (context) => CustomInheritedWidget.of(context).data,
+            );
+
+            return (context) => Text('Child: ${childData.value}');
+          },
+        ),
+      ],
+    );
+  }
+}
+
+// Regression test harness: parent CompositionWidget with useTheme + multiple
+// child CompositionBuilders with useContextRef.
+class MultiNestedUseContextRefParent extends CompositionWidget {
+  const MultiNestedUseContextRefParent({super.key});
+
+  @override
+  Widget Function(BuildContext) setup() {
+    final theme = useTheme();
+
+    return (context) => Column(
+      children: [
+        Text('Parent theme: ${theme.value.primaryColor == Colors.blue}'),
+        CompositionBuilder(
+          setup: () {
+            final data = useContextRef<String>(
+              (context) => CustomInheritedWidget.of(context).data,
+            );
+            return (context) => Text('Child1: ${data.value}');
+          },
+        ),
+        CompositionBuilder(
+          setup: () {
+            final data = useContextRef<String>(
+              (context) => CustomInheritedWidget.of(context).data,
+            );
+            return (context) => Text('Child2: ${data.value}');
+          },
+        ),
+      ],
+    );
+  }
+}
 
 class CustomInheritedWidget extends InheritedWidget {
   const CustomInheritedWidget({

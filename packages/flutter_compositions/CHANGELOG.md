@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix `setState() or markNeedsBuild() called during build` when `useContextRef` is used in a `CompositionBuilder` nested inside a parent `CompositionWidget`
+  - Root cause: `ReadonlyCustomRef.trigger()` used `_version.value++` which both reads (subscribing the current render effect) and writes (triggering synchronous flush in alien_signals 2.x), causing re-entrance of the render effect during initialization
+  - Fix: Use `_version.raw` (untracked read) in `trigger()` to prevent self-subscription during signal writes
+
 ## [0.2.2] - 2026-02-17
 
 ### Changed
