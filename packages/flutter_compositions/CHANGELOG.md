@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.3] - 2026-02-17
+
 ### Fixed
 
 - Fix `setState() or markNeedsBuild() called during build` when `useContextRef` is used in a `CompositionBuilder` nested inside a parent `CompositionWidget`
