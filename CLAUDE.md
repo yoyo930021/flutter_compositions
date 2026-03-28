@@ -29,15 +29,15 @@ melos run test
 
 # 測試特定套件
 cd packages/flutter_compositions
-flutter test
+fvm flutter test
 
 # 測試特定檔案
-flutter test test/composables_test.dart
+fvm flutter test test/composables_test.dart
 
 # Lints 套件使用 dart test（不是 flutter test）
 cd packages/flutter_compositions_lints
-dart test test/lints/
-dart test test/lints/shallow_reactivity_warning_test.dart
+fvm dart test test/lints/
+fvm dart test test/lints/shallow_reactivity_warning_test.dart
 ```
 
 ### Linting 與分析
@@ -51,7 +51,24 @@ melos run analyze
 
 ```bash
 cd packages/flutter_compositions/example
-flutter run
+fvm flutter run
+```
+
+### CHANGELOG 維護
+
+每次修改程式碼時，**必須**同步更新對應套件的 CHANGELOG.md：
+
+- `packages/flutter_compositions/CHANGELOG.md`
+- `packages/flutter_compositions_lints/CHANGELOG.md`
+
+在 `## [Unreleased]` 下方新增條目，使用 [Keep a Changelog](https://keepachangelog.com/) 格式：`### Added`、`### Changed`、`### Fixed`、`### Removed`。
+
+### 發佈新版本
+
+```bash
+# 使用 release script（會自動驗證 changelog、跑測試、更新版本、建立 commit 和 tag）
+./scripts/release.sh <version>
+# 例如: ./scripts/release.sh 0.2.4
 ```
 
 ## 核心架構
@@ -72,10 +89,12 @@ flutter run
    - `_SetupContext` 管理生命週期鉤子和 provide/inject
 
 3. **Composables** - 可重用的組合函數（前綴：`use*`）
-   - Controllers：`useScrollController()`、`useTextEditingController()` 等
-   - Animations：`useAnimationController()`、`useSingleTickerProvider()`
-   - Async：`useFuture()`、`useAsyncData()`、`useStream()`
-   - Framework：`useAppLifecycleState()`、`useSearchController()`
+   - Controllers：`useScrollController()`、`useTextEditingController()`、`useFocusNode()`、`usePageController()`
+   - Animations：`useAnimationController()`、`useSingleTickerProvider()`、`manageAnimation()`
+   - Async：`useFuture()`、`useAsyncData()`、`useStream()`、`useStreamController()`
+   - Framework：`useAppLifecycleState()`、`useSearchController()`、`useContext()`
+   - InheritedWidget：`useMediaQuery()`、`useTheme()`、`useLocale()`、`useContextRef()`
+   - Listenable：`useController()`、`manageListenable()`、`manageChangeNotifier()`、`manageValueListenable()`
 
 ### 關鍵實作細節
 
@@ -322,9 +341,16 @@ packages/flutter_compositions/
 │   └── src/
 │       ├── framework.dart                # CompositionWidget、生命週期鉤子
 │       ├── compositions.dart             # ref、computed、watch、watchEffect
-│       ├── composables.dart              # 所有 composable 匯出
 │       ├── composables/                  # 個別 composable 實作
+│       │   ├── animation_composables.dart
+│       │   ├── async_composables.dart
+│       │   ├── controller_composables.dart
+│       │   ├── framework_composables.dart
+│       │   ├── inherited_widget_composables.dart
+│       │   └── listenable_composables.dart
 │       ├── composition_builder.dart      # 函數式 composition API
+│       ├── computed_builder.dart          # 局部響應式重建 widget
+│       ├── custom_ref.dart               # 自定義 ref 類型
 │       └── injection_key.dart            # 類型安全的 DI keys
 
 packages/flutter_compositions_lints/
