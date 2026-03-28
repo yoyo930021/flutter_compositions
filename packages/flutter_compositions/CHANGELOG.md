@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Remove unused `flutter_lints` dev dependency
+
 ## [0.2.3] - 2026-02-17
 
 ### Fixed

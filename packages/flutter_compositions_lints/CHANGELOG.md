@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Upgrade `analyzer` from ^9.0.0 to ^10.0.0
+- Upgrade `analyzer_testing` from 0.1.7 to ^0.1.9
+- Upgrade `test_reflective_loader` from ^0.2.0 to ^0.4.0
+
 ## [0.2.3] - 2026-02-17
 
 ### Changed
