@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.4] - 2026-03-28
+
 ### Changed
 
 - Upgrade `analyzer` from ^9.0.0 to ^10.0.0
